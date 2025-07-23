@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: medical_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medical_db
+      POSTGRES_USER: medical_user
+      POSTGRES_PASSWORD: medical_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/database/init:/docker-entrypoint-initdb.d
+    ports:
+      - '5432:5432'
+    networks:
+      - medical_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medical_user -d medical_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for sessions/cache (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: medical_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - medical_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NestJS Application (for development)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: medical_app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+      - '9229:9229' # Debug port
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=medical_user
+      - DATABASE_PASSWORD=medical_password
+      - DATABASE_NAME=medical_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medical_network
+    command: npm run start:dev
+
+  # PgAdmin for database administration (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: medical_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@medical.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - medical_network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  medical_network:
+    driver: bridge
