@@ -59,8 +59,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          ttl: configService.get('app.rateLimitTtl') * 1000,
-          limit: configService.get('app.rateLimitLimit'),
+          ttl: (configService.get<number>('app.rateLimitTtl') ?? 60) * 1000, // Default: 60 seconds
+          limit: configService.get<number>('app.rateLimitLimit') ?? 100, // Default: 100 requests
         },
       ],
     }),
