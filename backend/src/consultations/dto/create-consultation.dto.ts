@@ -1,0 +1,109 @@
+import {
+  IsString,
+  IsDateString,
+  IsOptional,
+  IsUUID,
+  IsNumber,
+  IsBoolean,
+  IsObject,
+  IsArray,
+  Min,
+} from 'class-validator';
+
+export class CreateConsultationDto {
+  @IsDateString()
+  consultationDate: string;
+
+  @IsString()
+  reason: string;
+
+  @IsOptional()
+  @IsString()
+  symptoms?: string;
+
+  @IsOptional()
+  @IsString()
+  physicalExamination?: string;
+
+  @IsOptional()
+  @IsObject()
+  vitalSigns?: {
+    bloodPressure?: {
+      systolic: number;
+      diastolic: number;
+    };
+    heartRate?: number;
+    temperature?: number;
+    respiratoryRate?: number;
+    oxygenSaturation?: number;
+    weight?: number;
+    height?: number;
+  };
+
+  @IsOptional()
+  @IsString()
+  diagnosis?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  differentialDiagnosis?: string[];
+
+  @IsOptional()
+  @IsString()
+  treatmentPlan?: string;
+
+  @IsOptional()
+  @IsString()
+  recommendations?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  investigations?: string[];
+
+  @IsOptional()
+  @IsString()
+  followUpInstructions?: string;
+
+  @IsOptional()
+  @IsDateString()
+  nextAppointmentDate?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  duration?: number;
+
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  fee?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isPaid?: boolean;
+
+  @IsUUID()
+  patientId: string;
+
+  @IsUUID()
+  doctorId: string;
+
+  @IsOptional()
+  @IsUUID()
+  appointmentId?: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: {
+    consultationType?: 'first_visit' | 'follow_up' | 'emergency';
+    referredBy?: string;
+    referralReason?: string;
+    complications?: string[];
+  };
+}
