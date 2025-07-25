@@ -13,6 +13,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { User } from '../../users/entities/user.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
+import { AuditableEntity } from 'src/common/entities/auditable.entity';
 
 export enum BloodType {
   A_POSITIVE = 'A+',
@@ -37,7 +38,7 @@ export enum MaritalStatus {
 @Index(['patientNumber', 'organizationId'], { unique: true })
 @Index(['email', 'organizationId'])
 @Index(['phone', 'organizationId'])
-export class Patient {
+export class Patient extends AuditableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -168,27 +169,6 @@ export class Patient {
 
   @Column({ nullable: true })
   lastVisit: Date;
-
-  // =============================
-  // SIMPLE AUDIT
-  // =============================
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @ManyToOne(() => User, { nullable: true })
-  createdBy: User;
-
-  @Column({ nullable: true })
-  createdById: string;
-
-  @ManyToOne(() => User, { nullable: true })
-  updatedBy: User;
-
-  @Column({ nullable: true })
-  updatedById: string;
 
   // =============================
   // RELATIONS
