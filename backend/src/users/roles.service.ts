@@ -6,7 +6,7 @@ import { Role, RoleName } from './entities/role.entity';
 export class RolesService {
   constructor(
     private readonly rolesRepository: RolesRepository,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Role[]> {
     return await this.rolesRepository.findAll();
@@ -30,7 +30,7 @@ export class RolesService {
 
   async getPermissionsForUser(userRoles: Role[]): Promise<string[]> {
     const allPermissions = new Set<string>();
-    
+
     userRoles.forEach(role => {
       role.permissions.forEach(permission => {
         allPermissions.add(permission);
@@ -42,21 +42,21 @@ export class RolesService {
 
   async hasPermission(userRoles: Role[], requiredPermission: string): Promise<boolean> {
     const permissions = await this.getPermissionsForUser(userRoles);
-    
-    // Vérifier permission exacte
+
+    // Check for exact permission
     if (permissions.includes(requiredPermission)) {
       return true;
     }
 
-    // Vérifier permission wildcard (ex: "patients:*")
+    // Check for wildcard permission (e.g., "patients:*")
     const [resource, action] = requiredPermission.split(':');
     const wildcardPermission = `${resource}:*`;
-    
+
     if (permissions.includes(wildcardPermission)) {
       return true;
     }
 
-    // Vérifier permission globale
+    // Check for global permission
     if (permissions.includes('*')) {
       return true;
     }

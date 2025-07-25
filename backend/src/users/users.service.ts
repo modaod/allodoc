@@ -8,35 +8,37 @@ import { User } from './entities/user.entity';
 import { RoleName } from './entities/role.entity';
 import { PaginatedResult } from '../common/interfaces/pagination.interface';
 import * as bcrypt from 'bcryptjs';
+import { RolesService } from './roles.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly rolesRepository: RolesRepository,
-  ) {}
+    private readonly rolesService: RolesService,
+  ) { }
 
   async create(createUserDto: CreateUserDto, currentUser?: User): Promise<User> {
-    // Vérifications de sécurité
+    // Security checks
     await this.validateUserCreation(createUserDto);
 
-    // Hashage du mot de passe
+    // Password hashing
     const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
 
-    // Récupération des rôles
+    // Retrieve roles
     const roles = await this.rolesRepository.findByIds(createUserDto.roleIds);
     if (roles.length !== createUserDto.roleIds.length) {
-      throw new BadRequestException('Un ou plusieurs rôles sont invalides');
+      throw new BadRequestException('One or more roles are invalid');
     }
 
-    // Préparation des données utilisateur
+    // Prepare user data
     const userData = {
       ...createUserDto,
       password: hashedPassword,
       roles,
     };
 
-    // Si c'est un médecin, valider les champs spécifiques
+    // If it's a doctor, validate specific fields
     if (this.isCreatingDoctor(roles)) {
       this.validateDoctorFields(createUserDto);
     }
@@ -55,15 +57,15 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto, currentUser?: User): Promise<User> {
     const existingUser = await this.findById(id);
 
-    // Vérifications de sécurité pour les modifications
+    // Security checks for modifications
     await this.validateUserUpdate(updateUserDto, existingUser);
 
-    // Gestion du mot de passe
+    // Password management
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 12);
     }
 
-    // Gestion des rôles
+    // Role management
     if (updateUserDto.roleIds) {
       const roles = await this.rolesRepository.findByIds(updateUserDto.roleIds);
       (updateUserDto as any).roles = roles;
@@ -81,7 +83,7 @@ export class UsersService {
   }
 
   // =============================
-  // MÉTHODES SPÉCIFIQUES MÉDECINS
+  // DOCTOR-SPECIFIC METHODS
   // =============================
   async findDoctors(organizationId: string): Promise<User[]> {
     return await this.usersRepository.findDoctors(organizationId);
@@ -97,9 +99,9 @@ export class UsersService {
 
   async updateDoctorAvailability(id: string, availableHours: any, currentUser?: User): Promise<User> {
     const doctor = await this.findById(id);
-    
+
     if (!doctor.isDoctor()) {
-      throw new BadRequestException('L\'utilisateur n\'est pas un médecin');
+      throw new BadRequestException('The user is not a doctor');
     }
 
     return await this.usersRepository.update(id, { availableHours }, currentUser);
@@ -107,24 +109,24 @@ export class UsersService {
 
   async togglePatientAcceptance(id: string, currentUser?: User): Promise<User> {
     const doctor = await this.findById(id);
-    
+
     if (!doctor.isDoctor()) {
-      throw new BadRequestException('L\'utilisateur n\'est pas un médecin');
+      throw new BadRequestException('The user is not a doctor');
     }
 
     return await this.usersRepository.update(
-      id, 
-      { acceptsNewPatients: !doctor.acceptsNewPatients }, 
+      id,
+      { acceptsNewPatients: !doctor.acceptsNewPatients },
       currentUser
     );
   }
 
   // =============================
-  // MÉTHODES D'AUTHENTIFICATION
+  // AUTHENTICATION METHODS
   // =============================
   async validateCredentials(email: string, password: string, organizationId: string): Promise<User | null> {
     const user = await this.findByEmail(email, organizationId);
-    
+
     if (!user || !user.isActive) {
       return null;
     }
@@ -134,7 +136,7 @@ export class UsersService {
       return null;
     }
 
-    // Mettre à jour la dernière connexion
+    // Update last login
     await this.usersRepository.updateLastLogin(user.id);
 
     return user;
@@ -145,7 +147,7 @@ export class UsersService {
 
     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
     if (!isOldPasswordValid) {
-      throw new BadRequestException('Ancien mot de passe incorrect');
+      throw new BadRequestException('Incorrect old password');
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 12);
@@ -153,7 +155,7 @@ export class UsersService {
   }
 
   // =============================
-  // STATISTIQUES
+  // STATISTICS
   // =============================
   async getOrganizationStats(organizationId: string): Promise<{
     totalUsers: number;
@@ -182,33 +184,33 @@ export class UsersService {
   }
 
   // =============================
-  // MÉTHODES PRIVÉES DE VALIDATION
+  // PRIVATE VALIDATION METHODS
   // =============================
   private async validateUserCreation(createUserDto: CreateUserDto): Promise<void> {
-    // Vérifier que l'email n'existe pas déjà dans l'organisation
+    // Check that the email does not already exist in the organization
     const emailExists = await this.usersRepository.checkEmailExists(
       createUserDto.email,
       createUserDto.organizationId,
     );
 
     if (emailExists) {
-      throw new ConflictException('Un utilisateur avec cet email existe déjà dans cette organisation');
+      throw new ConflictException('A user with this email already exists in this organization');
     }
 
-    // Vérifier que le numéro de licence n'existe pas déjà (si fourni)
+    // Check that the license number does not already exist (if provided)
     if (createUserDto.licenseNumber) {
       const licenseExists = await this.usersRepository.checkLicenseExists(
         createUserDto.licenseNumber,
       );
 
       if (licenseExists) {
-        throw new ConflictException('Un médecin avec ce numéro de licence existe déjà');
+        throw new ConflictException('A doctor with this license number already exists');
       }
     }
   }
 
   private async validateUserUpdate(updateUserDto: UpdateUserDto, existingUser: User): Promise<void> {
-    // Vérifier l'email (si changé)
+    // Check email (if changed)
     if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
       const emailExists = await this.usersRepository.checkEmailExists(
         updateUserDto.email,
@@ -217,11 +219,11 @@ export class UsersService {
       );
 
       if (emailExists) {
-        throw new ConflictException('Un utilisateur avec cet email existe déjà dans cette organisation');
+        throw new ConflictException('A user with this email already exists in this organization');
       }
     }
 
-    // Vérifier le numéro de licence (si changé)
+    // Check license number (if changed)
     if (updateUserDto.licenseNumber && updateUserDto.licenseNumber !== existingUser.licenseNumber) {
       const licenseExists = await this.usersRepository.checkLicenseExists(
         updateUserDto.licenseNumber,
@@ -229,7 +231,7 @@ export class UsersService {
       );
 
       if (licenseExists) {
-        throw new ConflictException('Un médecin avec ce numéro de licence existe déjà');
+        throw new ConflictException('A doctor with this license number already exists');
       }
     }
   }
@@ -240,20 +242,37 @@ export class UsersService {
 
   private validateDoctorFields(createUserDto: CreateUserDto): void {
     if (!createUserDto.licenseNumber) {
-      throw new BadRequestException('Le numéro de licence est obligatoire pour un médecin');
+      throw new BadRequestException('License number is required for a doctor');
     }
 
     if (!createUserDto.specialty) {
-      throw new BadRequestException('La spécialité est obligatoire pour un médecin');
+      throw new BadRequestException('Specialty is required for a doctor');
     }
 
     if (createUserDto.consultationFee && createUserDto.consultationFee < 0) {
-      throw new BadRequestException('Le tarif de consultation ne peut pas être négatif');
+      throw new BadRequestException('Consultation fee cannot be negative');
     }
 
-    if (createUserDto.defaultAppointmentDuration && 
-        (createUserDto.defaultAppointmentDuration < 15 || createUserDto.defaultAppointmentDuration > 120)) {
-      throw new BadRequestException('La durée de rendez-vous doit être entre 15 et 120 minutes');
+    if (
+      createUserDto.defaultAppointmentDuration &&
+      (createUserDto.defaultAppointmentDuration < 15 ||
+        createUserDto.defaultAppointmentDuration > 120)
+    ) {
+      throw new BadRequestException('Appointment duration must be between 15 and 120 minutes');
     }
   }
+
+  async findAll(): Promise<User[]> {
+    // Simple implementation - in production you'd want pagination and filtering
+    return await this.usersRepository.findAll();
+  }
+
+  async updateLastLogin(userId: string): Promise<void> {
+    await this.usersRepository.updateLastLogin(userId);
+  }
+
+  async getUserPermissions(roles: any[]): Promise<string[]> {
+    return await this.rolesService.getPermissionsForUser(roles);
+  }
+
 }

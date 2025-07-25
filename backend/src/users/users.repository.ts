@@ -111,7 +111,7 @@ export class UsersRepository extends BaseRepository<User> {
       .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
       .andWhere('user.isActive = true');
 
-    // Recherche générale
+    // General search
     if (searchDto.search) {
       this.addSearchToQuery(qb, searchDto.search, [
         'user.firstName',
@@ -121,7 +121,7 @@ export class UsersRepository extends BaseRepository<User> {
       ]);
     }
 
-    // Filtres spécifiques
+    // Specific filters
     if (searchDto.specialty) {
       qb.andWhere('user.specialty ILIKE :specialty', {
         specialty: `%${searchDto.specialty}%`,
@@ -154,7 +154,7 @@ export class UsersRepository extends BaseRepository<User> {
       });
     }
 
-    // Tri
+    // Sorting
     const sortBy = searchDto.sortBy || 'lastName';
     const sortOrder = searchDto.sortOrder || 'ASC';
     qb.orderBy(`user.${sortBy}`, sortOrder);
