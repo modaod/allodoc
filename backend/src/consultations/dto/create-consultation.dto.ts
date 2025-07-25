@@ -38,6 +38,7 @@ export class CreateConsultationDto {
     oxygenSaturation?: number;
     weight?: number;
     height?: number;
+    bmi: number; 
   };
 
   @IsOptional()
