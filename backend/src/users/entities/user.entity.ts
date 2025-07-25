@@ -28,7 +28,7 @@ export class User extends AuditableEntity {
 
   @Column()
   @Exclude()
-  password: string;
+  password: string; // test
 
   @Column({ length: 50 })
   firstName: string;
@@ -42,10 +42,10 @@ export class User extends AuditableEntity {
   @Column({ type: 'date', nullable: true })
   dateOfBirth: Date;
 
-  @Column({ 
-    type: 'enum', 
-    enum: ['M', 'F', 'OTHER'], 
-    nullable: true 
+  @Column({
+    type: 'enum',
+    enum: ['M', 'F'],
+    nullable: true,
   })
   gender: 'M' | 'F' | 'OTHER';
 
@@ -58,27 +58,6 @@ export class User extends AuditableEntity {
   @Column({ length: 100, nullable: true })
   specialty: string; // Specialty (free text)
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  consultationFee: number; // Consultation fee
-
-  @Column({ default: 30 })
-  defaultAppointmentDuration: number; // Default appointment duration
-
-  @Column({ default: true })
-  acceptsNewPatients: boolean; // Accepts new patients
-
-  @Column({ type: 'json', nullable: true })
-  availableHours: {
-    [key: string]: { // 'monday', 'tuesday', etc.
-      start: string; // '08:00'
-      end: string;   // '17:00'
-      breaks?: Array<{
-        start: string;
-        end: string;
-      }>;
-    };
-  };
-
   // =============================
   // COMMON FIELDS
   // =============================
@@ -90,20 +69,6 @@ export class User extends AuditableEntity {
 
   @Column({ nullable: true })
   lastLogin: Date;
-
-  @Column({ nullable: true })
-  profilePicture: string;
-
-  @Column({ type: 'json', nullable: true })
-  preferences: {
-    language?: string;
-    timezone?: string;
-    notifications?: {
-      email: boolean;
-      sms: boolean;
-      push: boolean;
-    };
-  };
 
   // =============================
   // RELATIONS
@@ -139,13 +104,11 @@ export class User extends AuditableEntity {
   }
 
   hasRole(roleName: RoleName): boolean {
-    return this.roles?.some(role => role.name === roleName) || false;
+    return this.roles?.some((role) => role.name === roleName) || false;
   }
 
   hasPermission(permission: string): boolean {
-    return this.roles?.some(role => 
-      role.permissions?.includes(permission)
-    ) || false;
+    return this.roles?.some((role) => role.permissions?.includes(permission)) || false;
   }
 
   isDoctor(): boolean {
@@ -154,11 +117,6 @@ export class User extends AuditableEntity {
 
   isAdmin(): boolean {
     return this.hasRole(RoleName.ADMIN) || this.hasRole(RoleName.SUPER_ADMIN);
-  }
-
-  // Methods for doctors
-  isAvailableOnDay(dayOfWeek: string): boolean {
-    return this.availableHours && this.availableHours[dayOfWeek.toLowerCase()] !== undefined;
   }
 
   hasLicense(): boolean {
