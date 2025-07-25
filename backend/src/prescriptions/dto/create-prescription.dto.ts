@@ -10,7 +10,6 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PrescriptionStatus } from '../entities/prescription.entity';
 
 class MedicationDto {
   @IsString()
@@ -66,13 +65,6 @@ export class CreatePrescriptionDto {
 
   @IsDateString()
   prescribedDate: string;
-
-  @IsDateString()
-  validUntil: string;
-
-  @IsOptional()
-  @IsEnum(PrescriptionStatus)
-  status?: PrescriptionStatus;
 
   @IsOptional()
   @IsString()
