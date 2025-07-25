@@ -15,25 +15,6 @@ import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
 import { AuditableEntity } from 'src/common/entities/auditable.entity';
 
-export enum BloodType {
-  A_POSITIVE = 'A+',
-  A_NEGATIVE = 'A-',
-  B_POSITIVE = 'B+',
-  B_NEGATIVE = 'B-',
-  AB_POSITIVE = 'AB+',
-  AB_NEGATIVE = 'AB-',
-  O_POSITIVE = 'O+',
-  O_NEGATIVE = 'O-',
-}
-
-export enum MaritalStatus {
-  SINGLE = 'SINGLE',
-  MARRIED = 'MARRIED',
-  DIVORCED = 'DIVORCED',
-  WIDOWED = 'WIDOWED',
-  OTHER = 'OTHER',
-}
-
 @Entity('patients')
 @Index(['patientNumber', 'organizationId'], { unique: true })
 @Index(['email', 'organizationId'])
@@ -56,9 +37,9 @@ export class Patient extends AuditableEntity {
 
   @Column({ 
     type: 'enum', 
-    enum: ['M', 'F', 'OTHER']
+    enum: ['M', 'F']
   })
-  gender: 'M' | 'F' | 'OTHER';
+  gender: 'M' | 'F';
 
   @Column({ length: 100, nullable: true })
   email: string;
@@ -73,33 +54,7 @@ export class Patient extends AuditableEntity {
   address: string;
 
   @Column({ length: 100, nullable: true })
-  city: string;
-
-  @Column({ length: 20, nullable: true })
-  postalCode: string;
-
-  @Column({ length: 100, nullable: true })
-  country: string;
-
-  @Column({ length: 50, nullable: true })
-  nationality: string;
-
-  @Column({ 
-    type: 'enum', 
-    enum: MaritalStatus, 
-    nullable: true 
-  })
-  maritalStatus: MaritalStatus;
-
-  @Column({ length: 100, nullable: true })
   occupation: string;
-
-  @Column({ 
-    type: 'enum', 
-    enum: BloodType, 
-    nullable: true 
-  })
-  bloodType: BloodType;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   height: number;
