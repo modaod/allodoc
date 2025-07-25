@@ -1,11 +1,11 @@
-import { Transform } from 'class-transformer/types/decorators/transform.decorator';
-import { 
-  IsString, 
-  IsEmail, 
-  IsOptional, 
-  Length, 
-  IsEnum, 
-  IsArray, 
+import { Transform } from 'class-transformer';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  Length,
+  IsEnum,
+  IsArray,
   IsUUID,
   IsDateString,
   IsObject,
@@ -13,7 +13,7 @@ import {
   IsNumber,
   IsBoolean,
   Min,
-  Max
+  Max,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -39,7 +39,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsDateString()
-  @Transform(({ value }) => value ? new Date(value) : undefined)
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   dateOfBirth?: Date;
 
   @IsOptional()
