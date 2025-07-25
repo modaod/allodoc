@@ -4,24 +4,47 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { RoleName } from '../../users/entities/role.entity';
 
 @Injectable()
-export class OrganizationGuard implements CanActivate {
+export class OrganizationAccessGuard implements CanActivate {
+  constructor(private reflector: Reflector) { }
+
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    const organizationId = request.headers['x-organization-id'] || request.params.organizationId;
 
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+
+    // Super admins can access all organizations
+    if (user.hasRole(RoleName.SUPER_ADMIN)) {
+      return true;
+    }
+
+    // Get organization ID from various sources
+    const organizationId =
+      request.headers['x-organization-id'] ||
+      request.params.organizationId ||
+      request.body.organizationId ||
+      request.query.organizationId;
+
+    // If no organization ID is specified, use user's organization
     if (!organizationId) {
-      throw new ForbiddenException('Organization ID requis');
+      request.organizationId = user.organizationId;
+      return true;
     }
 
-   // Check that the user belongs to this organization
+    // Verify user belongs to the requested organization
     if (user.organizationId !== organizationId) {
-      throw new ForbiddenException('Denied access to this organization');
+      throw new ForbiddenException(
+        'Access denied: User does not belong to this organization'
+      );
     }
 
-   // Add the organizationId to the request for later use
+    // Add organization ID to request for easy access
     request.organizationId = organizationId;
 
     return true;
