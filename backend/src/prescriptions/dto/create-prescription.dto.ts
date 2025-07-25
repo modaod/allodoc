@@ -5,7 +5,6 @@ import {
   IsOptional,
   IsEnum,
   IsUUID,
-  IsBoolean,
   ValidateNested,
   IsNumber,
   Min,
