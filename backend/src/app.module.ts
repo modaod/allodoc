@@ -1,4 +1,3 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,17 +9,18 @@ import { databaseConfig } from './config/database.config';
 import { jwtConfig } from './config/jwt.config';
 import { appConfig } from './config/app.config';
 
-// Modules
+// Feature Modules
+import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ConsultationsModule } from './consultations/consultations.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { AuditModule } from './audit/audit.module';
 
-// Guards, Interceptors, Filters
+// Global Guards, Interceptors, Filters
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
@@ -29,14 +29,14 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    // Global configuration
+    // Global Configuration
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, jwtConfig, appConfig],
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
 
-    // Database
+    // Database Configuration
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -57,18 +57,20 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     // Rate Limiting
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => [
-        {
-          ttl: (configService.get<number>('app.rateLimitTtl') ?? 60) * 1000, // Default: 60 seconds
-          limit: configService.get<number>('app.rateLimitLimit') ?? 100, // Default: 100 requests
-        },
-      ],
+      useFactory: (configService: ConfigService) => ({
+        ttl: Number(configService.get('app.rateLimitTtl') ?? 60) * 1000,
+        limit: Number(configService.get('app.rateLimitLimit') ?? 10),
+        throttlers: [], // Add this line if your version requires it
+      }),
     }),
 
-    // Application modules
+    // Common Module (Global utilities)
+    CommonModule,
+
+    // Feature Modules
     AuthModule,
-    UsersModule,
     OrganizationsModule,
+    UsersModule,
     PatientsModule,
     AppointmentsModule,
     ConsultationsModule,
@@ -76,7 +78,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     AuditModule,
   ],
   providers: [
-    // Global guards
+    // Global Guards
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -89,12 +91,14 @@ import { ThrottlerGuard } from '@nestjs/throttler';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    // Global interceptors
+    
+    // Global Interceptors
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
     },
-    // Global exception filters
+    
+    // Global Exception Filters
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
