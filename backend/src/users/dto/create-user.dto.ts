@@ -43,8 +43,8 @@ export class CreateUserDto {
   dateOfBirth?: Date;
 
   @IsOptional()
-  @IsEnum(['M', 'F', 'OTHER'])
-  gender?: 'M' | 'F' | 'OTHER';
+  @IsEnum(['M', 'F'])
+  gender?: 'M' | 'F';
 
   @IsUUID()
   organizationId: string;
@@ -65,51 +65,4 @@ export class CreateUserDto {
   @IsString()
   @Length(2, 100)
   specialty?: string;
-
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  consultationFee?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(15)
-  @Max(120)
-  defaultAppointmentDuration?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  acceptsNewPatients?: boolean;
-
-  @IsOptional()
-  @IsObject()
-  availableHours?: {
-    [key: string]: {
-      start: string;
-      end: string;
-      breaks?: Array<{
-        start: string;
-        end: string;
-      }>;
-    };
-  };
-
-  // =============================
-  // COMMON FIELDS
-  // =============================
-  @IsOptional()
-  @IsString()
-  profilePicture?: string;
-
-  @IsOptional()
-  @IsObject()
-  preferences?: {
-    language?: string;
-    timezone?: string;
-    notifications?: {
-      email: boolean;
-      sms: boolean;
-      push: boolean;
-    };
-  };
 }
