@@ -4,19 +4,19 @@ import { PaginationDto } from './pagination.dto';
 export class SearchDto extends PaginationDto {
   @IsOptional()
   @IsString()
-  search?: string; // Recherche générale
+  search?: string; // General search
 
   @IsOptional()
   @IsString()
-  sortBy?: string; // Champ de tri
+  sortBy?: string; // Sort field
 
   @IsOptional()
   @IsString()
-  sortOrder?: 'ASC' | 'DESC'; // Ordre de tri
+  sortOrder?: 'ASC' | 'DESC'; // Sort order
 
   @IsOptional()
   @IsDateString()
-  startDate?: string; // Filtrage par date
+  startDate?: string; // Date filtering
 
   @IsOptional()
   @IsDateString()
@@ -24,9 +24,9 @@ export class SearchDto extends PaginationDto {
 
   @IsOptional()
   @IsString()
-  status?: string; // Filtrage par statut
+  status?: string; // Status filtering
 
   @IsOptional()
   @IsString()
-  category?: string; // Filtrage par catégorie
+  category?: string; // Category
 }

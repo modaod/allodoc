@@ -10,25 +10,4 @@ export class DoctorSearchDto extends SearchDto {
   @IsOptional()
   @IsString()
   licenseNumber?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  acceptsNewPatients?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Type(() => Number)
-  minFee?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Type(() => Number)
-  maxFee?: number;
-
-  @IsOptional()
-  @IsString()
-  availableDay?: string; // 'monday', 'tuesday', etc.
 }
