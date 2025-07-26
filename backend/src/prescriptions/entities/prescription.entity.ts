@@ -12,13 +12,11 @@ export class Prescription extends AuditableEntity {
   @Column({ type: 'json' })
   medications: Array<{
     name: string;
-    genericName?: string;
     dosage: string;
     frequency: string;
     duration: string;
     instructions: string;
     quantity?: number;
-    refills?: number;
   }>;
 
   @Column({ type: 'text', nullable: true })
