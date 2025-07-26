@@ -10,7 +10,6 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { User } from '../../users/entities/user.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
 import { AuditableEntity } from 'src/common/entities/auditable.entity';
@@ -53,24 +52,6 @@ export class Patient extends AuditableEntity {
   @Column({ type: 'text' })
   address: string;
 
-  @Column({ length: 100, nullable: true })
-  occupation: string;
-
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
-  height: number;
-
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
-  weight: number;
-
-  @Column({ type: 'json', nullable: true })
-  emergencyContact: {
-    name: string;
-    relationship: string;
-    phone: string;
-    email?: string;
-    address?: string;
-  };
-
   @Column({ type: 'json', nullable: true })
   medicalHistory: {
     allergies?: string[];
@@ -94,33 +75,11 @@ export class Patient extends AuditableEntity {
     };
   };
 
-  @Column({ type: 'json', nullable: true })
-  insurance: {
-    provider?: string;
-    policyNumber?: string;
-    groupNumber?: string;
-    validUntil?: string;
-  };
-
-  @Column({ type: 'simple-array', nullable: true })
-  tags: string[];
-
   @Column({ type: 'text', nullable: true })
   notes: string;
 
   @Column({ default: true })
   isActive: boolean;
-
-  @Column({ nullable: true })
-  profilePicture: string;
-
-  @Column({ type: 'json', nullable: true })
-  preferences: {
-    language?: string;
-    preferredContactMethod?: 'phone' | 'email' | 'sms';
-    appointmentReminders?: boolean;
-    marketingConsent?: boolean;
-  };
 
   @Column({ nullable: true })
   lastVisit: Date;
@@ -158,12 +117,6 @@ export class Patient extends AuditableEntity {
     }
     
     return age;
-  }
-
-  get bmi(): number | null {
-    if (!this.height || !this.weight) return null;
-    const heightInMeters = this.height / 100;
-    return Number((this.weight / (heightInMeters * heightInMeters)).toFixed(2));
   }
 
   hasAllergy(allergen: string): boolean {
