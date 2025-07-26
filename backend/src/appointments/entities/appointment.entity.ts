@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToOne,
-  Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, Index } from 'typeorm';
 import { AuditableEntity } from '../../common/entities/auditable.entity';
 import { Patient } from '../../patients/entities/patient.entity';
 import { User } from '../../users/entities/user.entity';
@@ -46,17 +39,17 @@ export class Appointment extends AuditableEntity {
   @Column({ default: 30 })
   duration: number;
 
-  @Column({ 
-    type: 'enum', 
+  @Column({
+    type: 'enum',
     enum: AppointmentStatus,
-    default: AppointmentStatus.SCHEDULED 
+    default: AppointmentStatus.SCHEDULED,
   })
   status: AppointmentStatus;
 
-  @Column({ 
-    type: 'enum', 
+  @Column({
+    type: 'enum',
     enum: AppointmentType,
-    default: AppointmentType.CONSULTATION 
+    default: AppointmentType.CONSULTATION,
   })
   type: AppointmentType;
 
@@ -68,9 +61,6 @@ export class Appointment extends AuditableEntity {
 
   @Column({ type: 'text', nullable: true })
   cancelReason: string;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  fee: number;
 
   @Column({ default: false })
   isUrgent: boolean;
@@ -116,31 +106,4 @@ export class Appointment extends AuditableEntity {
 
   @OneToOne(() => Consultation, (consultation) => consultation.appointment)
   consultation: Consultation;
-
-  // Méthodes utilitaires
-  get endTime(): Date {
-    const endTime = new Date(this.appointmentDate);
-    endTime.setMinutes(endTime.getMinutes() + this.duration);
-    return endTime;
-  }
-
-  isToday(): boolean {
-    const today = new Date();
-    const appointmentDay = new Date(this.appointmentDate);
-    return today.toDateString() === appointmentDay.toDateString();
-  }
-
-  isPast(): boolean {
-    return new Date() > this.appointmentDate;
-  }
-
-  canBeCancelled(): boolean {
-    return [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED].includes(this.status) 
-           && !this.isPast();
-  }
-
-  canBeModified(): boolean {
-    return [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED].includes(this.status) 
-           && !this.isPast();
-  }
 }

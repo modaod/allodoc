@@ -35,11 +35,6 @@ export class CreateAppointmentDto {
   notes?: string;
 
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  fee?: number;
-
-  @IsOptional()
   @IsBoolean()
   isUrgent?: boolean;
 
