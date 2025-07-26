@@ -13,10 +13,12 @@ export class CreateOrganizationDto {
   @Length(10, 200)
   address: string;
 
+  @IsOptional()
   @IsString()
   @Length(8, 20)
   phone: string;
 
+  @IsOptional()
   @IsEmail()
   email: string;
 
@@ -28,17 +30,4 @@ export class CreateOrganizationDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsObject()
-  settings?: {
-    timezone?: string;
-    language?: string;
-    currency?: string;
-    workingHours?: {
-      start: string;
-      end: string;
-      days: string[];
-    };
-  };
 }

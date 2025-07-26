@@ -29,32 +29,20 @@ export class Organization {
   @Column({ length: 200 })
   address: string;
 
-  @Column({ length: 20 })
+  @Column({ length: 20, nullable: true })
   phone: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   email: string;
 
   @Column({ length: 20, nullable: true })
-  registrationNumber: string; // Numéro d'enregistrement officiel
+  registrationNumber: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ default: true })
   isActive: boolean;
-
-  @Column({ type: 'json', nullable: true })
-  settings: {
-    timezone?: string;
-    language?: string;
-    currency?: string;
-    workingHours?: {
-      start: string;
-      end: string;
-      days: string[];
-    };
-  };
 
   @CreateDateColumn()
   createdAt: Date;
