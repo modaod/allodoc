@@ -46,11 +46,6 @@ export class CreateConsultationDto {
   diagnosis?: string;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  differentialDiagnosis?: string[];
-
-  @IsOptional()
   @IsString()
   treatmentPlan?: string;
 
@@ -68,26 +63,8 @@ export class CreateConsultationDto {
   followUpInstructions?: string;
 
   @IsOptional()
-  @IsDateString()
-  nextAppointmentDate?: string;
-
-  @IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  duration?: number;
-
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  fee?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  isPaid?: boolean;
 
   @IsUUID()
   patientId: string;

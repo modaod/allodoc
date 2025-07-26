@@ -18,6 +18,7 @@ import { Prescription } from '../../prescriptions/entities/prescription.entity';
 @Entity('consultations')
 @Index(['patientId', 'consultationDate'])
 @Index(['doctorId', 'consultationDate'])
+@Index(['organizationId', 'consultationDate'])
 export class Consultation extends AuditableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -33,6 +34,9 @@ export class Consultation extends AuditableEntity {
 
   @Column({ type: 'text', nullable: true })
   physicalExamination: string;
+
+  @Column({ type: 'text', nullable: true })
+  investigation: string;
 
   @Column({ type: 'json', nullable: true })
   vitalSigns: {
@@ -52,17 +56,11 @@ export class Consultation extends AuditableEntity {
   @Column({ type: 'text', nullable: true })
   diagnosis: string;
 
-  @Column({ type: 'simple-array', nullable: true })
-  differentialDiagnosis: string[];
-
   @Column({ type: 'text', nullable: true })
   treatmentPlan: string;
 
   @Column({ type: 'text', nullable: true })
   recommendations: string;
-
-  @Column({ type: 'simple-array', nullable: true })
-  investigations: string[];
 
   @Column({ type: 'json', nullable: true })
   attachments: Array<{
@@ -76,23 +74,8 @@ export class Consultation extends AuditableEntity {
   @Column({ type: 'text', nullable: true })
   followUpInstructions: string;
 
-  @Column({ type: 'date', nullable: true })
-  nextAppointmentDate: Date;
-
   @Column({ type: 'text', nullable: true })
   notes: string;
-
-  @Column({ default: 30 })
-  duration: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  fee: number;
-
-  @Column({ default: false })
-  isPaid: boolean;
-
-  @Column({ nullable: true })
-  paymentDate: Date;
 
   @Column({ type: 'json', nullable: true })
   metadata: {
@@ -131,21 +114,7 @@ export class Consultation extends AuditableEntity {
   @OneToMany(() => Prescription, (prescription) => prescription.consultation)
   prescriptions: Prescription[];
 
-  // Méthodes utilitaires
-  get patientAge(): number {
-    if (!this.patient?.dateOfBirth) return 0;
-    const consultationDate = new Date(this.consultationDate);
-    const birthDate = new Date(this.patient.dateOfBirth);
-    let age = consultationDate.getFullYear() - birthDate.getFullYear();
-    const monthDiff = consultationDate.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && consultationDate.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  }
-
+  // Utility methods
   hasPrescriptions(): boolean {
     return this.prescriptions && this.prescriptions.length > 0;
   }
@@ -156,33 +125,5 @@ export class Consultation extends AuditableEntity {
 
   isFirstVisit(): boolean {
     return this.metadata?.consultationType === 'first_visit';
-  }
-
-  calculateBMI(): number | null {
-    const weight = this.vitalSigns?.weight;
-    const height = this.vitalSigns?.height;
-    
-    if (!weight || !height) return null;
-    
-    const heightInMeters = height / 100;
-    return Number((weight / (heightInMeters * heightInMeters)).toFixed(2));
-  }
-
-  hasAbnormalVitals(): boolean {
-    const vitals = this.vitalSigns;
-    if (!vitals) return false;
-
-    const abnormal = 
-      (vitals.bloodPressure && (
-        vitals.bloodPressure.systolic > 140 || 
-        vitals.bloodPressure.systolic < 90 ||
-        vitals.bloodPressure.diastolic > 90 ||
-        vitals.bloodPressure.diastolic < 60
-      )) ||
-      (vitals.heartRate && (vitals.heartRate > 100 || vitals.heartRate < 60)) ||
-      (vitals.temperature && (vitals.temperature > 37.5 || vitals.temperature < 36)) ||
-      (vitals.oxygenSaturation && vitals.oxygenSaturation < 95);
-
-    return !!abnormal;
   }
 }
