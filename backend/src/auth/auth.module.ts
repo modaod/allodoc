@@ -35,17 +35,7 @@ import { UsersModule } from '../users/users.module';
         forwardRef(() => UsersModule),
     ],
     controllers: [AuthController],
-    providers: [
-        AuthService,
-        TokenService,
-        JwtStrategy,
-        LocalStrategy,
-    ],
-    exports: [
-        AuthService,
-        TokenService,
-        JwtModule,
-        PassportModule,
-    ],
+    providers: [AuthService, TokenService, JwtStrategy, LocalStrategy],
+    exports: [AuthService, TokenService, JwtModule, PassportModule],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -1,87 +1,87 @@
 import {
-  IsString,
-  IsDateString,
-  IsOptional,
-  IsUUID,
-  IsNumber,
-  IsBoolean,
-  IsObject,
-  IsArray,
-  Min,
+    IsString,
+    IsDateString,
+    IsOptional,
+    IsUUID,
+    IsNumber,
+    IsBoolean,
+    IsObject,
+    IsArray,
+    Min,
 } from 'class-validator';
 
 export class CreateConsultationDto {
-  @IsDateString()
-  consultationDate: string;
+    @IsDateString()
+    consultationDate: string;
 
-  @IsString()
-  reason: string;
+    @IsString()
+    reason: string;
 
-  @IsOptional()
-  @IsString()
-  symptoms?: string;
+    @IsOptional()
+    @IsString()
+    symptoms?: string;
 
-  @IsOptional()
-  @IsString()
-  physicalExamination?: string;
+    @IsOptional()
+    @IsString()
+    physicalExamination?: string;
 
-  @IsOptional()
-  @IsObject()
-  vitalSigns?: {
-    bloodPressure?: {
-      systolic: number;
-      diastolic: number;
+    @IsOptional()
+    @IsObject()
+    vitalSigns?: {
+        bloodPressure?: {
+            systolic: number;
+            diastolic: number;
+        };
+        heartRate?: number;
+        temperature?: number;
+        respiratoryRate?: number;
+        oxygenSaturation?: number;
+        weight?: number;
+        height?: number;
+        bmi: number;
     };
-    heartRate?: number;
-    temperature?: number;
-    respiratoryRate?: number;
-    oxygenSaturation?: number;
-    weight?: number;
-    height?: number;
-    bmi: number; 
-  };
 
-  @IsOptional()
-  @IsString()
-  diagnosis?: string;
+    @IsOptional()
+    @IsString()
+    diagnosis?: string;
 
-  @IsOptional()
-  @IsString()
-  treatmentPlan?: string;
+    @IsOptional()
+    @IsString()
+    treatmentPlan?: string;
 
-  @IsOptional()
-  @IsString()
-  recommendations?: string;
+    @IsOptional()
+    @IsString()
+    recommendations?: string;
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  investigations?: string[];
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    investigations?: string[];
 
-  @IsOptional()
-  @IsString()
-  followUpInstructions?: string;
+    @IsOptional()
+    @IsString()
+    followUpInstructions?: string;
 
-  @IsOptional()
-  @IsString()
-  notes?: string;
+    @IsOptional()
+    @IsString()
+    notes?: string;
 
-  @IsUUID()
-  patientId: string;
+    @IsUUID()
+    patientId: string;
 
-  @IsUUID()
-  doctorId: string;
+    @IsUUID()
+    doctorId: string;
 
-  @IsOptional()
-  @IsUUID()
-  appointmentId?: string;
+    @IsOptional()
+    @IsUUID()
+    appointmentId?: string;
 
-  @IsOptional()
-  @IsObject()
-  metadata?: {
-    consultationType?: 'first_visit' | 'follow_up' | 'emergency';
-    referredBy?: string;
-    referralReason?: string;
-    complications?: string[];
-  };
+    @IsOptional()
+    @IsObject()
+    metadata?: {
+        consultationType?: 'first_visit' | 'follow_up' | 'emergency';
+        referredBy?: string;
+        referralReason?: string;
+        complications?: string[];
+    };
 }

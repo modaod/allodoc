@@ -28,81 +28,81 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
-  imports: [
-    // Global Configuration
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [databaseConfig, jwtConfig, appConfig],
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
-    }),
+    imports: [
+        // Global Configuration
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [databaseConfig, jwtConfig, appConfig],
+            envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+        }),
 
-    // Database Configuration
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.name'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('app.nodeEnv') === 'development',
-        logging: configService.get('app.nodeEnv') === 'development',
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        migrationsRun: false,
-      }),
-    }),
+        // Database Configuration
+        TypeOrmModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                type: 'postgres',
+                host: configService.get('database.host'),
+                port: configService.get('database.port'),
+                username: configService.get('database.username'),
+                password: configService.get('database.password'),
+                database: configService.get('database.name'),
+                entities: [__dirname + '/**/*.entity{.ts,.js}'],
+                synchronize: configService.get('app.nodeEnv') === 'development',
+                logging: configService.get('app.nodeEnv') === 'development',
+                migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+                migrationsRun: false,
+            }),
+        }),
 
-    // Rate Limiting
-    ThrottlerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        ttl: Number(configService.get('app.rateLimitTtl') ?? 60) * 1000,
-        limit: Number(configService.get('app.rateLimitLimit') ?? 10),
-        throttlers: [], // Add this line if your version requires it
-      }),
-    }),
+        // Rate Limiting
+        ThrottlerModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                ttl: Number(configService.get('app.rateLimitTtl') ?? 60) * 1000,
+                limit: Number(configService.get('app.rateLimitLimit') ?? 10),
+                throttlers: [], // Add this line if your version requires it
+            }),
+        }),
 
-    // Common Module (Global utilities)
-    CommonModule,
+        // Common Module (Global utilities)
+        CommonModule,
 
-    // Feature Modules
-    AuthModule,
-    OrganizationsModule,
-    UsersModule,
-    PatientsModule,
-    AppointmentsModule,
-    ConsultationsModule,
-    PrescriptionsModule,
-    AuditModule,
-  ],
-  providers: [
-    // Global Guards
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-    
-    // Global Interceptors
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AuditInterceptor,
-    },
-    
-    // Global Exception Filters
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-  ],
+        // Feature Modules
+        AuthModule,
+        OrganizationsModule,
+        UsersModule,
+        PatientsModule,
+        AppointmentsModule,
+        ConsultationsModule,
+        PrescriptionsModule,
+        AuditModule,
+    ],
+    providers: [
+        // Global Guards
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard,
+        },
+
+        // Global Interceptors
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: AuditInterceptor,
+        },
+
+        // Global Exception Filters
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+    ],
 })
 export class AppModule {}

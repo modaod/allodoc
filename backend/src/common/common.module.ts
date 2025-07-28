@@ -8,28 +8,28 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
 
 @Global()
 @Module({
-  providers: [
-    // Services
-    AuditService,
+    providers: [
+        // Services
+        AuditService,
 
-    // Interceptors
-    AuditInterceptor,
+        // Interceptors
+        AuditInterceptor,
 
-    // Filters
-    HttpExceptionFilter,
+        // Filters
+        HttpExceptionFilter,
 
-    // Guards
-    JwtAuthGuard,
-    RolesGuard,
-    OrganizationAccessGuard,
-  ],
-  exports: [
-    AuditService,
-    AuditInterceptor,
-    HttpExceptionFilter,
-    JwtAuthGuard,
-    RolesGuard,
-    OrganizationAccessGuard,
-  ],
+        // Guards
+        JwtAuthGuard,
+        RolesGuard,
+        OrganizationAccessGuard,
+    ],
+    exports: [
+        AuditService,
+        AuditInterceptor,
+        HttpExceptionFilter,
+        JwtAuthGuard,
+        RolesGuard,
+        OrganizationAccessGuard,
+    ],
 })
 export class CommonModule {}

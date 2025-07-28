@@ -14,13 +14,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
         forwardRef(() => OrganizationsModule),
     ],
     controllers: [PrescriptionsController],
-    providers: [
-        PrescriptionsService,
-        PrescriptionsRepository,
-    ],
-    exports: [
-        PrescriptionsService,
-        PrescriptionsRepository,
-    ],
+    providers: [PrescriptionsService, PrescriptionsRepository],
+    exports: [PrescriptionsService, PrescriptionsRepository],
 })
-export class PrescriptionsModule { }
+export class PrescriptionsModule {}

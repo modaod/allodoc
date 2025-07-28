@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
@@ -19,7 +10,7 @@ import { RoleName } from '../users/entities/role.entity';
 @ApiBearerAuth()
 @Controller('organizations')
 export class OrganizationsController {
-    constructor(private readonly organizationsService: OrganizationsService) { }
+    constructor(private readonly organizationsService: OrganizationsService) {}
 
     @Post()
     @Roles(RoleName.SUPER_ADMIN)

@@ -1,19 +1,5 @@
-import {
-    Controller,
-    Post,
-    Body,
-    UseGuards,
-    Get,
-    Req,
-    HttpStatus,
-    Patch,
-} from '@nestjs/common';
-import {
-    ApiTags,
-    ApiOperation,
-    ApiResponse,
-    ApiBearerAuth,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, Get, Req, HttpStatus, Patch } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -30,7 +16,7 @@ import { User } from '../users/entities/user.entity';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     @Public()
     @UseGuards(LocalAuthGuard)

@@ -4,15 +4,14 @@ import { SetMetadata } from '@nestjs/common';
 import { RolesService } from '../../users/roles.service';
 
 export const PERMISSIONS_KEY = 'permissions';
-export const Permissions = (...permissions: string[]) =>
-    SetMetadata(PERMISSIONS_KEY, permissions);
+export const Permissions = (...permissions: string[]) => SetMetadata(PERMISSIONS_KEY, permissions);
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
         private rolesService: RolesService,
-    ) { }
+    ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [

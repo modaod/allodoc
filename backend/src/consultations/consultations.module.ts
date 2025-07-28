@@ -18,13 +18,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
         forwardRef(() => OrganizationsModule),
     ],
     controllers: [ConsultationsController],
-    providers: [
-        ConsultationsService,
-        ConsultationsRepository,
-    ],
-    exports: [
-        ConsultationsService,
-        ConsultationsRepository,
-    ],
+    providers: [ConsultationsService, ConsultationsRepository],
+    exports: [ConsultationsService, ConsultationsRepository],
 })
-export class ConsultationsModule { }
+export class ConsultationsModule {}

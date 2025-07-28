@@ -28,9 +28,7 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
             });
         }
 
-        return await query
-            .orderBy('appointment.appointmentDate', 'ASC')
-            .getMany();
+        return await query.orderBy('appointment.appointmentDate', 'ASC').getMany();
     }
 
     async findByPatient(patientId: string, limit?: number): Promise<Appointment[]> {
@@ -101,11 +99,15 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
             .createQueryBuilder('appointment')
             .where('appointment.doctorId = :doctorId', { doctorId })
             .andWhere('appointment.status IN (:...statuses)', {
-                statuses: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED, AppointmentStatus.IN_PROGRESS],
+                statuses: [
+                    AppointmentStatus.SCHEDULED,
+                    AppointmentStatus.CONFIRMED,
+                    AppointmentStatus.IN_PROGRESS,
+                ],
             })
             .andWhere(
                 '(appointment.appointmentDate < :appointmentEnd AND ' +
-                'appointment.appointmentDate + (appointment.duration || \' minutes\')::INTERVAL > :appointmentStart)',
+                    "appointment.appointmentDate + (appointment.duration || ' minutes')::INTERVAL > :appointmentStart)",
                 { appointmentStart, appointmentEnd },
             );
 
@@ -117,7 +119,10 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
         return conflictingAppointments === 0;
     }
 
-    async search(searchDto: SearchDto, organizationId: string): Promise<PaginatedResult<Appointment>> {
+    async search(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): Promise<PaginatedResult<Appointment>> {
         const qb = this.createSearchQuery(searchDto, organizationId);
         return await this.paginate(searchDto, qb);
     }
@@ -148,7 +153,9 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
                 where: {
                     organizationId,
                     appointmentDate: { $gt: now } as any,
-                    status: { $in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED] } as any,
+                    status: {
+                        $in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED],
+                    } as any,
                 },
             }),
             this.appointmentRepository.count({
@@ -165,7 +172,10 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
         return { total, today, upcoming, completed, cancelled, noShow };
     }
 
-    private createSearchQuery(searchDto: SearchDto, organizationId: string): SelectQueryBuilder<Appointment> {
+    private createSearchQuery(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): SelectQueryBuilder<Appointment> {
         const qb = this.appointmentRepository
             .createQueryBuilder('appointment')
             .leftJoinAndSelect('appointment.patient', 'patient')
@@ -176,8 +186,8 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
         if (searchDto.search) {
             qb.andWhere(
                 '(patient.firstName ILIKE :search OR patient.lastName ILIKE :search OR ' +
-                'doctor.firstName ILIKE :search OR doctor.lastName ILIKE :search OR ' +
-                'appointment.reason ILIKE :search)',
+                    'doctor.firstName ILIKE :search OR doctor.lastName ILIKE :search OR ' +
+                    'appointment.reason ILIKE :search)',
                 { search: `%${searchDto.search}%` },
             );
         }
@@ -188,7 +198,12 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
         }
 
         // Filtrage par dates
-        this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'appointment.appointmentDate');
+        this.addDateRangeToQuery(
+            qb,
+            searchDto.startDate,
+            searchDto.endDate,
+            'appointment.appointmentDate',
+        );
 
         // Tri
         const sortBy = searchDto.sortBy || 'appointmentDate';

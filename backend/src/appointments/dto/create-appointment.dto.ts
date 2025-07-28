@@ -1,55 +1,55 @@
 import {
-  IsString,
-  IsDateString,
-  IsOptional,
-  IsEnum,
-  IsUUID,
-  IsNumber,
-  IsBoolean,
-  IsObject,
-  Min,
-  Max,
+    IsString,
+    IsDateString,
+    IsOptional,
+    IsEnum,
+    IsUUID,
+    IsNumber,
+    IsBoolean,
+    IsObject,
+    Min,
+    Max,
 } from 'class-validator';
 import { AppointmentType } from '../entities/appointment.entity';
 
 export class CreateAppointmentDto {
-  @IsDateString()
-  appointmentDate: string;
+    @IsDateString()
+    appointmentDate: string;
 
-  @IsOptional()
-  @IsNumber()
-  @Min(15)
-  @Max(240)
-  duration?: number;
+    @IsOptional()
+    @IsNumber()
+    @Min(15)
+    @Max(240)
+    duration?: number;
 
-  @IsOptional()
-  @IsEnum(AppointmentType)
-  type?: AppointmentType;
+    @IsOptional()
+    @IsEnum(AppointmentType)
+    type?: AppointmentType;
 
-  @IsOptional()
-  @IsString()
-  reason?: string;
+    @IsOptional()
+    @IsString()
+    reason?: string;
 
-  @IsOptional()
-  @IsString()
-  notes?: string;
+    @IsOptional()
+    @IsString()
+    notes?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  isUrgent?: boolean;
+    @IsOptional()
+    @IsBoolean()
+    isUrgent?: boolean;
 
-  @IsUUID()
-  patientId: string;
+    @IsUUID()
+    patientId: string;
 
-  @IsUUID()
-  doctorId: string;
+    @IsUUID()
+    doctorId: string;
 
-  @IsOptional()
-  @IsObject()
-  metadata?: {
-    room?: string;
-    equipment?: string[];
-    preparation?: string;
-    followUpDate?: string;
-  };
+    @IsOptional()
+    @IsObject()
+    metadata?: {
+        room?: string;
+        equipment?: string[];
+        preparation?: string;
+        followUpDate?: string;
+    };
 }

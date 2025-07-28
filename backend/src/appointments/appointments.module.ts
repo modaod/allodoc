@@ -16,13 +16,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
         forwardRef(() => OrganizationsModule),
     ],
     controllers: [AppointmentsController],
-    providers: [
-        AppointmentsService,
-        AppointmentsRepository,
-    ],
-    exports: [
-        AppointmentsService,
-        AppointmentsRepository,
-    ],
+    providers: [AppointmentsService, AppointmentsRepository],
+    exports: [AppointmentsService, AppointmentsRepository],
 })
-export class AppointmentsModule { }
+export class AppointmentsModule {}

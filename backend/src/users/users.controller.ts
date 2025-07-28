@@ -24,14 +24,11 @@ import { User } from './entities/user.entity';
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(private readonly usersService: UsersService) {}
 
     @Post()
     @Roles(RoleName.ADMIN, RoleName.SUPER_ADMIN)
-    async create(
-        @Body() createUserDto: CreateUserDto,
-        @CurrentUser() currentUser: User,
-    ) {
+    async create(@Body() createUserDto: CreateUserDto, @CurrentUser() currentUser: User) {
         return this.usersService.create(createUserDto, currentUser);
     }
 
@@ -76,29 +73,7 @@ export class UsersController {
 
     @Delete(':id')
     @Roles(RoleName.ADMIN, RoleName.SUPER_ADMIN)
-    async remove(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.usersService.deactivate(id, currentUser);
-    }
-
-    @Patch(':id/toggle-patient-acceptance')
-    @Roles(RoleName.DOCTOR, RoleName.ADMIN)
-    async togglePatientAcceptance(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.usersService.togglePatientAcceptance(id, currentUser);
-    }
-
-    @Patch(':id/availability')
-    @Roles(RoleName.DOCTOR, RoleName.ADMIN)
-    async updateAvailability(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body('availableHours') availableHours: any,
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.usersService.updateDoctorAvailability(id, availableHours, currentUser);
     }
 }

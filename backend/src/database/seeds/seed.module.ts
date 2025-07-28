@@ -7,11 +7,8 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Module({
-    imports: [
-        ConfigModule,
-        TypeOrmModule.forFeature([Role, Organization, User]),
-    ],
+    imports: [ConfigModule, TypeOrmModule.forFeature([Role, Organization, User])],
     providers: [SeedService],
     exports: [SeedService],
 })
-export class SeedModule { }
+export class SeedModule {}

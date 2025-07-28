@@ -17,9 +17,13 @@ export class TokenService {
         private rolesService: RolesService,
         @InjectRepository(RefreshToken)
         private refreshTokenRepository: Repository<RefreshToken>,
-    ) { }
+    ) {}
 
-    async generateTokens(user: User, ipAddress?: string, userAgent?: string): Promise<{
+    async generateTokens(
+        user: User,
+        ipAddress?: string,
+        userAgent?: string,
+    ): Promise<{
         accessToken: string;
         refreshToken: string;
         expiresIn: number;
@@ -32,7 +36,7 @@ export class TokenService {
             sub: user.id,
             email: user.email,
             organizationId: user.organizationId,
-            roles: user.roles.map(role => role.name),
+            roles: user.roles.map((role) => role.name),
             permissions,
         };
 
@@ -59,7 +63,9 @@ export class TokenService {
         await this.refreshTokenRepository.save(refreshToken);
 
         // Calculate expires in seconds
-        const expiresIn = this.parseExpiration(this.configService.get<string>('jwt.accessExpiration') ?? '15m');
+        const expiresIn = this.parseExpiration(
+            this.configService.get<string>('jwt.accessExpiration') ?? '15m',
+        );
 
         return {
             accessToken,
@@ -68,7 +74,10 @@ export class TokenService {
         };
     }
 
-    async refreshAccessToken(refreshTokenString: string, ipAddress?: string): Promise<{
+    async refreshAccessToken(
+        refreshTokenString: string,
+        ipAddress?: string,
+    ): Promise<{
         accessToken: string;
         refreshToken: string;
         expiresIn: number;
@@ -103,10 +112,7 @@ export class TokenService {
     }
 
     async revokeAllUserTokens(userId: string): Promise<void> {
-        await this.refreshTokenRepository.update(
-            { userId, isRevoked: false },
-            { isRevoked: true },
-        );
+        await this.refreshTokenRepository.update({ userId, isRevoked: false }, { isRevoked: true });
     }
 
     async cleanupExpiredTokens(): Promise<void> {
@@ -126,11 +132,16 @@ export class TokenService {
         const value = parseInt(expiration.slice(0, -1));
 
         switch (unit) {
-            case 's': return value;
-            case 'm': return value * 60;
-            case 'h': return value * 60 * 60;
-            case 'd': return value * 24 * 60 * 60;
-            default: return 900; // 15 minutes default
+            case 's':
+                return value;
+            case 'm':
+                return value * 60;
+            case 'h':
+                return value * 60 * 60;
+            case 'd':
+                return value * 24 * 60 * 60;
+            default:
+                return 900; // 15 minutes default
         }
     }
 

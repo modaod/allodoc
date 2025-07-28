@@ -7,7 +7,10 @@ export class AuditService {
     /**
      * Prépare les données d'audit pour une création d'entité
      */
-    prepareForCreation<T extends AuditableEntity>(entity: Partial<T>, currentUser?: User): Partial<T> {
+    prepareForCreation<T extends AuditableEntity>(
+        entity: Partial<T>,
+        currentUser?: User,
+    ): Partial<T> {
         if (currentUser) {
             entity.createdById = currentUser.id;
             entity.updatedById = currentUser.id;
@@ -18,7 +21,10 @@ export class AuditService {
     /**
      * Prépare les données d'audit pour une mise à jour d'entité
      */
-    prepareForUpdate<T extends AuditableEntity>(updateData: Partial<T>, currentUser?: User): Partial<T> {
+    prepareForUpdate<T extends AuditableEntity>(
+        updateData: Partial<T>,
+        currentUser?: User,
+    ): Partial<T> {
         if (currentUser) {
             updateData.updatedById = currentUser.id;
         }
@@ -74,14 +80,17 @@ export class AuditService {
     /**
      * Détecte les changements entre deux versions d'une entité
      */
-    detectChanges<T>(oldEntity: T, newEntity: Partial<T>): Array<{
+    detectChanges<T>(
+        oldEntity: T,
+        newEntity: Partial<T>,
+    ): Array<{
         field: string;
         oldValue: any;
         newValue: any;
     }> {
         const changes: Array<{ field: string; oldValue: any; newValue: any }> = [];
 
-        Object.keys(newEntity).forEach(key => {
+        Object.keys(newEntity).forEach((key) => {
             const oldValue = (oldEntity as any)[key];
             const newValue = (newEntity as any)[key];
 
@@ -104,7 +113,7 @@ export class AuditService {
         const diffInMinutes = Math.floor((date2.getTime() - date1.getTime()) / (1000 * 60));
 
         if (diffInMinutes < 1) {
-            return 'À l\'instant';
+            return "À l'instant";
         } else if (diffInMinutes < 60) {
             return `Il y a ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
         } else if (diffInMinutes < 1440) {

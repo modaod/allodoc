@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Query,
-    ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -23,7 +14,7 @@ import { User } from '../users/entities/user.entity';
 @ApiBearerAuth()
 @Controller('appointments')
 export class AppointmentsController {
-    constructor(private readonly appointmentsService: AppointmentsService) { }
+    constructor(private readonly appointmentsService: AppointmentsService) {}
 
     @Post()
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
@@ -37,10 +28,7 @@ export class AppointmentsController {
 
     @Get()
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
-    async search(
-        @Query() searchDto: SearchDto,
-        @CurrentOrganization() organizationId: string,
-    ) {
+    async search(@Query() searchDto: SearchDto, @CurrentOrganization() organizationId: string) {
         return this.appointmentsService.search(searchDto, organizationId);
     }
 
@@ -102,37 +90,25 @@ export class AppointmentsController {
 
     @Patch(':id/confirm')
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
-    async confirm(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async confirm(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.appointmentsService.confirm(id, currentUser);
     }
 
     @Patch(':id/check-in')
     @Roles(RoleName.SECRETARY, RoleName.DOCTOR)
-    async checkIn(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async checkIn(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.appointmentsService.checkIn(id, currentUser);
     }
 
     @Patch(':id/complete')
     @Roles(RoleName.DOCTOR)
-    async complete(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async complete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.appointmentsService.complete(id, currentUser);
     }
 
     @Patch(':id/no-show')
     @Roles(RoleName.SECRETARY, RoleName.DOCTOR)
-    async markNoShow(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async markNoShow(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.appointmentsService.markNoShow(id, currentUser);
     }
 }

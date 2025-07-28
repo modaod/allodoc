@@ -15,17 +15,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
         forwardRef(() => OrganizationsModule), // Avoid circular dependency
     ],
     controllers: [UsersController],
-    providers: [
-        UsersService,
-        UsersRepository,
-        RolesService,
-        RolesRepository,
-    ],
-    exports: [
-        UsersService,
-        UsersRepository,
-        RolesService,
-        RolesRepository,
-    ],
+    providers: [UsersService, UsersRepository, RolesService, RolesRepository],
+    exports: [UsersService, UsersRepository, RolesService, RolesRepository],
 })
-export class UsersModule { }
+export class UsersModule {}

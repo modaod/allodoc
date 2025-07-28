@@ -9,7 +9,7 @@ import {
     Length,
     IsNumber,
     Min,
-    Max
+    Max,
 } from 'class-validator';
 
 export class CreatePatientDto {

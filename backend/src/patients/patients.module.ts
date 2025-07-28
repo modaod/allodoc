@@ -14,13 +14,7 @@ import { UsersModule } from '../users/users.module';
         forwardRef(() => UsersModule),
     ],
     controllers: [PatientsController],
-    providers: [
-        PatientsService,
-        PatientsRepository,
-    ],
-    exports: [
-        PatientsService,
-        PatientsRepository,
-    ],
+    providers: [PatientsService, PatientsRepository],
+    exports: [PatientsService, PatientsRepository],
 })
-export class PatientsModule { }
+export class PatientsModule {}

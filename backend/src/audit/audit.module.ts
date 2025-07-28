@@ -4,13 +4,7 @@ import { AuditInterceptor } from '../common/interceptors/audit.interceptor';
 
 @Global() // Make AuditService available everywhere
 @Module({
-    providers: [
-        AuditService,
-        AuditInterceptor,
-    ],
-    exports: [
-        AuditService,
-        AuditInterceptor,
-    ],
+    providers: [AuditService, AuditInterceptor],
+    exports: [AuditService, AuditInterceptor],
 })
-export class AuditModule { }
+export class AuditModule {}
