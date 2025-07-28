@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Query,
-    ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ConsultationsService } from './consultations.service';
 import { CreateConsultationDto } from './dto/create-consultation.dto';
@@ -23,7 +14,7 @@ import { User } from '../users/entities/user.entity';
 @ApiBearerAuth()
 @Controller('consultations')
 export class ConsultationsController {
-    constructor(private readonly consultationsService: ConsultationsService) { }
+    constructor(private readonly consultationsService: ConsultationsService) {}
 
     @Post()
     @Roles(RoleName.DOCTOR)
@@ -37,19 +28,13 @@ export class ConsultationsController {
 
     @Get()
     @Roles(RoleName.ADMIN, RoleName.DOCTOR)
-    async search(
-        @Query() searchDto: SearchDto,
-        @CurrentOrganization() organizationId: string,
-    ) {
+    async search(@Query() searchDto: SearchDto, @CurrentOrganization() organizationId: string) {
         return this.consultationsService.search(searchDto, organizationId);
     }
 
     @Get('recent')
     @Roles(RoleName.ADMIN, RoleName.DOCTOR)
-    async getRecent(
-        @CurrentOrganization() organizationId: string,
-        @Query('limit') limit?: number,
-    ) {
+    async getRecent(@CurrentOrganization() organizationId: string, @Query('limit') limit?: number) {
         return this.consultationsService.findRecentConsultations(organizationId, limit);
     }
 
@@ -79,15 +64,6 @@ export class ConsultationsController {
         @CurrentUser() currentUser: User,
     ) {
         return this.consultationsService.update(id, updateConsultationDto, currentUser);
-    }
-
-    @Patch(':id/mark-paid')
-    @Roles(RoleName.ADMIN, RoleName.SECRETARY)
-    async markAsPaid(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.consultationsService.markAsPaid(id, currentUser);
     }
 
     @Post(':id/attachments')

@@ -9,156 +9,146 @@ import { RoleName } from './entities/role.entity';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<User> {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {
-    super(userRepository);
-  }
-
-  async findByEmail(email: string, organizationId: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { email, organizationId },
-      relations: ['roles', 'organization'],
-    });
-  }
-
-  async findByLicenseNumber(licenseNumber: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { licenseNumber },
-      relations: ['roles', 'organization'],
-    });
-  }
-
-  async checkEmailExists(email: string, organizationId: string, excludeId?: string): Promise<boolean> {
-    const query = this.userRepository
-      .createQueryBuilder('user')
-      .where('user.email = :email', { email })
-      .andWhere('user.organizationId = :organizationId', { organizationId });
-
-    if (excludeId) {
-      query.andWhere('user.id != :excludeId', { excludeId });
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+    ) {
+        super(userRepository);
     }
 
-    const count = await query.getCount();
-    return count > 0;
-  }
-
-  async checkLicenseExists(licenseNumber: string, excludeId?: string): Promise<boolean> {
-    const query = this.userRepository
-      .createQueryBuilder('user')
-      .where('user.licenseNumber = :licenseNumber', { licenseNumber });
-
-    if (excludeId) {
-      query.andWhere('user.id != :excludeId', { excludeId });
+    async findByEmail(email: string, organizationId: string): Promise<User | null> {
+        return await this.userRepository.findOne({
+            where: { email, organizationId },
+            relations: ['roles', 'organization'],
+        });
     }
 
-    const count = await query.getCount();
-    return count > 0;
-  }
-
-  async findDoctors(organizationId: string): Promise<User[]> {
-    return await this.userRepository
-      .createQueryBuilder('user')
-      .innerJoin('user.roles', 'role')
-      .where('user.organizationId = :organizationId', { organizationId })
-      .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
-      .andWhere('user.isActive = true')
-      .getMany();
-  }
-
-  async searchDoctors(searchDto: DoctorSearchDto, organizationId: string): Promise<PaginatedResult<User>> {
-    const qb = this.createDoctorSearchQuery(searchDto, organizationId);
-    return await this.paginate(searchDto, qb);
-  }
-
-  async findAvailableDoctors(organizationId: string, date?: Date): Promise<User[]> {
-    const qb = this.userRepository
-      .createQueryBuilder('user')
-      .innerJoin('user.roles', 'role')
-      .where('user.organizationId = :organizationId', { organizationId })
-      .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
-      .andWhere('user.isActive = true')
-      .andWhere('user.acceptsNewPatients = true');
-
-    if (date) {
-      const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-      qb.andWhere(`user.availableHours ? :dayOfWeek`, { dayOfWeek });
+    async findByLicenseNumber(licenseNumber: string): Promise<User | null> {
+        return await this.userRepository.findOne({
+            where: { licenseNumber },
+            relations: ['roles', 'organization'],
+        });
     }
 
-    return await qb.getMany();
-  }
+    async checkEmailExists(
+        email: string,
+        organizationId: string,
+        excludeId?: string,
+    ): Promise<boolean> {
+        const query = this.userRepository
+            .createQueryBuilder('user')
+            .where('user.email = :email', { email })
+            .andWhere('user.organizationId = :organizationId', { organizationId });
 
-  async updateLastLogin(id: string): Promise<void> {
-    await this.userRepository.update(id, { lastLogin: new Date() });
-  }
+        if (excludeId) {
+            query.andWhere('user.id != :excludeId', { excludeId });
+        }
 
-  async countByRole(organizationId: string, roleName: RoleName): Promise<number> {
-    return await this.userRepository
-      .createQueryBuilder('user')
-      .innerJoin('user.roles', 'role')
-      .where('user.organizationId = :organizationId', { organizationId })
-      .andWhere('role.name = :roleName', { roleName })
-      .andWhere('user.isActive = true')
-      .getCount();
-  }
-
-  private createDoctorSearchQuery(searchDto: DoctorSearchDto, organizationId: string): SelectQueryBuilder<User> {
-    const qb = this.userRepository
-      .createQueryBuilder('user')
-      .innerJoin('user.roles', 'role')
-      .where('user.organizationId = :organizationId', { organizationId })
-      .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
-      .andWhere('user.isActive = true');
-
-    // General search
-    if (searchDto.search) {
-      this.addSearchToQuery(qb, searchDto.search, [
-        'user.firstName',
-        'user.lastName',
-        'user.email',
-        'user.specialty',
-      ]);
+        const count = await query.getCount();
+        return count > 0;
     }
 
-    // Specific filters
-    if (searchDto.specialty) {
-      qb.andWhere('user.specialty ILIKE :specialty', {
-        specialty: `%${searchDto.specialty}%`,
-      });
+    async checkLicenseExists(licenseNumber: string, excludeId?: string): Promise<boolean> {
+        const query = this.userRepository
+            .createQueryBuilder('user')
+            .where('user.licenseNumber = :licenseNumber', { licenseNumber });
+
+        if (excludeId) {
+            query.andWhere('user.id != :excludeId', { excludeId });
+        }
+
+        const count = await query.getCount();
+        return count > 0;
     }
 
-    if (searchDto.licenseNumber) {
-      qb.andWhere('user.licenseNumber = :licenseNumber', {
-        licenseNumber: searchDto.licenseNumber,
-      });
+    async findDoctors(organizationId: string): Promise<User[]> {
+        return await this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.roles', 'role')
+            .where('user.organizationId = :organizationId', { organizationId })
+            .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
+            .andWhere('user.isActive = true')
+            .getMany();
     }
 
-    if (searchDto.acceptsNewPatients !== undefined) {
-      qb.andWhere('user.acceptsNewPatients = :acceptsNewPatients', {
-        acceptsNewPatients: searchDto.acceptsNewPatients,
-      });
+    async searchDoctors(
+        searchDto: DoctorSearchDto,
+        organizationId: string,
+    ): Promise<PaginatedResult<User>> {
+        const qb = this.createDoctorSearchQuery(searchDto, organizationId);
+        return await this.paginate(searchDto, qb);
     }
 
-    if (searchDto.minFee !== undefined) {
-      qb.andWhere('user.consultationFee >= :minFee', { minFee: searchDto.minFee });
+    async findAvailableDoctors(organizationId: string, date?: Date): Promise<User[]> {
+        const qb = this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.roles', 'role')
+            .where('user.organizationId = :organizationId', { organizationId })
+            .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
+            .andWhere('user.isActive = true')
+            .andWhere('user.acceptsNewPatients = true');
+
+        if (date) {
+            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            qb.andWhere(`user.availableHours ? :dayOfWeek`, { dayOfWeek });
+        }
+
+        return await qb.getMany();
     }
 
-    if (searchDto.maxFee !== undefined) {
-      qb.andWhere('user.consultationFee <= :maxFee', { maxFee: searchDto.maxFee });
+    async updateLastLogin(id: string): Promise<void> {
+        await this.userRepository.update(id, { lastLogin: new Date() });
     }
 
-    if (searchDto.availableDay) {
-      qb.andWhere(`user.availableHours ? :availableDay`, {
-        availableDay: searchDto.availableDay,
-      });
+    async countByRole(organizationId: string, roleName: RoleName): Promise<number> {
+        return await this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.roles', 'role')
+            .where('user.organizationId = :organizationId', { organizationId })
+            .andWhere('role.name = :roleName', { roleName })
+            .andWhere('user.isActive = true')
+            .getCount();
     }
 
-    // Sorting
-    const sortBy = searchDto.sortBy || 'lastName';
-    const sortOrder = searchDto.sortOrder || 'ASC';
-    qb.orderBy(`user.${sortBy}`, sortOrder);
+    private createDoctorSearchQuery(
+        searchDto: DoctorSearchDto,
+        organizationId: string,
+    ): SelectQueryBuilder<User> {
+        const qb = this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.roles', 'role')
+            .where('user.organizationId = :organizationId', { organizationId })
+            .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
+            .andWhere('user.isActive = true');
 
-    return qb;
-  }
+        // General search
+        if (searchDto.search) {
+            this.addSearchToQuery(qb, searchDto.search, [
+                'user.firstName',
+                'user.lastName',
+                'user.email',
+                'user.specialty',
+            ]);
+        }
+
+        // Specific filters
+        if (searchDto.specialty) {
+            qb.andWhere('user.specialty ILIKE :specialty', {
+                specialty: `%${searchDto.specialty}%`,
+            });
+        }
+
+        if (searchDto.licenseNumber) {
+            qb.andWhere('user.licenseNumber = :licenseNumber', {
+                licenseNumber: searchDto.licenseNumber,
+            });
+        }
+
+        // Sorting
+        const sortBy = searchDto.sortBy || 'lastName';
+        const sortOrder = searchDto.sortOrder || 'ASC';
+        qb.orderBy(`user.${sortBy}`, sortOrder);
+
+        return qb;
+    }
 }

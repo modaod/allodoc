@@ -30,7 +30,11 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
         return await query.getMany();
     }
 
-    async findByDoctor(doctorId: string, startDate?: Date, endDate?: Date): Promise<Consultation[]> {
+    async findByDoctor(
+        doctorId: string,
+        startDate?: Date,
+        endDate?: Date,
+    ): Promise<Consultation[]> {
         const query = this.consultationRepository
             .createQueryBuilder('consultation')
             .leftJoinAndSelect('consultation.patient', 'patient')
@@ -43,12 +47,13 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
             });
         }
 
-        return await query
-            .orderBy('consultation.consultationDate', 'DESC')
-            .getMany();
+        return await query.orderBy('consultation.consultationDate', 'DESC').getMany();
     }
 
-    async findRecentConsultations(organizationId: string, limit: number = 10): Promise<Consultation[]> {
+    async findRecentConsultations(
+        organizationId: string,
+        limit: number = 10,
+    ): Promise<Consultation[]> {
         return await this.consultationRepository
             .createQueryBuilder('consultation')
             .leftJoinAndSelect('consultation.patient', 'patient')
@@ -59,7 +64,10 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
             .getMany();
     }
 
-    async search(searchDto: SearchDto, organizationId: string): Promise<PaginatedResult<Consultation>> {
+    async search(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): Promise<PaginatedResult<Consultation>> {
         const qb = this.createSearchQuery(searchDto, organizationId);
         return await this.paginate(searchDto, qb);
     }
@@ -67,9 +75,6 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
     async getStats(organizationId: string): Promise<{
         total: number;
         thisMonth: number;
-        averageDuration: number;
-        totalRevenue: number;
-        paidConsultations: number;
     }> {
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
@@ -77,29 +82,23 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
 
         const consultations = await this.consultationRepository.find({
             where: { organizationId },
-            select: ['id', 'consultationDate', 'duration', 'fee', 'isPaid'],
+            select: ['id', 'consultationDate'],
         });
 
         const thisMonthConsultations = consultations.filter(
-            c => new Date(c.consultationDate) >= startOfMonth
+            (c) => new Date(c.consultationDate) >= startOfMonth,
         );
-
-        const paidConsultations = consultations.filter(c => c.isPaid);
-        const totalRevenue = paidConsultations.reduce((sum, c) => sum + (c.fee || 0), 0);
-        const averageDuration = consultations.length > 0
-            ? Math.round(consultations.reduce((sum, c) => sum + c.duration, 0) / consultations.length)
-            : 0;
 
         return {
             total: consultations.length,
             thisMonth: thisMonthConsultations.length,
-            averageDuration,
-            totalRevenue,
-            paidConsultations: paidConsultations.length,
         };
     }
 
-    private createSearchQuery(searchDto: SearchDto, organizationId: string): SelectQueryBuilder<Consultation> {
+    private createSearchQuery(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): SelectQueryBuilder<Consultation> {
         const qb = this.consultationRepository
             .createQueryBuilder('consultation')
             .leftJoinAndSelect('consultation.patient', 'patient')
@@ -110,14 +109,19 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
         if (searchDto.search) {
             qb.andWhere(
                 '(patient.firstName ILIKE :search OR patient.lastName ILIKE :search OR ' +
-                'doctor.firstName ILIKE :search OR doctor.lastName ILIKE :search OR ' +
-                'consultation.reason ILIKE :search OR consultation.diagnosis ILIKE :search)',
+                    'doctor.firstName ILIKE :search OR doctor.lastName ILIKE :search OR ' +
+                    'consultation.reason ILIKE :search OR consultation.diagnosis ILIKE :search)',
                 { search: `%${searchDto.search}%` },
             );
         }
 
         // Filtrage par dates
-        this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'consultation.consultationDate');
+        this.addDateRangeToQuery(
+            qb,
+            searchDto.startDate,
+            searchDto.endDate,
+            'consultation.consultationDate',
+        );
 
         // Tri
         const sortBy = searchDto.sortBy || 'consultationDate';

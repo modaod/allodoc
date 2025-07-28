@@ -24,7 +24,7 @@ import { User } from '../users/entities/user.entity';
 @ApiBearerAuth()
 @Controller('patients')
 export class PatientsController {
-    constructor(private readonly patientsService: PatientsService) { }
+    constructor(private readonly patientsService: PatientsService) {}
 
     @Post()
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
@@ -38,19 +38,13 @@ export class PatientsController {
 
     @Get()
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
-    async search(
-        @Query() searchDto: SearchDto,
-        @CurrentOrganization() organizationId: string,
-    ) {
+    async search(@Query() searchDto: SearchDto, @CurrentOrganization() organizationId: string) {
         return this.patientsService.search(searchDto, organizationId);
     }
 
     @Get('recent')
     @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
-    async getRecent(
-        @CurrentOrganization() organizationId: string,
-        @Query('limit') limit?: number,
-    ) {
+    async getRecent(@CurrentOrganization() organizationId: string, @Query('limit') limit?: number) {
         return this.patientsService.findRecentPatients(organizationId, limit);
     }
 
@@ -87,10 +81,7 @@ export class PatientsController {
 
     @Delete(':id')
     @Roles(RoleName.ADMIN)
-    async remove(
-        @Param('id', ParseUUIDPipe) id: string,
-        @CurrentUser() currentUser: User,
-    ) {
+    async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
         return this.patientsService.deactivate(id, currentUser);
     }
 
@@ -112,15 +103,5 @@ export class PatientsController {
         @CurrentUser() currentUser: User,
     ) {
         return this.patientsService.removeAllergy(id, allergy, currentUser);
-    }
-
-    @Patch(':id/tags')
-    @Roles(RoleName.ADMIN, RoleName.SECRETARY, RoleName.DOCTOR)
-    async updateTags(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body('tags') tags: string[],
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.patientsService.updateTags(id, tags, currentUser);
     }
 }

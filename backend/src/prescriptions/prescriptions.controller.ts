@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Query,
-    ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PrescriptionsService } from './prescriptions.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
@@ -23,7 +14,7 @@ import { User } from '../users/entities/user.entity';
 @ApiBearerAuth()
 @Controller('prescriptions')
 export class PrescriptionsController {
-    constructor(private readonly prescriptionsService: PrescriptionsService) { }
+    constructor(private readonly prescriptionsService: PrescriptionsService) {}
 
     @Post()
     @Roles(RoleName.DOCTOR)
@@ -37,31 +28,13 @@ export class PrescriptionsController {
 
     @Get()
     @Roles(RoleName.ADMIN, RoleName.DOCTOR, RoleName.SECRETARY)
-    async search(
-        @Query() searchDto: SearchDto,
-        @CurrentOrganization() organizationId: string,
-    ) {
+    async search(@Query() searchDto: SearchDto, @CurrentOrganization() organizationId: string) {
         return this.prescriptionsService.search(searchDto, organizationId);
-    }
-
-    @Get('expiring')
-    @Roles(RoleName.ADMIN, RoleName.DOCTOR, RoleName.SECRETARY)
-    async getExpiring(
-        @CurrentOrganization() organizationId: string,
-        @Query('days') days?: number,
-    ) {
-        return this.prescriptionsService.findExpiringPrescriptions(organizationId, days);
     }
 
     @Get('patient/:patientId')
     @Roles(RoleName.DOCTOR, RoleName.ADMIN, RoleName.SECRETARY)
-    async getPatientPrescriptions(
-        @Param('patientId', ParseUUIDPipe) patientId: string,
-        @Query('activeOnly') activeOnly?: boolean,
-    ) {
-        if (activeOnly) {
-            return this.prescriptionsService.findActiveByPatient(patientId);
-        }
+    async getPatientPrescriptions(@Param('patientId', ParseUUIDPipe) patientId: string) {
         return this.prescriptionsService.findByPatient(patientId);
     }
 
@@ -85,26 +58,5 @@ export class PrescriptionsController {
         @CurrentUser() currentUser: User,
     ) {
         return this.prescriptionsService.update(id, updatePrescriptionDto, currentUser);
-    }
-
-    @Patch(':id/cancel')
-    @Roles(RoleName.DOCTOR, RoleName.ADMIN)
-    async cancel(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body('reason') reason: string,
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.prescriptionsService.cancel(id, reason, currentUser);
-    }
-
-    @Patch(':id/mark-dispensed')
-    @Roles(RoleName.ADMIN, RoleName.SECRETARY)
-    async markAsDispensed(
-        @Param('id', ParseUUIDPipe) id: string,
-        @Body('pharmacyName') pharmacyName: string,
-        @Body('pharmacistNotes') pharmacistNotes: string,
-        @CurrentUser() currentUser: User,
-    ) {
-        return this.prescriptionsService.markAsDispensed(id, pharmacyName, pharmacistNotes, currentUser);
     }
 }

@@ -15,13 +15,17 @@ export class AppointmentsService {
         private readonly appointmentsRepository: AppointmentsRepository,
         private readonly usersService: UsersService,
         private readonly patientsService: PatientsService,
-    ) { }
+    ) {}
 
-    async create(createAppointmentDto: CreateAppointmentDto, organizationId: string, currentUser?: User): Promise<Appointment> {
-        // Validation des données
+    async create(
+        createAppointmentDto: CreateAppointmentDto,
+        organizationId: string,
+        currentUser?: User,
+    ): Promise<Appointment> {
+        // Data validation
         await this.validateAppointmentCreation(createAppointmentDto, organizationId);
 
-        // Vérifier la disponibilité du médecin
+        // Check doctor availability
         const appointmentDate = new Date(createAppointmentDto.appointmentDate);
         const duration = createAppointmentDto.duration || 30;
 
@@ -32,14 +36,11 @@ export class AppointmentsService {
         );
 
         if (!isAvailable) {
-            throw new ConflictException('Le médecin n\'est pas disponible à cette heure');
+            throw new ConflictException('The doctor is not available at this time');
         }
 
-        // Vérifier les horaires du médecin
+        // Check doctor's schedule
         const doctor = await this.usersService.findById(createAppointmentDto.doctorId);
-        if (!this.isDoctorAvailableAtTime(doctor, appointmentDate)) {
-            throw new BadRequestException('Le médecin ne travaille pas à cette heure');
-        }
 
         const appointmentData = {
             ...createAppointmentDto,
@@ -53,18 +54,26 @@ export class AppointmentsService {
     }
 
     async findById(id: string): Promise<Appointment> {
-        return await this.appointmentsRepository.findById(id, ['patient', 'doctor', 'consultation']);
+        return await this.appointmentsRepository.findById(id, [
+            'patient',
+            'doctor',
+            'consultation',
+        ]);
     }
 
-    async update(id: string, updateAppointmentDto: UpdateAppointmentDto, currentUser?: User): Promise<Appointment> {
+    async update(
+        id: string,
+        updateAppointmentDto: UpdateAppointmentDto,
+        currentUser?: User,
+    ): Promise<Appointment> {
         const existingAppointment = await this.findById(id);
 
-        // Vérifier si le rendez-vous peut être modifié
-        if (!existingAppointment.canBeModified()) {
-            throw new BadRequestException('Ce rendez-vous ne peut plus être modifié');
+        // Check if the appointment can be modified
+        if (!this.canBeModified(existingAppointment)) {
+            throw new BadRequestException('This appointment can no longer be modified');
         }
 
-        // Si la date/heure change, vérifier la disponibilité
+        // If date/time changes, check availability
         let updateData: Partial<Appointment> = {
             ...updateAppointmentDto,
             appointmentDate: updateAppointmentDto.appointmentDate
@@ -99,7 +108,9 @@ export class AppointmentsService {
             );
 
             if (!isAvailable) {
-                throw new ConflictException('Le médecin n\'est pas disponible à cette nouvelle heure');
+                throw new ConflictException(
+                    "Le médecin n'est pas disponible à cette nouvelle heure",
+                );
             }
 
             // Ensure appointmentDate is a Date object
@@ -114,8 +125,8 @@ export class AppointmentsService {
     async cancel(id: string, reason: string, currentUser?: User): Promise<Appointment> {
         const appointment = await this.findById(id);
 
-        if (!appointment.canBeCancelled()) {
-            throw new BadRequestException('Ce rendez-vous ne peut plus être annulé');
+        if (!this.canBeCancelled(appointment)) {
+            throw new BadRequestException('This appointment can no longer be cancelled');
         }
 
         return await this.appointmentsRepository.update(
@@ -139,8 +150,10 @@ export class AppointmentsService {
     async checkIn(id: string, currentUser?: User): Promise<Appointment> {
         const appointment = await this.findById(id);
 
-        if (!appointment.isToday()) {
-            throw new BadRequestException('Le patient ne peut être enregistré que le jour du rendez-vous');
+        if (!this.isToday(appointment)) {
+            throw new BadRequestException(
+                'Le patient ne peut être enregistré que le jour du rendez-vous',
+            );
         }
 
         return await this.appointmentsRepository.update(
@@ -173,9 +186,12 @@ export class AppointmentsService {
     }
 
     // =============================
-    // MÉTHODES DE RECHERCHE
+    // SEARCH METHODS
     // =============================
-    async search(searchDto: SearchDto, organizationId: string): Promise<PaginatedResult<Appointment>> {
+    async search(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): Promise<PaginatedResult<Appointment>> {
         return await this.appointmentsRepository.search(searchDto, organizationId);
     }
 
@@ -195,9 +211,11 @@ export class AppointmentsService {
         return await this.appointmentsRepository.findTodayAppointments(organizationId);
     }
 
-    async getDoctorSchedule(doctorId: string, date: Date): Promise<{
+    async getDoctorSchedule(
+        doctorId: string,
+        date: Date,
+    ): Promise<{
         appointments: Appointment[];
-        availableSlots: string[];
     }> {
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
@@ -208,19 +226,22 @@ export class AppointmentsService {
 
         // Générer les créneaux disponibles
         const doctor = await this.usersService.findById(doctorId);
-        const availableSlots = this.generateAvailableSlots(doctor, date, appointments);
 
-        return { appointments, availableSlots };
+        return { appointments };
     }
 
     // =============================
-    // STATISTIQUES ET RAPPORTS
+    // STATISTICS AND REPORTS
     // =============================
     async getStats(organizationId: string): Promise<any> {
         return await this.appointmentsRepository.getStats(organizationId);
     }
 
-    async getDoctorStats(doctorId: string, startDate?: Date, endDate?: Date): Promise<{
+    async getDoctorStats(
+        doctorId: string,
+        startDate?: Date,
+        endDate?: Date,
+    ): Promise<{
         total: number;
         completed: number;
         cancelled: number;
@@ -254,123 +275,49 @@ export class AppointmentsService {
             completed: stats.completed,
             cancelled: stats.cancelled,
             noShow: stats.noShow,
-            averageDuration: stats.completed > 0 ? Math.round(stats.totalDuration / stats.completed) : 0,
+            averageDuration:
+                stats.completed > 0 ? Math.round(stats.totalDuration / stats.completed) : 0,
         };
     }
 
     // =============================
-    // MÉTHODES PRIVÉES
+    // PRIVATE METHODS
     // =============================
-    private async validateAppointmentCreation(createAppointmentDto: CreateAppointmentDto, organizationId: string): Promise<void> {
-        // Vérifier que le patient existe et appartient à l'organisation
+    private async validateAppointmentCreation(
+        createAppointmentDto: CreateAppointmentDto,
+        organizationId: string,
+    ): Promise<void> {
+        // Check that the patient exists and belongs to the organization
         const patient = await this.patientsService.findById(createAppointmentDto.patientId);
         if (patient.organizationId !== organizationId) {
-            throw new BadRequestException('Le patient n\'appartient pas à cette organisation');
+            throw new BadRequestException('The patient does not belong to this organization');
         }
 
-        // Vérifier que le médecin existe, est actif et appartient à l'organisation
+        // Check that the doctor exists, is active, and belongs to the organization
         const doctor = await this.usersService.findById(createAppointmentDto.doctorId);
         if (!doctor.isDoctor()) {
-            throw new BadRequestException('L\'utilisateur spécifié n\'est pas un médecin');
+            throw new BadRequestException('The specified user is not a doctor');
         }
         if (doctor.organizationId !== organizationId) {
-            throw new BadRequestException('Le médecin n\'appartient pas à cette organisation');
+            throw new BadRequestException('The doctor does not belong to this organization');
         }
         if (!doctor.isActive) {
-            throw new BadRequestException('Le médecin n\'est pas actif');
+            throw new BadRequestException('The doctor is not active');
         }
 
-        // Vérifier que la date n'est pas dans le passé
+        // Check that the date is not in the past
         const appointmentDate = new Date(createAppointmentDto.appointmentDate);
         if (appointmentDate < new Date()) {
-            throw new BadRequestException('La date du rendez-vous ne peut pas être dans le passé');
+            throw new BadRequestException('The appointment date cannot be in the past');
         }
 
-        // Valider la durée
+        // Validate duration
         const duration = createAppointmentDto.duration || 30;
         if (duration < 15 || duration > 240) {
-            throw new BadRequestException('La durée du rendez-vous doit être entre 15 et 240 minutes');
+            throw new BadRequestException(
+                'The appointment duration must be between 15 and 240 minutes',
+            );
         }
-    }
-
-    private isDoctorAvailableAtTime(doctor: User, appointmentDate: Date): boolean {
-        if (!doctor.availableHours) {
-            return true; // Pas de restrictions d'horaires
-        }
-
-        const dayOfWeek = appointmentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-        const daySchedule = doctor.availableHours[dayOfWeek];
-
-        if (!daySchedule) {
-            return false; // Médecin ne travaille pas ce jour
-        }
-
-        const appointmentTime = appointmentDate.toTimeString().substring(0, 5); // HH:MM
-        const startTime = daySchedule.start;
-        const endTime = daySchedule.end;
-
-        // Vérifier si l'heure est dans la plage de travail
-        if (appointmentTime < startTime || appointmentTime > endTime) {
-            return false;
-        }
-
-        // Vérifier les pauses
-        if (daySchedule.breaks) {
-            for (const breakPeriod of daySchedule.breaks) {
-                if (appointmentTime >= breakPeriod.start && appointmentTime <= breakPeriod.end) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private generateAvailableSlots(doctor: User, date: Date, existingAppointments: Appointment[]): string[] {
-        const slots: string[] = [];
-
-        if (!doctor.availableHours) {
-            return slots;
-        }
-
-        const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-        const daySchedule = doctor.availableHours[dayOfWeek];
-
-        if (!daySchedule) {
-            return slots;
-        }
-
-        const duration = doctor.defaultAppointmentDuration || 30;
-        const startTime = this.timeToMinutes(daySchedule.start);
-        const endTime = this.timeToMinutes(daySchedule.end);
-
-        // Générer les créneaux possibles
-        for (let time = startTime; time < endTime; time += duration) {
-            const slotTime = this.minutesToTime(time);
-            const slotDate = new Date(date);
-            const [hours, minutes] = slotTime.split(':').map(Number);
-            slotDate.setHours(hours, minutes, 0, 0);
-
-            // Vérifier si le créneau est libre
-            const isSlotFree = !existingAppointments.some(appointment => {
-                const appointmentStart = new Date(appointment.appointmentDate);
-                const appointmentEnd = new Date(appointmentStart.getTime() + appointment.duration * 60000);
-                return slotDate >= appointmentStart && slotDate < appointmentEnd;
-            });
-
-            // Vérifier les pauses
-            const isDuringBreak = daySchedule.breaks?.some(breakPeriod => {
-                const breakStart = this.timeToMinutes(breakPeriod.start);
-                const breakEnd = this.timeToMinutes(breakPeriod.end);
-                return time >= breakStart && time < breakEnd;
-            });
-
-            if (isSlotFree && !isDuringBreak && slotDate > new Date()) {
-                slots.push(slotTime);
-            }
-        }
-
-        return slots;
     }
 
     private timeToMinutes(time: string): number {
@@ -382,5 +329,62 @@ export class AppointmentsService {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+
+    private canBeModified(appointment: Appointment): boolean {
+        // Cannot modify if appointment is completed, cancelled, or no-show
+        if (
+            [
+                AppointmentStatus.COMPLETED,
+                AppointmentStatus.CANCELLED,
+                AppointmentStatus.NO_SHOW,
+            ].includes(appointment.status)
+        ) {
+            return false;
+        }
+
+        // Cannot modify if appointment is in the past (with some buffer time)
+        const now = new Date();
+        const appointmentTime = new Date(appointment.appointmentDate);
+        const bufferMinutes = 30; // Allow modifications up to 30 minutes before appointment
+        const cutoffTime = new Date(appointmentTime.getTime() - bufferMinutes * 60 * 1000);
+
+        if (now > cutoffTime) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private canBeCancelled(appointment: Appointment): boolean {
+        // Cannot cancel if already completed, cancelled, or no-show
+        if (
+            [
+                AppointmentStatus.COMPLETED,
+                AppointmentStatus.CANCELLED,
+                AppointmentStatus.NO_SHOW,
+            ].includes(appointment.status)
+        ) {
+            return false;
+        }
+
+        // Cannot cancel if appointment is currently in progress
+        if (appointment.status === AppointmentStatus.IN_PROGRESS) {
+            return false;
+        }
+
+        // Allow cancellation if appointment hasn't started yet
+        return true;
+    }
+
+    private isToday(appointment: Appointment): boolean {
+        const today = new Date();
+        const appointmentDate = new Date(appointment.appointmentDate);
+
+        return (
+            today.getFullYear() === appointmentDate.getFullYear() &&
+            today.getMonth() === appointmentDate.getMonth() &&
+            today.getDate() === appointmentDate.getDate()
+        );
     }
 }

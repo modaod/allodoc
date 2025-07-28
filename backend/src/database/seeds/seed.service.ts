@@ -9,118 +9,108 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class SeedService {
-  constructor(
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+    constructor(
+        @InjectRepository(Role)
+        private readonly roleRepository: Repository<Role>,
+        @InjectRepository(Organization)
+        private readonly organizationRepository: Repository<Organization>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+    ) {}
 
-  async run(): Promise<void> {
-    console.log('🌱 Starting database seeding...');
+    async run(): Promise<void> {
+        console.log('🌱 Starting database seeding...');
 
-    await this.seedRoles();
-    await this.seedDefaultOrganization();
-    await this.seedSuperAdmin();
+        await this.seedRoles();
+        await this.seedDefaultOrganization();
+        await this.seedSuperAdmin();
 
-    console.log('✅ Database seeding completed!');
-  }
-
-  private async seedRoles(): Promise<void> {
-    console.log('📝 Seeding roles...');
-
-    for (const roleData of DEFAULT_ROLES) {
-      const existingRole = await this.roleRepository.findOne({
-        where: { name: roleData.name },
-      });
-
-      if (!existingRole) {
-        const role = this.roleRepository.create(roleData);
-        await this.roleRepository.save(role);
-        console.log(`✅ Created role: ${roleData.name}`);
-      } else {
-        console.log(`⏭️  Role already exists: ${roleData.name}`);
-      }
+        console.log('✅ Database seeding completed!');
     }
-  }
 
-  private async seedDefaultOrganization(): Promise<void> {
-    console.log('🏥 Seeding default organization...');
+    private async seedRoles(): Promise<void> {
+        console.log('📝 Seeding roles...');
 
-    const existingOrg = await this.organizationRepository.findOne({
-      where: { name: 'Demo Medical Center' },
-    });
+        for (const roleData of DEFAULT_ROLES) {
+            const existingRole = await this.roleRepository.findOne({
+                where: { name: roleData.name },
+            });
 
-    if (!existingOrg) {
-      const organization = this.organizationRepository.create({
-        name: 'Demo Medical Center',
-        type: OrganizationType.MEDICAL_CENTER,
-        address: '123 Healthcare Street, Medical District',
-        phone: '+1-234-567-8900',
-        email: 'contact@demo-medical.com',
-        description: 'Demo organization for development and testing',
-        settings: {
-          timezone: 'UTC',
-          language: 'en',
-          currency: 'USD',
-          workingHours: {
-            start: '08:00',
-            end: '18:00',
-            days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          },
-        },
-      });
-
-      await this.organizationRepository.save(organization);
-      console.log('✅ Created default organization');
-    } else {
-      console.log('⏭️  Default organization already exists');
+            if (!existingRole) {
+                const role = this.roleRepository.create(roleData);
+                await this.roleRepository.save(role);
+                console.log(`✅ Created role: ${roleData.name}`);
+            } else {
+                console.log(`⏭️  Role already exists: ${roleData.name}`);
+            }
+        }
     }
-  }
 
-  private async seedSuperAdmin(): Promise<void> {
-    console.log('👑 Seeding super admin user...');
+    private async seedDefaultOrganization(): Promise<void> {
+        console.log('🏥 Seeding default organization...');
 
-    const existingAdmin = await this.userRepository.findOne({
-      where: { email: 'admin@demo-medical.com' },
-    });
-
-    if (!existingAdmin) {
-      const organization = await this.organizationRepository.findOne({
-        where: { name: 'Demo Medical Center' },
-      });
-
-      const superAdminRole = await this.roleRepository.findOne({
-        where: { name: RoleName.SUPER_ADMIN },
-      });
-
-      if (organization && superAdminRole) {
-        const hashedPassword = await bcrypt.hash(
-          process.env.SEED_ADMIN_PASSWORD || 'Admin123!',
-          12,
-        );
-
-        const admin = this.userRepository.create({
-          email: process.env.SEED_ADMIN_EMAIL,
-          password: process.env.SEED_ADMIN_PASSWORD,
-          firstName: 'Super',
-          lastName: 'Admin',
-          phone: '+1-234-567-8901',
-          organizationId: organization.id,
-          roles: [superAdminRole],
-          isActive: true,
-          emailVerified: true,
+        const existingOrg = await this.organizationRepository.findOne({
+            where: { name: 'Demo Medical Center' },
         });
 
-        await this.userRepository.save(admin);
-        console.log('✅ Created super admin user');
-        console.log(`📧 Email: ${admin.email}`);
-        console.log(`🔑 Password: ${admin.password}`);
-      }
-    } else {
-      console.log('⏭️  Super admin user already exists');
+        if (!existingOrg) {
+            const organization = this.organizationRepository.create({
+                name: 'Demo Medical Center',
+                type: OrganizationType.MEDICAL_CENTER,
+                address: '123 Healthcare Street, Medical District',
+                phone: '+1-234-567-8900',
+                email: 'contact@demo-medical.com',
+                description: 'Demo organization for development and testing',
+            });
+
+            await this.organizationRepository.save(organization);
+            console.log('✅ Created default organization');
+        } else {
+            console.log('⏭️  Default organization already exists');
+        }
     }
-  }
+
+    private async seedSuperAdmin(): Promise<void> {
+        console.log('👑 Seeding super admin user...');
+
+        const existingAdmin = await this.userRepository.findOne({
+            where: { email: 'admin@demo-medical.com' },
+        });
+
+        if (!existingAdmin) {
+            const organization = await this.organizationRepository.findOne({
+                where: { name: 'Demo Medical Center' },
+            });
+
+            const superAdminRole = await this.roleRepository.findOne({
+                where: { name: RoleName.SUPER_ADMIN },
+            });
+
+            if (organization && superAdminRole) {
+                const hashedPassword = await bcrypt.hash(
+                    process.env.SEED_ADMIN_PASSWORD || 'Admin123!',
+                    12,
+                );
+
+                const admin = this.userRepository.create({
+                    email: process.env.SEED_ADMIN_EMAIL,
+                    password: process.env.SEED_ADMIN_PASSWORD,
+                    firstName: 'Super',
+                    lastName: 'Admin',
+                    phone: '+1-234-567-8901',
+                    organizationId: organization.id,
+                    roles: [superAdminRole],
+                    isActive: true,
+                    emailVerified: true,
+                });
+
+                await this.userRepository.save(admin);
+                console.log('✅ Created super admin user');
+                console.log(`📧 Email: ${admin.email}`);
+                console.log(`🔑 Password: ${admin.password}`);
+            }
+        } else {
+            console.log('⏭️  Super admin user already exists');
+        }
+    }
 }

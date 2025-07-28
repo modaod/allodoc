@@ -9,11 +9,13 @@ import { PaginatedResult } from '../common/interfaces/pagination.interface';
 
 @Injectable()
 export class PatientsService {
-    constructor(
-        private readonly patientsRepository: PatientsRepository,
-    ) { }
+    constructor(private readonly patientsRepository: PatientsRepository) {}
 
-    async create(createPatientDto: CreatePatientDto, organizationId: string, currentUser?: User): Promise<Patient> {
+    async create(
+        createPatientDto: CreatePatientDto,
+        organizationId: string,
+        currentUser?: User,
+    ): Promise<Patient> {
         // Validate data
         await this.validatePatientCreation(createPatientDto, organizationId);
 
@@ -45,7 +47,11 @@ export class PatientsService {
         return await this.patientsRepository.findByPatientNumber(patientNumber);
     }
 
-    async update(id: string, updatePatientDto: UpdatePatientDto, currentUser?: User): Promise<Patient> {
+    async update(
+        id: string,
+        updatePatientDto: UpdatePatientDto,
+        currentUser?: User,
+    ): Promise<Patient> {
         const existingPatient = await this.findById(id);
 
         // Validate changes
@@ -100,12 +106,12 @@ export class PatientsService {
 
     async searchByAllergy(allergen: string, organizationId: string): Promise<Patient[]> {
         const allPatients = await this.patientsRepository.findByOrganization(organizationId);
-        return allPatients.filter(patient => patient.hasAllergy(allergen));
+        return allPatients.filter((patient) => patient.hasAllergy(allergen));
     }
 
     async searchByMedication(medicationName: string, organizationId: string): Promise<Patient[]> {
         const allPatients = await this.patientsRepository.findByOrganization(organizationId);
-        return allPatients.filter(patient => patient.isOnMedication(medicationName));
+        return allPatients.filter((patient) => patient.isOnMedication(medicationName));
     }
 
     // =============================
@@ -126,7 +132,7 @@ export class PatientsService {
             return await this.patientsRepository.update(
                 id,
                 { medicalHistory: updatedMedicalHistory },
-                currentUser
+                currentUser,
             );
         }
 
@@ -137,7 +143,7 @@ export class PatientsService {
         const patient = await this.findById(id);
 
         const currentAllergies = patient.medicalHistory?.allergies || [];
-        const updatedAllergies = currentAllergies.filter(a => a !== allergy);
+        const updatedAllergies = currentAllergies.filter((a) => a !== allergy);
 
         const updatedMedicalHistory = {
             ...patient.medicalHistory,
@@ -147,7 +153,7 @@ export class PatientsService {
         return await this.patientsRepository.update(
             id,
             { medicalHistory: updatedMedicalHistory },
-            currentUser
+            currentUser,
         );
     }
 
@@ -166,15 +172,11 @@ export class PatientsService {
             return await this.patientsRepository.update(
                 id,
                 { medicalHistory: updatedMedicalHistory },
-                currentUser
+                currentUser,
             );
         }
 
         return patient;
-    }
-
-    async updateTags(id: string, tags: string[], currentUser?: User): Promise<Patient> {
-        return await this.patientsRepository.update(id, { tags }, currentUser);
     }
 
     // =============================
@@ -194,20 +196,27 @@ export class PatientsService {
         const allPatients = await this.patientsRepository.findByOrganization(organizationId);
 
         // Calculate average age
-        const ages = allPatients.map(patient => patient.age);
-        const averageAge = ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
+        const ages = allPatients.map((patient) => patient.age);
+        const averageAge =
+            ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
 
         // Gender distribution
         const genderDistribution = allPatients.reduce(
             (acc, patient) => {
                 switch (patient.gender) {
-                    case 'M': acc.male++; break;
-                    case 'F': acc.female++; break;
-                    default: acc.other++; break;
+                    case 'M':
+                        acc.male++;
+                        break;
+                    case 'F':
+                        acc.female++;
+                        break;
+                    default:
+                        acc.other++;
+                        break;
                 }
                 return acc;
             },
-            { male: 0, female: 0, other: 0 }
+            { male: 0, female: 0, other: 0 },
         );
 
         return {
@@ -225,7 +234,8 @@ export class PatientsService {
         const maxAttempts = 10;
 
         while (attempts < maxAttempts) {
-            const patientNumber = await this.patientsRepository.generatePatientNumber(organizationId);
+            const patientNumber =
+                await this.patientsRepository.generatePatientNumber(organizationId);
 
             const exists = await this.patientsRepository.checkPatientNumberExists(patientNumber);
             if (!exists) {
@@ -238,7 +248,10 @@ export class PatientsService {
         throw new Error('Impossible de générer un numéro patient unique');
     }
 
-    private async validatePatientCreation(createPatientDto: CreatePatientDto, organizationId: string): Promise<void> {
+    private async validatePatientCreation(
+        createPatientDto: CreatePatientDto,
+        organizationId: string,
+    ): Promise<void> {
         // Check for unique email (if provided)
         if (createPatientDto.email) {
             const emailExists = await this.patientsRepository.checkEmailExists(
@@ -247,7 +260,9 @@ export class PatientsService {
             );
 
             if (emailExists) {
-                throw new ConflictException('Un patient avec cet email existe déjà dans cette organisation');
+                throw new ConflictException(
+                    'Un patient avec cet email existe déjà dans cette organisation',
+                );
             }
         }
 
@@ -258,11 +273,16 @@ export class PatientsService {
         );
 
         if (phoneExists) {
-            throw new ConflictException('Un patient avec ce numéro de téléphone existe déjà dans cette organisation');
+            throw new ConflictException(
+                'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+            );
         }
     }
 
-    private async validatePatientUpdate(updatePatientDto: UpdatePatientDto, existingPatient: Patient): Promise<void> {
+    private async validatePatientUpdate(
+        updatePatientDto: UpdatePatientDto,
+        existingPatient: Patient,
+    ): Promise<void> {
         // Check email (if changed)
         if (updatePatientDto.email && updatePatientDto.email !== existingPatient.email) {
             const emailExists = await this.patientsRepository.checkEmailExists(
@@ -272,7 +292,9 @@ export class PatientsService {
             );
 
             if (emailExists) {
-                throw new ConflictException('Un patient avec cet email existe déjà dans cette organisation');
+                throw new ConflictException(
+                    'Un patient avec cet email existe déjà dans cette organisation',
+                );
             }
         }
 
@@ -284,7 +306,9 @@ export class PatientsService {
             );
 
             if (phoneExists && phoneExists.id !== existingPatient.id) {
-                throw new ConflictException('Un patient avec ce numéro de téléphone existe déjà dans cette organisation');
+                throw new ConflictException(
+                    'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+                );
             }
         }
     }

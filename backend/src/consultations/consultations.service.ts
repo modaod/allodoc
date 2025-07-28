@@ -15,9 +15,13 @@ export class ConsultationsService {
         private readonly consultationsRepository: ConsultationsRepository,
         private readonly appointmentsService: AppointmentsService,
         private readonly patientsService: PatientsService,
-    ) { }
+    ) {}
 
-    async create(createConsultationDto: CreateConsultationDto, organizationId: string, currentUser?: User): Promise<Consultation> {
+    async create(
+        createConsultationDto: CreateConsultationDto,
+        organizationId: string,
+        currentUser?: User,
+    ): Promise<Consultation> {
         // Validation des données
         await this.validateConsultationCreation(createConsultationDto, organizationId);
 
@@ -35,14 +39,20 @@ export class ConsultationsService {
             organizationId,
         };
 
-        const consultation = await this.consultationsRepository.create(consultationData, currentUser);
+        const consultation = await this.consultationsRepository.create(
+            consultationData,
+            currentUser,
+        );
 
         // Mettre à jour la dernière visite du patient
         await this.patientsService.updateLastVisit(createConsultationDto.patientId);
 
         // Si lié à un rendez-vous, marquer le rendez-vous comme terminé
         if (createConsultationDto.appointmentId) {
-            await this.appointmentsService.complete(createConsultationDto.appointmentId, currentUser);
+            await this.appointmentsService.complete(
+                createConsultationDto.appointmentId,
+                currentUser,
+            );
         }
 
         return consultation;
@@ -57,7 +67,11 @@ export class ConsultationsService {
         ]);
     }
 
-    async update(id: string, updateConsultationDto: UpdateConsultationDto, currentUser?: User): Promise<Consultation> {
+    async update(
+        id: string,
+        updateConsultationDto: UpdateConsultationDto,
+        currentUser?: User,
+    ): Promise<Consultation> {
         // Automatically calculate BMI if height and weight are provided
         if (updateConsultationDto.vitalSigns?.height && updateConsultationDto.vitalSigns?.weight) {
             const height = updateConsultationDto.vitalSigns.height / 100;
@@ -69,7 +83,10 @@ export class ConsultationsService {
         return await this.consultationsRepository.update(id, updateConsultationDto, currentUser);
     }
 
-    async search(searchDto: SearchDto, organizationId: string): Promise<PaginatedResult<Consultation>> {
+    async search(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): Promise<PaginatedResult<Consultation>> {
         return await this.consultationsRepository.search(searchDto, organizationId);
     }
 
@@ -77,23 +94,19 @@ export class ConsultationsService {
         return await this.consultationsRepository.findByPatient(patientId, limit);
     }
 
-    async findByDoctor(doctorId: string, startDate?: Date, endDate?: Date): Promise<Consultation[]> {
+    async findByDoctor(
+        doctorId: string,
+        startDate?: Date,
+        endDate?: Date,
+    ): Promise<Consultation[]> {
         return await this.consultationsRepository.findByDoctor(doctorId, startDate, endDate);
     }
 
-    async findRecentConsultations(organizationId: string, limit: number = 10): Promise<Consultation[]> {
+    async findRecentConsultations(
+        organizationId: string,
+        limit: number = 10,
+    ): Promise<Consultation[]> {
         return await this.consultationsRepository.findRecentConsultations(organizationId, limit);
-    }
-
-    async markAsPaid(id: string, currentUser?: User): Promise<Consultation> {
-        return await this.consultationsRepository.update(
-            id,
-            {
-                isPaid: true,
-                paymentDate: new Date(),
-            },
-            currentUser,
-        );
     }
 
     async addAttachment(id: string, attachment: any, currentUser?: User): Promise<Consultation> {
@@ -135,11 +148,14 @@ export class ConsultationsService {
         };
     }
 
-    private async validateConsultationCreation(createConsultationDto: CreateConsultationDto, organizationId: string): Promise<void> {
+    private async validateConsultationCreation(
+        createConsultationDto: CreateConsultationDto,
+        organizationId: string,
+    ): Promise<void> {
         // Vérifier que le patient existe et appartient à l'organisation
         const patient = await this.patientsService.findById(createConsultationDto.patientId);
         if (patient.organizationId !== organizationId) {
-            throw new BadRequestException('Le patient n\'appartient pas à cette organisation');
+            throw new BadRequestException("Le patient n'appartient pas à cette organisation");
         }
 
         // Vérifier que le médecin existe et appartient à l'organisation
@@ -147,7 +163,9 @@ export class ConsultationsService {
 
         // Vérifier que le rendez-vous existe (si fourni)
         if (createConsultationDto.appointmentId) {
-            const appointment = await this.appointmentsService.findById(createConsultationDto.appointmentId);
+            const appointment = await this.appointmentsService.findById(
+                createConsultationDto.appointmentId,
+            );
             if (appointment.patientId !== createConsultationDto.patientId) {
                 throw new BadRequestException('Le rendez-vous ne correspond pas au patient');
             }
@@ -163,7 +181,10 @@ export class ConsultationsService {
     }
 
     private validateVitalSigns(vitalSigns: any): void {
-        if (vitalSigns.temperature && (vitalSigns.temperature < 30 || vitalSigns.temperature > 45)) {
+        if (
+            vitalSigns.temperature &&
+            (vitalSigns.temperature < 30 || vitalSigns.temperature > 45)
+        ) {
             throw new BadRequestException('Température invalide');
         }
 
@@ -178,7 +199,10 @@ export class ConsultationsService {
             }
         }
 
-        if (vitalSigns.oxygenSaturation && (vitalSigns.oxygenSaturation < 50 || vitalSigns.oxygenSaturation > 100)) {
+        if (
+            vitalSigns.oxygenSaturation &&
+            (vitalSigns.oxygenSaturation < 50 || vitalSigns.oxygenSaturation > 100)
+        ) {
             throw new BadRequestException('Saturation en oxygène invalide');
         }
 

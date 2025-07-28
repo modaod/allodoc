@@ -53,10 +53,11 @@ export class PatientsRepository extends BaseRepository<Patient> {
         }
 
         // Generate organization code (first 3 letters)
-        const orgCode = organization.name
-            .replace(/[^A-Za-z]/g, '')
-            .substring(0, 3)
-            .toUpperCase() || 'MED';
+        const orgCode =
+            organization.name
+                .replace(/[^A-Za-z]/g, '')
+                .substring(0, 3)
+                .toUpperCase() || 'MED';
 
         // Count existing patients for this organization
         const count = await this.patientRepository.count({
@@ -77,7 +78,11 @@ export class PatientsRepository extends BaseRepository<Patient> {
         return count > 0;
     }
 
-    async checkEmailExists(email: string, organizationId: string, excludeId?: string): Promise<boolean> {
+    async checkEmailExists(
+        email: string,
+        organizationId: string,
+        excludeId?: string,
+    ): Promise<boolean> {
         const query = this.patientRepository
             .createQueryBuilder('patient')
             .where('patient.email = :email', { email })
@@ -110,7 +115,7 @@ export class PatientsRepository extends BaseRepository<Patient> {
             .where('patient.organizationId = :organizationId', { organizationId })
             .andWhere('appointment.appointmentDate <= :tomorrow', { tomorrow })
             .andWhere('appointment.status IN (:...statuses)', {
-                statuses: ['SCHEDULED', 'CONFIRMED']
+                statuses: ['SCHEDULED', 'CONFIRMED'],
             })
             .getMany();
     }
@@ -135,8 +140,8 @@ export class PatientsRepository extends BaseRepository<Patient> {
             this.patientRepository.count({
                 where: {
                     organizationId,
-                    createdAt: { $gte: startOfMonth } as any
-                }
+                    createdAt: { $gte: startOfMonth } as any,
+                },
             }),
             this.patientRepository
                 .createQueryBuilder('patient')
@@ -149,7 +154,10 @@ export class PatientsRepository extends BaseRepository<Patient> {
         return { total, active, newThisMonth, withAllergies };
     }
 
-    private createSearchQuery(searchDto: SearchDto, organizationId: string): SelectQueryBuilder<Patient> {
+    private createSearchQuery(
+        searchDto: SearchDto,
+        organizationId: string,
+    ): SelectQueryBuilder<Patient> {
         const qb = this.patientRepository
             .createQueryBuilder('patient')
             .where('patient.organizationId = :organizationId', { organizationId })
