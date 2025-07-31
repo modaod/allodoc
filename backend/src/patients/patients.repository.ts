@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository, SelectQueryBuilder, MoreThanOrEqual } from 'typeorm';
 import { BaseRepository } from '../common/repositories/base.repository';
 import { Patient } from './entities/patient.entity';
 import { SearchDto } from '../common/dto/search.dto';
@@ -38,6 +38,7 @@ export class PatientsRepository extends BaseRepository<Patient> {
         const qb = this.createSearchQuery(searchDto, organizationId);
         return await this.paginate(searchDto, qb);
     }
+
 
     async generatePatientNumber(organizationId: string): Promise<string> {
         // Retrieve the organization code
@@ -113,6 +114,7 @@ export class PatientsRepository extends BaseRepository<Patient> {
             .createQueryBuilder('patient')
             .innerJoinAndSelect('patient.appointments', 'appointment')
             .where('patient.organizationId = :organizationId', { organizationId })
+            .andWhere('patient.isActive = true')
             .andWhere('appointment.appointmentDate <= :tomorrow', { tomorrow })
             .andWhere('appointment.status IN (:...statuses)', {
                 statuses: ['SCHEDULED', 'CONFIRMED'],
@@ -140,12 +142,13 @@ export class PatientsRepository extends BaseRepository<Patient> {
             this.patientRepository.count({
                 where: {
                     organizationId,
-                    createdAt: { $gte: startOfMonth } as any,
+                    createdAt: MoreThanOrEqual(startOfMonth),
                 },
             }),
             this.patientRepository
                 .createQueryBuilder('patient')
                 .where('patient.organizationId = :organizationId', { organizationId })
+            .andWhere('patient.isActive = true')
                 .andWhere("patient.medicalHistory->>'allergies' IS NOT NULL")
                 .andWhere("jsonb_array_length(patient.medicalHistory->'allergies') > 0")
                 .getCount(),
@@ -175,11 +178,8 @@ export class PatientsRepository extends BaseRepository<Patient> {
         }
 
         // Date filterings
-        this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'patient.createdAt');
-
-        // Status filtering (tags)
-        if (searchDto.status) {
-            qb.andWhere(':status = ANY(patient.tags)', { status: searchDto.status });
+        if (searchDto.startDate || searchDto.endDate) {
+            this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'patient.createdAt');
         }
 
         // Sorting
