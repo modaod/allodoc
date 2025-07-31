@@ -1,98 +1,216 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# README.md
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This file provides guidance when working with code in this repository.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Development Commands
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+### Core Development
 
 ```bash
-$ npm install
+# Install dependencies
+npm install
+
+# Development server with hot reload
+npm run start:dev
+
+# Production build
+npm run build
+
+# Run production server
+npm run start:prod
+
+# Format code
+npm run format
+
+# Lint and fix
+npm run lint
 ```
 
-## Compile and run the project
+### Testing
 
 ```bash
-# development
-$ npm run start
+# Unit tests
+npm run test
 
-# watch mode
-$ npm run start:dev
+# Watch mode for tests
+npm run test:watch
 
-# production mode
-$ npm run start:prod
+# Test coverage
+npm run test:cov
+
+# End-to-end tests
+npm run test:e2e
+
+# Debug tests
+npm run test:debug
 ```
 
-## Run tests
+### Database Management
 
 ```bash
-# unit tests
-$ npm run test
+# Generate new migration from entity changes
+npm run migration:generate -- src/database/migrations/MigrationName
 
-# e2e tests
-$ npm run test:e2e
+# Run pending migrations
+npm run migration:run
 
-# test coverage
-$ npm run test:cov
+# Revert last migration
+npm run migration:revert
+
+# Sync database schema (development only)
+npm run schema:sync
+
+# Run database seeds
+npm run db:seed
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Docker Development
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Start all services (PostgreSQL, Redis, PgAdmin, App)
+npm run docker:dev
+
+# Start only database
+npm run docker:db
+
+# Stop all services
+npm run docker:down
+
+# Alternative: use the startup script
+./start-app.sh
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## High-Level Architecture
 
-## Resources
+### Multi-Tenant Medical Management System
 
-Check out a few resources that may come in handy when working with NestJS:
+This is a NestJS-based backend for a medical management system with the following key architectural patterns:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Multi-Tenancy**: All entities are scoped to an Organization. Users, patients, appointments, etc. are isolated by `organizationId`.
 
-## Support
+**Role-Based Access Control (RBAC)**:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- Users have roles (SUPER_ADMIN, ADMIN, DOCTOR, NURSE, RECEPTIONIST)
+- Each role has specific permissions
+- Global guards enforce authentication and authorization
 
-## Stay in touch
+**Repository Pattern**: All data access goes through repository classes that extend `BaseRepository<T>`, providing:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Standard CRUD operations
+- Organization-scoped queries
+- Pagination
+- Search functionality
+- Audit trail support
 
-## License
+**Auditable Entities**: All entities extend `AuditableEntity` which automatically tracks:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `createdAt`/`updatedAt` timestamps
+- `createdBy`/`updatedBy` user references
+- Utility methods for audit information
+
+### Module Structure
+
+- **Auth Module**: JWT-based authentication with refresh tokens
+- **Organizations Module**: Multi-tenant organization management
+- **Users Module**: User management with roles and permissions
+- **Patients Module**: Patient records with medical history (JSON field)
+- **Appointments Module**: Appointment scheduling
+- **Consultations Module**: Medical consultation records
+- **Prescriptions Module**: Prescription management
+- **Common Module**: Shared utilities, guards, decorators, DTOs
+
+### Global Configuration
+
+- **Guards**: JWT authentication, role-based authorization, organization isolation, rate limiting
+- **Interceptors**: Audit logging for all operations
+- **Filters**: Centralized HTTP exception handling
+- **Validation**: Class-validator with whitelist and transformation
+- **Security**: Helmet, CORS, compression enabled
+
+### Database Setup
+
+- **PostgreSQL** with TypeORM
+- **Migrations**: Located in `src/database/migrations/`
+- **Seeds**: Default data setup via `SeedService`
+- **Initialization**: SQL scripts in `src/database/init/` run on container startup
+
+### Development Services
+
+- **API**: http://localhost:3000/api (with Swagger docs at /api/docs)
+- **Database**: PostgreSQL on localhost:5432
+- **PgAdmin**: http://localhost:5050 (admin@medical.com / admin123)
+- **Redis**: localhost:6379 (for sessions/cache)
+
+### Key Patterns to Follow
+
+**Repository Pattern**: Always extend `BaseRepository<T>` for data access:
+
+```typescript
+@Injectable()
+export class PatientsRepository extends BaseRepository<Patient> {
+    constructor(@InjectRepository(Patient) repository: Repository<Patient>) {
+        super(repository);
+    }
+
+    // Add custom methods here
+}
+```
+
+**Entity Pattern**: All business entities should extend `AuditableEntity`:
+
+```typescript
+@Entity('table_name')
+export class MyEntity extends AuditableEntity {
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column()
+    organizationId: string; // Required for multi-tenancy
+
+    @ManyToOne(() => Organization)
+    organization: Organization;
+}
+```
+
+**DTO Validation**: Use class-validator decorators for all DTOs:
+
+```typescript
+export class CreateEntityDto {
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+}
+```
+
+**Multi-tenant Queries**: Always filter by organization in repositories:
+
+```typescript
+async findByOrganization(organizationId: string): Promise<MyEntity[]> {
+  return this.repository.find({ where: { organizationId } });
+}
+```
+
+**Authentication Decorators**: Use provided decorators for route protection:
+
+```typescript
+@UseGuards(JwtAuthGuard)
+@Roles(RoleName.DOCTOR, RoleName.ADMIN)
+@ApiBearer('JWT-auth')
+getProtectedRoute(@CurrentUser() user: User, @Organization() org: Organization) {
+  // Implementation
+}
+```
+
+### Configuration
+
+Environment variables are loaded from `.env.development` (or `.env.production`). Key configurations are organized in `src/config/`:
+
+- `app.config.ts`: Application settings (port, CORS, rate limiting)
+- `database.config.ts`: Database connection settings
+- `jwt.config.ts`: JWT token configuration
+
+The system uses TypeORM with automatic entity discovery and supports both synchronization (development) and migrations (production).
