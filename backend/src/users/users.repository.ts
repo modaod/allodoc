@@ -85,8 +85,7 @@ export class UsersRepository extends BaseRepository<User> {
             .innerJoin('user.roles', 'role')
             .where('user.organizationId = :organizationId', { organizationId })
             .andWhere('role.name = :roleName', { roleName: RoleName.DOCTOR })
-            .andWhere('user.isActive = true')
-            .andWhere('user.acceptsNewPatients = true');
+            .andWhere('user.isActive = true');
 
         if (date) {
             const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
