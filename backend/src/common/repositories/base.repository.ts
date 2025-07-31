@@ -97,12 +97,14 @@ export abstract class BaseRepository<T extends AuditableEntity> {
         paginationDto: PaginationDto,
         queryBuilder?: SelectQueryBuilder<T>,
     ): Promise<PaginatedResult<T>> {
-        const { page = 1, limit = 10, skip } = paginationDto;
+        const { page = 1, limit = 10 } = paginationDto;
+        const skip = paginationDto.skip;
 
         const qb = queryBuilder || this.repository.createQueryBuilder('entity');
 
-        // Count total
-        const total = await qb.getCount();
+        // Count total - clone the query to avoid state issues
+        const countQb = qb.clone();
+        const total = await countQb.getCount();
 
         // Get paginated data
         const data = await qb.skip(skip).take(limit).getMany();
@@ -149,9 +151,7 @@ export abstract class BaseRepository<T extends AuditableEntity> {
             .map((field) => `${field} ILIKE :searchTerm`)
             .join(' OR ');
 
-        return qb.andWhere(`(${searchConditions})`, {
-            searchTerm: `%${searchTerm}%`,
-        });
+        return qb.andWhere(`(${searchConditions})`).setParameter('searchTerm', `%${searchTerm}%`);
     }
 
     protected addDateRangeToQuery(
@@ -161,10 +161,10 @@ export abstract class BaseRepository<T extends AuditableEntity> {
         dateField: string = 'createdAt',
     ): SelectQueryBuilder<T> {
         if (startDate) {
-            qb.andWhere(`${dateField} >= :startDate`, { startDate });
+            qb.andWhere(`${dateField} >= :startDate`).setParameter('startDate', startDate);
         }
         if (endDate) {
-            qb.andWhere(`${dateField} <= :endDate`, { endDate });
+            qb.andWhere(`${dateField} <= :endDate`).setParameter('endDate', endDate);
         }
         return qb;
     }
