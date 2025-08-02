@@ -62,3 +62,7 @@ start-app.sh
 # Database files
 *.db
 *.sql
+
+# Markdown files (except README.md)
+*.md
+!README.md
