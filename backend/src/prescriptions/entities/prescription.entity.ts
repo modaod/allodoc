@@ -39,7 +39,7 @@ export class Prescription extends AuditableEntity {
     @ManyToOne(() => Consultation, (consultation) => consultation.prescriptions)
     consultation: Consultation;
 
-    @Column()
+    @Column({ nullable: true })
     consultationId: string;
 
     @ManyToOne(() => Organization)

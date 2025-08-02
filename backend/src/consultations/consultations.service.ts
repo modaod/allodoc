@@ -1,13 +1,15 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Between } from 'typeorm';
 import { ConsultationsRepository } from './consultations.repository';
 import { AppointmentsService } from '../appointments/appointments.service';
 import { PatientsService } from '../patients/patients.service';
-import { CreateConsultationDto } from './dto/create-consultation.dto';
+import { CreateConsultationDto, EmbeddedPrescriptionDto } from './dto/create-consultation.dto';
 import { UpdateConsultationDto } from './dto/update-consultation.dto';
 import { SearchDto } from '../common/dto/search.dto';
 import { Consultation } from './entities/consultation.entity';
 import { User } from '../users/entities/user.entity';
 import { PaginatedResult } from '../common/interfaces/pagination.interface';
+import { PrescriptionsService } from '../prescriptions/prescriptions.service';
 
 @Injectable()
 export class ConsultationsService {
@@ -15,6 +17,7 @@ export class ConsultationsService {
         private readonly consultationsRepository: ConsultationsRepository,
         private readonly appointmentsService: AppointmentsService,
         private readonly patientsService: PatientsService,
+        private readonly prescriptionsService: PrescriptionsService,
     ) {}
 
     async create(
@@ -33,16 +36,37 @@ export class ConsultationsService {
             createConsultationDto.vitalSigns.bmi = bmi;
         }
 
+        // Support both reason and chiefComplaint - use chiefComplaint if provided, otherwise reason
+        const reason = createConsultationDto.chiefComplaint || createConsultationDto.reason;
+        if (!reason) {
+            throw new BadRequestException('Either chiefComplaint or reason must be provided');
+        }
+
         const consultationData = {
             ...createConsultationDto,
+            reason, // Always store as 'reason' in the database
             consultationDate: new Date(createConsultationDto.consultationDate),
             organizationId,
+            consultationNumber: await this.generateConsultationNumber(organizationId),
         };
 
+        // Remove prescriptions from consultation data as they'll be created separately
+        const { prescriptions, ...consultationDataWithoutPrescriptions } = consultationData;
+
         const consultation = await this.consultationsRepository.create(
-            consultationData,
+            consultationDataWithoutPrescriptions,
             currentUser,
         );
+
+        // Create integrated prescriptions if provided
+        if (prescriptions && prescriptions.length > 0) {
+            await this.createIntegratedPrescriptions(
+                consultation.id,
+                prescriptions,
+                organizationId,
+                currentUser,
+            );
+        }
 
         // Mettre à jour la dernière visite du patient
         await this.patientsService.updateLastVisit(createConsultationDto.patientId);
@@ -55,7 +79,8 @@ export class ConsultationsService {
             );
         }
 
-        return consultation;
+        // Return consultation with prescriptions included
+        return await this.findById(consultation.id);
     }
 
     async findById(id: string): Promise<Consultation> {
@@ -146,6 +171,53 @@ export class ConsultationsService {
             medications: patient.medicalHistory?.medications || [],
             lastConsultation: consultations[0],
         };
+    }
+
+    private async createIntegratedPrescriptions(
+        consultationId: string,
+        prescriptions: EmbeddedPrescriptionDto[],
+        organizationId: string,
+        currentUser?: User,
+    ): Promise<void> {
+        // Convert embedded prescriptions to prescription entity format
+        const medicationsArray = prescriptions.map(prescription => ({
+            name: prescription.medicationName,
+            dosage: prescription.dosage,
+            frequency: prescription.frequency,
+            duration: prescription.duration,
+            instructions: prescription.instructions || '',
+            quantity: prescription.quantity || 1,
+        }));
+
+        // Create prescription entity
+        const prescriptionData = {
+            consultationId,
+            organizationId,
+            medications: medicationsArray,
+            prescribedDate: new Date().toISOString(),
+            generalInstructions: 'Follow prescription instructions carefully',
+            notes: 'Created during consultation',
+        };
+
+        await this.prescriptionsService.create(prescriptionData, organizationId, currentUser);
+    }
+
+    private async generateConsultationNumber(organizationId: string): Promise<string> {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        
+        // Get the count of consultations for this organization this month
+        const startOfMonth = new Date(year, date.getMonth(), 1);
+        const endOfMonth = new Date(year, date.getMonth() + 1, 0);
+        
+        const count = await this.consultationsRepository.count({
+            organizationId,
+            consultationDate: Between(startOfMonth, endOfMonth),
+        });
+        
+        const sequence = String(count + 1).padStart(4, '0');
+        return `CONS-${year}${month}-${sequence}`;
     }
 
     private async validateConsultationCreation(

@@ -18,6 +18,7 @@ import { PatientsModule } from './patients/patients.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ConsultationsModule } from './consultations/consultations.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { AuditModule } from './audit/audit.module';
 
 // Global Guards, Interceptors, Filters
@@ -75,6 +76,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
         AppointmentsModule,
         ConsultationsModule,
         PrescriptionsModule,
+        DashboardModule,
         AuditModule,
     ],
     providers: [

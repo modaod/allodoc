@@ -23,6 +23,9 @@ export class Consultation extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @Column({ unique: true, nullable: true })
+    consultationNumber: string;
+
     @Column({ type: 'timestamp' })
     consultationDate: Date;
 
@@ -77,6 +80,20 @@ export class Consultation extends AuditableEntity {
     @Column({ type: 'text', nullable: true })
     notes: string;
 
+    @Column({ 
+        type: 'enum', 
+        enum: ['INITIAL', 'FOLLOW_UP', 'EMERGENCY', 'ROUTINE_CHECKUP', 'SPECIALIST', 'TELEMEDICINE'],
+        nullable: true 
+    })
+    type: string;
+
+    @Column({ 
+        type: 'enum', 
+        enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW'],
+        default: 'COMPLETED'
+    })
+    status: string;
+
     @Column({ type: 'json', nullable: true })
     metadata: {
         consultationType?: 'first_visit' | 'follow_up' | 'emergency';
@@ -111,7 +128,7 @@ export class Consultation extends AuditableEntity {
     @Column({ nullable: true })
     appointmentId: string;
 
-    @OneToMany(() => Prescription, (prescription) => prescription.consultation)
+    @OneToMany(() => Prescription, (prescription) => prescription.consultation, { nullable: true })
     prescriptions: Prescription[];
 
     // Utility methods
