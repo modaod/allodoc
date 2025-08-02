@@ -1,0 +1,368 @@
+<div class="patient-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+  </div>
+
+  <!-- Patient Details -->
+  <div *ngIf="!loading && patient" class="patient-content">
+    <!-- Header -->
+    <div class="header-actions">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Patients
+      </button>
+      
+      <div class="action-buttons">
+        <button mat-raised-button color="accent" (click)="newConsultation()">
+          <mat-icon>medical_services</mat-icon>
+          New Consultation
+        </button>
+        <button mat-raised-button color="accent" (click)="newPrescription()">
+          <mat-icon>medication</mat-icon>
+          New Prescription
+        </button>
+        <button mat-raised-button color="primary" (click)="editPatient()">
+          <mat-icon>edit</mat-icon>
+          Edit Patient
+        </button>
+        <button mat-raised-button color="warn" (click)="deletePatient()">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <div mat-card-avatar class="patient-avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <mat-card-title>{{ patient.firstName }} {{ patient.lastName }}</mat-card-title>
+        <mat-card-subtitle>Patient #{{ patient.patientNumber }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Age:</span>
+            <span class="value">{{ getPatientAge() }} years old</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Date of Birth:</span>
+            <span class="value">{{ formatDate(patient.dateOfBirth) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Gender:</span>
+            <span class="value">
+              <span class="gender-badge" [class.male]="patient.gender === 'M'" [class.female]="patient.gender === 'F'">
+                {{ getGenderDisplay() }}
+              </span>
+            </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <span class="value">
+              <span class="status-badge" [class.active]="patient.isActive" [class.inactive]="!patient.isActive">
+                {{ patient.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Contact Information</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="patient.email">
+            <span class="label">Email:</span>
+            <span class="value">
+              <a [href]="'mailto:' + patient.email">{{ patient.email }}</a>
+            </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Phone:</span>
+            <span class="value">
+              <a [href]="'tel:' + patient.phone">{{ patient.phone }}</a>
+            </span>
+          </div>
+          
+          <div class="info-item" *ngIf="patient.alternatePhone">
+            <span class="label">Alternate Phone:</span>
+            <span class="value">
+              <a [href]="'tel:' + patient.alternatePhone">{{ patient.alternatePhone }}</a>
+            </span>
+          </div>
+          
+          <div class="info-item full-width">
+            <span class="label">Address:</span>
+            <span class="value">{{ patient.address }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Medical History Card -->
+    <mat-card class="info-card" *ngIf="patient.medicalHistory">
+      <mat-card-header>
+        <mat-card-title>Medical History</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Allergies -->
+        <div class="medical-section" *ngIf="patient.medicalHistory.allergies && patient.medicalHistory.allergies.length > 0">
+          <h4>Allergies</h4>
+          <div class="chip-container">
+            <mat-chip *ngFor="let allergy of patient.medicalHistory.allergies" class="allergy-chip">
+              {{ allergy }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Chronic Diseases -->
+        <div class="medical-section" *ngIf="patient.medicalHistory.chronicDiseases && patient.medicalHistory.chronicDiseases.length > 0">
+          <h4>Chronic Diseases</h4>
+          <div class="chip-container">
+            <mat-chip *ngFor="let disease of patient.medicalHistory.chronicDiseases" class="disease-chip">
+              {{ disease }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Surgeries -->
+        <div class="medical-section" *ngIf="patient.medicalHistory.surgeries && patient.medicalHistory.surgeries.length > 0">
+          <h4>Surgeries</h4>
+          <div class="surgery-list">
+            <div *ngFor="let surgery of patient.medicalHistory.surgeries" class="surgery-item">
+              <div class="surgery-header">
+                <strong>{{ surgery.procedure }}</strong>
+                <span class="surgery-date">{{ surgery.date }}</span>
+              </div>
+              <div class="surgery-details">
+                <span *ngIf="surgery.hospital">Hospital: {{ surgery.hospital }}</span>
+                <span *ngIf="surgery.notes">Notes: {{ surgery.notes }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Medications -->
+        <div class="medical-section" *ngIf="patient.medicalHistory.medications && patient.medicalHistory.medications.length > 0">
+          <h4>Current Medications</h4>
+          <div class="medication-list">
+            <div *ngFor="let medication of patient.medicalHistory.medications" class="medication-item">
+              <div class="medication-header">
+                <strong>{{ medication.name }}</strong>
+                <span class="medication-dosage">{{ medication.dosage }}</span>
+              </div>
+              <div class="medication-details">
+                <span>Frequency: {{ medication.frequency }}</span>
+                <span *ngIf="medication.startDate">Started: {{ medication.startDate }}</span>
+                <span *ngIf="medication.endDate">Until: {{ medication.endDate }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Family History -->
+        <div class="medical-section" *ngIf="patient.medicalHistory && patient.medicalHistory.familyHistory && patient.medicalHistory.familyHistory.notes">
+          <h4>Family History</h4>
+          <p class="family-history-notes">{{ patient.medicalHistory.familyHistory.notes }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Notes Card -->
+    <mat-card class="info-card" *ngIf="patient.notes">
+      <mat-card-header>
+        <mat-card-title>Additional Notes</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p class="notes-content">{{ patient.notes }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Medical History Tabs -->
+    <mat-card class="medical-history-card">
+      <mat-card-header>
+        <mat-card-title>Medical History & Timeline</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <mat-tab-group (selectedTabChange)="onTabChange($event)">
+          <!-- Medical Timeline Tab -->
+          <mat-tab label="Timeline">
+            <div class="timeline-container" *ngIf="!loadingTimeline">
+              <div *ngIf="medicalTimeline.length === 0" class="no-data">
+                <mat-icon>timeline</mat-icon>
+                <p>No medical history available</p>
+                <button mat-raised-button color="accent" (click)="newConsultation()">
+                  Schedule First Consultation
+                </button>
+              </div>
+              
+              <div class="timeline" *ngIf="medicalTimeline.length > 0">
+                <div 
+                  *ngFor="let event of medicalTimeline; let isLast = last" 
+                  class="timeline-item" 
+                  [class.last]="isLast"
+                >
+                  <div class="timeline-marker" [class]="getTimelineColor(event.type)">
+                    <mat-icon>{{ getTimelineIcon(event.type) }}</mat-icon>
+                  </div>
+                  
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <h4 class="timeline-title">{{ event.title }}</h4>
+                      <span class="timeline-date">{{ formatDate(event.date) }}</span>
+                    </div>
+                    
+                    <div class="timeline-meta">
+                      <span class="timeline-subtitle">{{ event.subtitle }}</span>
+                      <mat-chip 
+                        *ngIf="event.status" 
+                        [class]="getStatusColor(event.type, event.status)"
+                        class="status-chip"
+                      >
+                        {{ event.status }}
+                      </mat-chip>
+                    </div>
+                    
+                    <p class="timeline-description">{{ event.description }}</p>
+                    
+                    <div class="timeline-actions">
+                      <button 
+                        mat-button 
+                        color="primary" 
+                        (click)="event.type === 'consultation' ? viewConsultation(event.id) : viewPrescription(event.id)"
+                      >
+                        <mat-icon>visibility</mat-icon>
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="loadingTimeline" class="loading-timeline">
+              <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+              <p>Loading medical history...</p>
+            </div>
+          </mat-tab>
+          
+          <!-- Consultations Tab -->
+          <mat-tab label="Consultations">
+            <div class="consultations-list">
+              <div *ngIf="consultations.length === 0" class="no-data">
+                <mat-icon>medical_services</mat-icon>
+                <p>No consultations recorded</p>
+                <button mat-raised-button color="accent" (click)="newConsultation()">
+                  Schedule Consultation
+                </button>
+              </div>
+              
+              <div *ngFor="let consultation of consultations" class="consultation-card">
+                <div class="consultation-header">
+                  <h4>{{ consultation.consultationNumber }}</h4>
+                  <mat-chip [class]="getStatusColor('consultation', consultation.status)">
+                    {{ consultation.status }}
+                  </mat-chip>
+                </div>
+                <div class="consultation-details">
+                  <p><strong>Date:</strong> {{ formatDate(consultation.consultationDate) }}</p>
+                  <p><strong>Type:</strong> {{ consultation.type }}</p>
+                  <p><strong>Chief Complaint:</strong> {{ consultation.chiefComplaint || consultation.reason }}</p>
+                  <p *ngIf="consultation.treatmentPlan"><strong>Treatment:</strong> {{ consultation.treatmentPlan }}</p>
+                </div>
+                <div class="consultation-actions">
+                  <button mat-button color="primary" (click)="viewConsultation(consultation.id!)">
+                    <mat-icon>visibility</mat-icon>
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+          
+          <!-- Prescriptions Tab -->
+          <mat-tab label="Prescriptions">
+            <div class="prescriptions-list">
+              <div *ngIf="prescriptions.length === 0" class="no-data">
+                <mat-icon>medication</mat-icon>
+                <p>No prescriptions issued</p>
+                <button mat-raised-button color="accent" (click)="newPrescription()">
+                  Create Prescription
+                </button>
+              </div>
+              
+              <div *ngFor="let prescription of prescriptions" class="prescription-card">
+                <div class="prescription-header">
+                  <h4>{{ prescription.prescriptionNumber }}</h4>
+                  <mat-chip [class]="getStatusColor('prescription', prescription.status)">
+                    {{ prescription.status }}
+                  </mat-chip>
+                </div>
+                <div class="prescription-details">
+                  <p><strong>Date:</strong> {{ formatDate(prescription.prescriptionDate) }}</p>
+                  <p><strong>Valid Until:</strong> {{ formatDate(prescription.validUntil) }}</p>
+                  <p><strong>Medications:</strong></p>
+                  <ul class="medication-list">
+                    <li *ngFor="let med of prescription.medications">
+                      <strong>{{ med.medicationName }}</strong> - {{ med.dosage }} {{ med.frequency }}/{{ med.frequencyType }}
+                    </li>
+                  </ul>
+                  <p *ngIf="prescription.instructions"><strong>Instructions:</strong> {{ prescription.instructions }}</p>
+                </div>
+                <div class="prescription-actions">
+                  <button mat-button color="primary" (click)="viewPrescription(prescription.id!)">
+                    <mat-icon>visibility</mat-icon>
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+    
+    <!-- Visit Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Visit Information</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Last Visit:</span>
+            <span class="value">{{ formatDate(patient.lastVisit) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Patient Since:</span>
+            <span class="value">{{ formatDate(patient.createdAt) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ formatDate(patient.updatedAt) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

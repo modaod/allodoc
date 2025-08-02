@@ -1,0 +1,262 @@
+<div class="patient-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditMode ? 'Edit Patient' : 'Add New Patient' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Update patient information' : 'Enter patient details' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      </div>
+
+      <!-- Patient Form -->
+      <form *ngIf="!loading" [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form">
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName" required>
+              <mat-error>{{ getFieldError('firstName') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName" required>
+              <mat-error>{{ getFieldError('lastName') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Date of Birth</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" required>
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-error>{{ getFieldError('dateOfBirth') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Gender</mat-label>
+              <mat-select formControlName="gender" required>
+                <mat-option value="M">Male</mat-option>
+                <mat-option value="F">Female</mat-option>
+              </mat-select>
+              <mat-error>{{ getFieldError('gender') }}</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="form-section">
+          <h3>Contact Information</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+              <mat-error>{{ getFieldError('email') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Phone</mat-label>
+              <input matInput formControlName="phone" required>
+              <mat-error>{{ getFieldError('phone') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Alternate Phone</mat-label>
+              <input matInput formControlName="alternatePhone">
+              <mat-error>{{ getFieldError('alternatePhone') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Address</mat-label>
+              <textarea matInput formControlName="address" rows="3" required></textarea>
+              <mat-error>{{ getFieldError('address') }}</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Medical History Section -->
+        <div class="form-section" formGroupName="medicalHistory">
+          <h3>Medical History</h3>
+          
+          <!-- Allergies -->
+          <div class="form-row">
+            <div class="chip-input-section">
+              <label>Allergies</label>
+              <div class="chip-container">
+                <mat-chip *ngFor="let allergy of allergies" [removable]="true" (removed)="removeAllergy(allergy)">
+                  {{ allergy }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              </div>
+              <mat-form-field appearance="outline" class="chip-input-field">
+                <input matInput placeholder="Add allergy and press Enter" #allergyInput
+                       (keydown.enter)="addAllergyFromInput($event, allergyInput)">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Chronic Diseases -->
+          <div class="form-row">
+            <div class="chip-input-section">
+              <label>Chronic Diseases</label>
+              <div class="chip-container">
+                <mat-chip *ngFor="let disease of chronicDiseases" [removable]="true" (removed)="removeChronicDisease(disease)">
+                  {{ disease }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              </div>
+              <mat-form-field appearance="outline" class="chip-input-field">
+                <input matInput placeholder="Add chronic disease and press Enter" #diseaseInput
+                       (keydown.enter)="addChronicDiseaseFromInput($event, diseaseInput)">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Surgeries -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <h4>Surgeries</h4>
+              <button type="button" mat-button color="primary" (click)="addSurgery()">
+                <mat-icon>add</mat-icon>
+                Add Surgery
+              </button>
+            </div>
+            
+            <div formArrayName="surgeries">
+              <div *ngFor="let surgery of surgeries.controls; let i = index" [formGroupName]="i" class="dynamic-form-group">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Procedure</mat-label>
+                    <input matInput formControlName="procedure" required>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Date</mat-label>
+                    <input matInput formControlName="date" required>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Hospital</mat-label>
+                    <input matInput formControlName="hospital">
+                  </mat-form-field>
+
+                  <div class="form-field remove-button-container">
+                    <button type="button" mat-icon-button color="warn" (click)="removeSurgery(i)" matTooltip="Remove Surgery">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Notes</mat-label>
+                    <textarea matInput formControlName="notes" rows="2"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medications -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <h4>Current Medications</h4>
+              <button type="button" mat-button color="primary" (click)="addMedication()">
+                <mat-icon>add</mat-icon>
+                Add Medication
+              </button>
+            </div>
+            
+            <div formArrayName="medications">
+              <div *ngFor="let medication of medications.controls; let i = index" [formGroupName]="i" class="dynamic-form-group">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Medication Name</mat-label>
+                    <input matInput formControlName="name" required>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Dosage</mat-label>
+                    <input matInput formControlName="dosage" required>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Frequency</mat-label>
+                    <input matInput formControlName="frequency" required>
+                  </mat-form-field>
+
+                  <div class="form-field remove-button-container">
+                    <button type="button" mat-icon-button color="warn" (click)="removeMedication(i)" matTooltip="Remove Medication">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Start Date</mat-label>
+                    <input matInput formControlName="startDate">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>End Date</mat-label>
+                    <input matInput formControlName="endDate">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Family History -->
+          <div class="subsection" formGroupName="familyHistory">
+            <h4>Family History</h4>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notes</mat-label>
+                <textarea matInput formControlName="notes" rows="3" placeholder="Family medical history notes..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Notes Section -->
+        <div class="form-section">
+          <h3>Additional Notes</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="4" placeholder="Any additional notes about the patient..."></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" mat-button (click)="onCancel()">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="patientForm.invalid || saving">
+            <mat-progress-spinner *ngIf="saving" mode="indeterminate" diameter="20"></mat-progress-spinner>
+            <span *ngIf="!saving">{{ isEditMode ? 'Update Patient' : 'Create Patient' }}</span>
+            <span *ngIf="saving">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,366 @@
+.consultation-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.consultation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Header Actions
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+// Cards
+.info-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  mat-card-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    
+    .consultation-avatar {
+      background-color: #2196f3;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  mat-card-content {
+    padding-top: 20px;
+  }
+}
+
+// Info Grid
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    .label {
+      font-weight: 500;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    .value {
+      font-weight: 400;
+      color: #333;
+    }
+  }
+}
+
+// Badges
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.status-completed {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.status-in-progress {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.status-scheduled {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.status-cancelled {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  &.status-no-show {
+    background-color: #fafafa;
+    color: #616161;
+  }
+}
+
+.type-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  
+  &.type-emergency {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  &.type-initial {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.type-follow-up {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.type-routine {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.type-specialist {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+  
+  &.type-telemedicine {
+    background-color: #e0f2f1;
+    color: #00695c;
+  }
+}
+
+// Content Sections
+.content-section {
+  margin-bottom: 20px;
+  
+  h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 0;
+    line-height: 1.6;
+    color: #666;
+  }
+}
+
+.complaint-text, .history-text, .treatment-text, .followup-text, .notes-text {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+  white-space: pre-line;
+}
+
+// Vital Signs Grid
+.vital-signs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  
+  .vital-sign-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    
+    mat-icon {
+      color: #2196f3;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .vital-info {
+      display: flex;
+      flex-direction: column;
+      
+      .vital-label {
+        font-size: 0.85em;
+        color: #666;
+        font-weight: 500;
+      }
+      
+      .vital-value {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #333;
+        
+        &.bmi-underweight {
+          color: #2196f3;
+        }
+        
+        &.bmi-normal {
+          color: #4caf50;
+        }
+        
+        &.bmi-overweight {
+          color: #ff9800;
+        }
+        
+        &.bmi-obese {
+          color: #f44336;
+        }
+      }
+    }
+  }
+}
+
+// Physical Examination Grid
+.examination-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  
+  .examination-item {
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+    
+    h5 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0;
+      line-height: 1.6;
+      color: #666;
+    }
+  }
+}
+
+// Diagnosis List
+.diagnosis-list {
+  .diagnosis-item {
+    margin-bottom: 20px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ff9800;
+    
+    .diagnosis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      
+      .diagnosis-title {
+        flex: 1;
+        
+        strong {
+          color: #333;
+        }
+        
+        .diagnosis-code {
+          color: #666;
+          font-size: 0.9em;
+          margin-left: 8px;
+        }
+      }
+      
+      .diagnosis-badges {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .diagnosis-notes {
+      margin: 8px 0 0 0;
+      padding-top: 8px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-style: italic;
+    }
+  }
+}
+
+.severity-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.severity-mild {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.severity-moderate {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.severity-severe {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  &.severity-critical {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .consultation-detail-container {
+    padding: 16px;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    
+    .action-buttons {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .vital-signs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .examination-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .diagnosis-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

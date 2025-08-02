@@ -1,0 +1,164 @@
+<div class="dashboard-container">
+  <!-- Welcome Header -->
+  <div class="welcome-section">
+    <h1 class="welcome-title">
+      Welcome back, {{ currentUser?.firstName || 'Doctor' }}!
+    </h1>
+    <p class="welcome-subtitle">Here's what's happening in your practice today</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid" *ngIf="!loading">
+    <mat-card class="stat-card patients-card" (click)="navigateToPatients()">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="stat-details">
+          <div class="stat-number">{{ statistics.totalPatients }}</div>
+          <div class="stat-label">Total Patients</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card consultations-card" (click)="navigateToConsultations()">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <mat-icon>medical_services</mat-icon>
+        </div>
+        <div class="stat-details">
+          <div class="stat-number">{{ statistics.todayConsultations }}</div>
+          <div class="stat-label">Today's Consultations</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card consultations-card" (click)="navigateToConsultations()">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <mat-icon>timeline</mat-icon>
+        </div>
+        <div class="stat-details">
+          <div class="stat-number">{{ statistics.thisWeekConsultations }}</div>
+          <div class="stat-label">This Week's Consultations</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card consultations-card" (click)="navigateToConsultations()">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <mat-icon>medical_information</mat-icon>
+        </div>
+        <div class="stat-details">
+          <div class="stat-number">{{ statistics.totalConsultations }}</div>
+          <div class="stat-label">Total Consultations</div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Quick Actions and Recent Activity -->
+  <div class="dashboard-content" *ngIf="!loading">
+    <!-- Quick Actions -->
+    <mat-card class="quick-actions-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>flash_on</mat-icon>
+          Quick Actions
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="quick-actions-grid">
+          <button mat-raised-button color="primary" class="action-button" (click)="addNewPatient()">
+            <mat-icon>person_add</mat-icon>
+            Add New Patient
+          </button>
+          
+          <button mat-raised-button color="accent" class="action-button" (click)="newConsultation()">
+            <mat-icon>medical_services</mat-icon>
+            New Consultation
+          </button>
+          
+          <button mat-stroked-button color="primary" class="action-button" (click)="quickPrescription()">
+            <mat-icon>medication</mat-icon>
+            Quick Prescription
+          </button>
+          
+          <button mat-stroked-button class="action-button">
+            <mat-icon>event</mat-icon>
+            Schedule Appointment
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Recent Activity -->
+    <mat-card class="recent-activity-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>history</mat-icon>
+          Recent Activity
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Empty State -->
+        <div *ngIf="recentActivities.length === 0" class="empty-state">
+          <mat-icon>history</mat-icon>
+          <p>No recent activities</p>
+          <p class="empty-subtitle">Start by adding a patient or creating a consultation</p>
+        </div>
+
+        <!-- Activity List -->
+        <div *ngIf="recentActivities.length > 0" class="activity-list">
+          <div *ngFor="let activity of recentActivities" class="activity-item">
+            <div class="activity-icon" [ngClass]="'activity-' + activity.type">
+              <mat-icon>{{ activity.icon }}</mat-icon>
+            </div>
+            <div class="activity-details">
+              <div class="activity-title">{{ activity.title }}</div>
+              <div class="activity-time">{{ activity.time }}</div>
+            </div>
+          </div>
+          
+          <div class="activity-item view-all">
+            <button mat-button color="primary">
+              <mat-icon>arrow_forward</mat-icon>
+              View All Activities
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Today's Schedule (Placeholder for future appointments integration) -->
+  <mat-card class="schedule-card" *ngIf="!loading">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>today</mat-icon>
+        Today's Schedule
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="schedule-placeholder empty-state">
+        <mat-icon>event_available</mat-icon>
+        <p>No appointments scheduled for today</p>
+        <p class="empty-subtitle">Schedule your first appointment to get started</p>
+        <button mat-raised-button color="primary">
+          <mat-icon>add</mat-icon>
+          Schedule Appointment
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

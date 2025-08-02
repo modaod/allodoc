@@ -1,0 +1,263 @@
+<div class="consultation-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+  </div>
+
+  <!-- Consultation Details -->
+  <div *ngIf="!loading && consultation" class="consultation-content">
+    <!-- Header -->
+    <div class="header-actions">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Consultations
+      </button>
+      
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="editConsultation()">
+          <mat-icon>edit</mat-icon>
+          Edit Consultation
+        </button>
+        <button mat-raised-button color="accent" (click)="createPrescription()">
+          <mat-icon>medication</mat-icon>
+          Create Prescription
+        </button>
+        <button mat-button (click)="printConsultation()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <button mat-raised-button color="warn" (click)="deleteConsultation()">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <div mat-card-avatar class="consultation-avatar">
+          <mat-icon>medical_services</mat-icon>
+        </div>
+        <mat-card-title>Consultation {{ consultation.consultationNumber }}</mat-card-title>
+        <mat-card-subtitle>{{ formatDateTime(consultation.consultationDate) }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Patient:</span>
+            <span class="value">{{ consultation.patientName }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Doctor:</span>
+            <span class="value">{{ consultation.doctorName }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Type:</span>
+            <span class="value">
+              <span class="type-badge" [ngClass]="getTypeClass(consultation.type)">
+                {{ consultation.type.replace('_', ' ') | titlecase }}
+              </span>
+            </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <span class="value">
+              <span class="status-badge" [ngClass]="getStatusClass(consultation.status)">
+                {{ consultation.status.replace('_', ' ') | titlecase }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="consultation.duration">
+            <span class="label">Duration:</span>
+            <span class="value">{{ consultation.duration }} minutes</span>
+          </div>
+
+          <div class="info-item" *ngIf="consultation.fee">
+            <span class="label">Fee:</span>
+            <span class="value">${{ consultation.fee }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Chief Complaint & History Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Complaint & History</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="content-section">
+          <h4>Chief Complaint</h4>
+          <p class="complaint-text">{{ consultation.chiefComplaint }}</p>
+        </div>
+
+        <div class="content-section" *ngIf="consultation.historyOfPresentIllness">
+          <h4>History of Present Illness</h4>
+          <p class="history-text">{{ consultation.historyOfPresentIllness }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Vital Signs Card -->
+    <mat-card class="info-card" *ngIf="consultation.vitalSigns">
+      <mat-card-header>
+        <mat-card-title>Vital Signs</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="vital-signs-grid">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.temperature">
+            <mat-icon>device_thermostat</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Temperature</span>
+              <span class="vital-value">{{ consultation.vitalSigns.temperature }}°C</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.bloodPressure">
+            <mat-icon>favorite</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Blood Pressure</span>
+              <span class="vital-value">
+                {{ consultation.vitalSigns.bloodPressure.systolic }}/{{ consultation.vitalSigns.bloodPressure.diastolic }} mmHg
+              </span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.heartRate">
+            <mat-icon>monitor_heart</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Heart Rate</span>
+              <span class="vital-value">{{ consultation.vitalSigns.heartRate }} BPM</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.respiratoryRate">
+            <mat-icon>air</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Respiratory Rate</span>
+              <span class="vital-value">{{ consultation.vitalSigns.respiratoryRate }}/min</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.oxygenSaturation">
+            <mat-icon>opacity</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Oxygen Saturation</span>
+              <span class="vital-value">{{ consultation.vitalSigns.oxygenSaturation }}%</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.weight">
+            <mat-icon>scale</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Weight</span>
+              <span class="vital-value">{{ consultation.vitalSigns.weight }} kg</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.height">
+            <mat-icon>height</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">Height</span>
+              <span class="vital-value">{{ consultation.vitalSigns.height }} cm</span>
+            </div>
+          </div>
+
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.bmi">
+            <mat-icon>calculate</mat-icon>
+            <div class="vital-info">
+              <span class="vital-label">BMI</span>
+              <span class="vital-value" [ngClass]="getBMIClass(consultation.vitalSigns.bmi)">
+                {{ consultation.vitalSigns.bmi }} ({{ getBMICategory(consultation.vitalSigns.bmi) }})
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Physical Examination Card -->
+    <mat-card class="info-card" *ngIf="consultation.physicalExamination">
+      <mat-card-header>
+        <mat-card-title>Physical Examination</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <pre>{{ getPhysicalExaminationText() }}</pre>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Diagnosis Card -->
+    <mat-card class="info-card" *ngIf="getDiagnosisText()">
+      <mat-card-header>
+        <mat-card-title>Diagnosis</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <pre>{{ getDiagnosisText() }}</pre>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Treatment Plan Card -->
+    <mat-card class="info-card" *ngIf="consultation.treatmentPlan">
+      <mat-card-header>
+        <mat-card-title>Treatment Plan</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p class="treatment-text">{{ consultation.treatmentPlan }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Follow-up Instructions Card -->
+    <mat-card class="info-card" *ngIf="consultation.followUpInstructions">
+      <mat-card-header>
+        <mat-card-title>Follow-up Instructions</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p class="followup-text">{{ consultation.followUpInstructions }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Notes Card -->
+    <mat-card class="info-card" *ngIf="consultation.notes">
+      <mat-card-header>
+        <mat-card-title>Additional Notes</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p class="notes-text">{{ consultation.notes }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Metadata Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Consultation Information</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Created:</span>
+            <span class="value">{{ formatDateTime(consultation.createdAt) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ formatDateTime(consultation.updatedAt) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

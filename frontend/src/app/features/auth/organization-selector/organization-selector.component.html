@@ -1,0 +1,73 @@
+<div class="organization-selector-container">
+  <div class="selector-card">
+    <mat-card>
+      <mat-card-header>
+        <div class="header-content">
+          <mat-icon class="org-icon">business</mat-icon>
+          <mat-card-title>Select Organization</mat-card-title>
+          <mat-card-subtitle>Choose which organization you want to access</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="organizations-grid">
+          <mat-card 
+            *ngFor="let org of organizations" 
+            class="organization-card"
+            [class.selected]="selectedOrganizationId === org.id"
+            (click)="selectedOrganizationId = org.id">
+            
+            <mat-card-header>
+              <div mat-card-avatar class="org-avatar">
+                <mat-icon>local_hospital</mat-icon>
+              </div>
+              <mat-card-title>{{ org.name }}</mat-card-title>
+              <mat-card-subtitle>
+                <div class="org-details">
+                  <span class="role-badge" [class.doctor]="org.role === 'DOCTOR'" 
+                                           [class.secretary]="org.role === 'SECRETARY'"
+                                           [class.admin]="org.role === 'ADMIN'">
+                    {{ org.role }}
+                  </span>
+                  <span class="last-accessed">{{ getTimeSinceAccess(org.lastAccessed) }}</span>
+                </div>
+              </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-actions align="end">
+              <mat-radio-button 
+                [checked]="selectedOrganizationId === org.id"
+                (click)="$event.stopPropagation()">
+              </mat-radio-button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+        <div class="remember-section">
+          <mat-checkbox [(ngModel)]="rememberChoice" color="primary">
+            Remember my choice for next time
+          </mat-checkbox>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="selectOrganization(selectedOrganizationId!)"
+                  [disabled]="!selectedOrganizationId || loading"
+                  class="continue-button">
+            <mat-progress-spinner 
+              *ngIf="loading" 
+              diameter="20" 
+              mode="indeterminate">
+            </mat-progress-spinner>
+            <span *ngIf="!loading">Continue</span>
+          </button>
+
+          <button mat-button (click)="logout()" [disabled]="loading">
+            Sign Out
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

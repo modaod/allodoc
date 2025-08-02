@@ -1,0 +1,220 @@
+<div class="prescription-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+  </div>
+
+  <!-- Prescription Details -->
+  <div *ngIf="!loading && prescription" class="prescription-content">
+    <!-- Header -->
+    <div class="header-actions">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Prescriptions
+      </button>
+      
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="editPrescription()">
+          <mat-icon>edit</mat-icon>
+          Edit Prescription
+        </button>
+        <button mat-button (click)="printPrescription()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <button mat-raised-button color="warn" (click)="deletePrescription()">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <div mat-card-avatar class="prescription-avatar">
+          <mat-icon>medication</mat-icon>
+        </div>
+        <mat-card-title>Prescription {{ prescription.prescriptionNumber }}</mat-card-title>
+        <mat-card-subtitle>{{ formatDateTime(prescription.prescriptionDate) }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Patient:</span>
+            <span class="value">{{ prescription.patientName }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Doctor:</span>
+            <span class="value">{{ prescription.doctorName }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Prescription Date:</span>
+            <span class="value">{{ formatDate(prescription.prescriptionDate) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Valid Until:</span>
+            <span class="value">
+              <span [ngClass]="{
+                'expiring-soon': isExpiringSoon(prescription.validUntil),
+                'expired': isExpired(prescription.validUntil)
+              }">
+                {{ formatDate(prescription.validUntil) }}
+              </span>
+              <mat-icon *ngIf="isExpiringSoon(prescription.validUntil)" 
+                        class="warning-icon" 
+                        matTooltip="Expires within 30 days">
+                warning
+              </mat-icon>
+              <mat-icon *ngIf="isExpired(prescription.validUntil)" 
+                        class="error-icon" 
+                        matTooltip="Expired">
+                error
+              </mat-icon>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <span class="value">
+              <span class="status-badge" [ngClass]="getStatusClass(prescription.status)">
+                {{ prescription.status.replace('_', ' ') | titlecase }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="prescription.validUntil">
+            <span class="label">Days Remaining:</span>
+            <span class="value" [ngClass]="{
+              'text-warning': getRemainingDays(prescription.validUntil) <= 30 && getRemainingDays(prescription.validUntil) > 0,
+              'text-danger': getRemainingDays(prescription.validUntil) <= 0
+            }">
+              {{ getRemainingDays(prescription.validUntil) }} days
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Medications Card -->
+    <mat-card class="info-card" *ngIf="prescription.medications && prescription.medications.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>medication</mat-icon>
+          Prescribed Medications ({{ getTotalMedications() }})
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="medications-list">
+          <div *ngFor="let medication of prescription.medications; let i = index" class="medication-item">
+            <div class="medication-header">
+              <div class="medication-name">
+                <strong>{{ i + 1 }}. {{ medication.medicationName }}</strong>
+                <span class="medication-form">{{ medication.dosageForm.replace('_', ' ') | titlecase }}</span>
+              </div>
+              <div class="medication-badges">
+                <span class="dosage-badge">{{ medication.dosage }} {{ medication.dosageForm.toLowerCase() }}</span>
+              </div>
+            </div>
+
+            <div class="medication-details">
+              <div class="detail-item">
+                <mat-icon>schedule</mat-icon>
+                <span class="detail-label">Frequency:</span>
+                <span class="detail-value">{{ medication.frequency }} times {{ medication.frequencyType.toLowerCase() }}</span>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>timelapse</mat-icon>
+                <span class="detail-label">Duration:</span>
+                <span class="detail-value">{{ medication.duration }} {{ medication.durationUnit.toLowerCase() }}</span>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>inventory</mat-icon>
+                <span class="detail-label">Quantity:</span>
+                <span class="detail-value">{{ medication.quantity }}</span>
+              </div>
+
+              <div class="detail-item" *ngIf="medication.refills && medication.refills > 0">
+                <mat-icon>refresh</mat-icon>
+                <span class="detail-label">Refills:</span>
+                <span class="detail-value">{{ medication.refills }}</span>
+              </div>
+            </div>
+
+            <div class="medication-instructions" *ngIf="medication.instructions">
+              <mat-icon>info_outline</mat-icon>
+              <div class="instructions-content">
+                <strong>Instructions:</strong>
+                <p>{{ medication.instructions }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- General Instructions Card -->
+    <mat-card class="info-card" *ngIf="prescription.instructions">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          General Instructions
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="instructions-text">{{ prescription.instructions }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Notes Card -->
+    <mat-card class="info-card" *ngIf="prescription.notes">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>notes</mat-icon>
+          Notes
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="notes-text">{{ prescription.notes }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Metadata Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info</mat-icon>
+          Prescription Information
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Created:</span>
+            <span class="value">{{ formatDateTime(prescription.createdAt) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ formatDateTime(prescription.updatedAt) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="prescription.consultationId">
+            <span class="label">Related Consultation:</span>
+            <span class="value">{{ prescription.consultationId }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

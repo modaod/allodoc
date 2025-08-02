@@ -1,0 +1,274 @@
+<div class="simple-consultation-container">
+  <mat-card class="consultation-card">
+    <mat-card-header>
+      <div mat-card-avatar class="consultation-avatar">
+        <mat-icon>medical_services</mat-icon>
+      </div>
+      <mat-card-title>
+        {{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Update consultation details' : 'Create a new consultation record' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-section">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading consultation data...</p>
+      </div>
+
+      <!-- Simplified Consultation Form -->
+      <form *ngIf="!loading" [formGroup]="consultationForm" (ngSubmit)="onSubmit()" class="simple-form">
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Basic Information
+          </h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Patient</mat-label>
+              <mat-select formControlName="patientId" required>
+                <mat-option *ngFor="let patient of patients" [value]="patient.id">
+                  {{ patient.firstName }} {{ patient.lastName }}
+                </mat-option>
+              </mat-select>
+              <mat-error>{{ getFieldError('patientId') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Date & Time</mat-label>
+              <input matInput type="datetime-local" formControlName="consultationDate" required>
+              <mat-error>{{ getFieldError('consultationDate') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type" required>
+                <mat-option *ngFor="let type of consultationTypes" [value]="type">
+                  {{ type.replace('_', ' ') | titlecase }}
+                </mat-option>
+              </mat-select>
+              <mat-error>{{ getFieldError('type') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let status of consultationStatuses" [value]="status">
+                  {{ status.replace('_', ' ') | titlecase }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Consultation Details Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>description</mat-icon>
+            Consultation Details
+          </h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Chief Complaint</mat-label>
+              <textarea matInput formControlName="reason" rows="2" required 
+                        placeholder="What brought the patient to see you today?"></textarea>
+              <mat-error>{{ getFieldError('reason') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Symptoms</mat-label>
+              <textarea matInput formControlName="symptoms" rows="3" 
+                        placeholder="Describe the patient's symptoms"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Physical Examination</mat-label>
+              <textarea matInput formControlName="physicalExamination" rows="4" 
+                        placeholder="Record your physical examination findings"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Diagnosis</mat-label>
+              <textarea matInput formControlName="diagnosis" rows="2" 
+                        placeholder="Your diagnosis and assessment"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Treatment Plan</mat-label>
+              <textarea matInput formControlName="treatmentPlan" rows="3" 
+                        placeholder="Recommended treatment and care plan"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Quick Vital Signs Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>favorite</mat-icon>
+            Vital Signs (Optional)
+          </h3>
+
+          <div class="vitals-grid" formGroupName="vitalSigns">
+            <mat-form-field appearance="outline">
+              <mat-label>Temperature (°C)</mat-label>
+              <input matInput type="number" formControlName="temperature" step="0.1">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Heart Rate (BPM)</mat-label>
+              <input matInput type="number" formControlName="heartRate">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Blood Pressure</mat-label>
+              <input matInput formControlName="bloodPressureText" placeholder="120/80">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Weight (kg)</mat-label>
+              <input matInput type="number" formControlName="weight" step="0.1">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Integrated Prescription Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>medication</mat-icon>
+            Prescriptions
+          </h3>
+
+          <div formArrayName="prescriptions">
+            <!-- Empty State -->
+            <div *ngIf="prescriptions.length === 0" class="empty-prescriptions">
+              <mat-icon>medication</mat-icon>
+              <p>No prescriptions added</p>
+              <button type="button" mat-raised-button color="primary" (click)="addPrescription()">
+                <mat-icon>add</mat-icon>
+                Add Prescription
+              </button>
+            </div>
+
+            <!-- Prescription List -->
+            <div *ngFor="let prescription of prescriptions.controls; let i = index" 
+                 class="prescription-item" [formGroupName]="i">
+              
+              <mat-card class="prescription-card">
+                <mat-card-header>
+                  <mat-card-title>Prescription {{ i + 1 }}</mat-card-title>
+                  <button type="button" mat-icon-button color="warn" 
+                          (click)="removePrescription(i)" matTooltip="Remove prescription">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="prescription-form">
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Medication Name</mat-label>
+                        <input matInput formControlName="medicationName" required>
+                        <mat-error>Medication name is required</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Dosage</mat-label>
+                        <input matInput formControlName="dosage" placeholder="500mg" required>
+                        <mat-error>Dosage is required</mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Frequency</mat-label>
+                        <input matInput formControlName="frequency" placeholder="2 times daily" required>
+                        <mat-error>Frequency is required</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Duration</mat-label>
+                        <input matInput formControlName="duration" placeholder="7 days" required>
+                        <mat-error>Duration is required</mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Instructions</mat-label>
+                        <textarea matInput formControlName="instructions" rows="2" 
+                                  placeholder="Take with food, avoid alcohol, etc."></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <!-- Add Another Prescription Button -->
+            <div *ngIf="prescriptions.length > 0" class="add-prescription-section">
+              <button type="button" mat-stroked-button color="primary" (click)="addPrescription()">
+                <mat-icon>add</mat-icon>
+                Add Another Prescription
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Notes Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>notes</mat-icon>
+            Additional Notes
+          </h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Follow-up Instructions</mat-label>
+              <textarea matInput formControlName="followUpInstructions" rows="2" 
+                        placeholder="When should the patient return? Any specific instructions?"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Additional Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="3" 
+                        placeholder="Any additional notes or observations"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" mat-button (click)="onCancel()" class="cancel-btn">
+            Cancel
+          </button>
+          <button type="submit" mat-raised-button color="primary" 
+                  [disabled]="consultationForm.invalid || saving" class="submit-btn">
+            <mat-progress-spinner *ngIf="saving" mode="indeterminate" diameter="20"></mat-progress-spinner>
+            <mat-icon *ngIf="!saving">save</mat-icon>
+            <span *ngIf="!saving">{{ isEditMode ? 'Update Consultation' : 'Create Consultation' }}</span>
+            <span *ngIf="saving">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,101 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+
+  mat-card {
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  mat-card-header {
+    margin-bottom: 30px;
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+
+      .login-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #3f51b5;
+        margin-bottom: 16px;
+      }
+
+      mat-card-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      mat-card-subtitle {
+        font-size: 16px;
+        color: #666;
+      }
+    }
+  }
+
+  mat-card-content {
+    .full-width {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .login-button {
+      height: 48px;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 10px;
+      
+      mat-progress-spinner {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  mat-card-actions {
+    padding-top: 20px;
+
+    .card-actions {
+      text-align: center;
+      width: 100%;
+
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+
+        .register-link {
+          color: #3f51b5;
+          text-decoration: none;
+          font-weight: 500;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    mat-card {
+      padding: 30px 20px;
+    }
+  }
+}

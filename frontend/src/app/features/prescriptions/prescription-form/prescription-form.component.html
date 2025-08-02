@@ -1,0 +1,297 @@
+<div class="prescription-form-container">
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="prescription-avatar">
+        <mat-icon>medication</mat-icon>
+      </div>
+      <mat-card-title>
+        {{ isEditMode ? 'Edit Prescription' : 'New Prescription' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Update prescription details' : 'Create a new prescription for patient' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      </div>
+
+      <!-- Prescription Form -->
+      <form [formGroup]="prescriptionForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+        
+        <!-- Basic Information Section -->
+        <mat-expansion-panel class="form-section" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>info</mat-icon>
+              Basic Information
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <!-- Prescription Number -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Prescription Number</mat-label>
+              <input matInput formControlName="prescriptionNumber" placeholder="Enter prescription number">
+              <button mat-icon-button matSuffix type="button" (click)="generatePrescriptionNumber()" matTooltip="Generate Number">
+                <mat-icon>refresh</mat-icon>
+              </button>
+              <mat-error *ngIf="isFieldInvalid('prescriptionNumber')">
+                {{ getFieldError('prescriptionNumber') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Patient Selection -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Patient</mat-label>
+              <mat-select formControlName="patientId" (selectionChange)="onPatientChange()">
+                <mat-option *ngFor="let patient of availablePatients" [value]="patient.id">
+                  {{ patient.name }} ({{ patient.age }} years)
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="isFieldInvalid('patientId')">
+                {{ getFieldError('patientId') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Doctor Selection -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Doctor</mat-label>
+              <mat-select formControlName="doctorId" (selectionChange)="onDoctorChange()">
+                <mat-option *ngFor="let doctor of availableDoctors" [value]="doctor.id">
+                  {{ doctor.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="isFieldInvalid('doctorId')">
+                {{ getFieldError('doctorId') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Prescription Date -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Prescription Date</mat-label>
+              <input matInput type="date" formControlName="prescriptionDate" (change)="calculateValidUntil()">
+              <mat-error *ngIf="isFieldInvalid('prescriptionDate')">
+                {{ getFieldError('prescriptionDate') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Valid Until -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Valid Until</mat-label>
+              <input matInput type="date" formControlName="validUntil">
+              <mat-error *ngIf="isFieldInvalid('validUntil')">
+                {{ getFieldError('validUntil') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Status -->
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let status of prescriptionStatuses" [value]="status">
+                  {{ status.replace('_', ' ') | titlecase }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="isFieldInvalid('status')">
+                {{ getFieldError('status') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Medications Section -->
+        <mat-expansion-panel class="form-section" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>medication</mat-icon>
+              Medications
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ medicationsArray.length }} medication(s) prescribed
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <!-- Add First Medication Button -->
+          <div *ngIf="medicationsArray.length === 0" class="no-medications">
+            <mat-icon>medication</mat-icon>
+            <p>No medications added yet</p>
+            <button mat-raised-button color="primary" type="button" (click)="addMedication()">
+              <mat-icon>add</mat-icon>
+              Add First Medication
+            </button>
+          </div>
+
+          <!-- Medications List -->
+          <div *ngIf="medicationsArray.length > 0" class="medications-list">
+            <div *ngFor="let medication of medicationsArray.controls; let i = index" 
+                 class="medication-item" [formGroupName]="i">
+              
+              <div class="medication-header">
+                <h4>Medication {{ i + 1 }}</h4>
+                <button mat-icon-button color="warn" type="button" (click)="removeMedication(i)" 
+                        [disabled]="medicationsArray.length === 1"
+                        matTooltip="Remove medication">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="medication-form-grid">
+                <!-- Medication Name -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Medication Name</mat-label>
+                  <input matInput formControlName="medicationName" placeholder="Enter medication name" [matAutocomplete]="auto">
+                  <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let med of availableMedications" [value]="med">
+                      {{ med }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'medicationName')">
+                    {{ getMedicationFieldError(i, 'medicationName') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Dosage -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Dosage</mat-label>
+                  <input matInput formControlName="dosage" placeholder="e.g., 500">
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'dosage')">
+                    {{ getMedicationFieldError(i, 'dosage') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Dosage Form -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Form</mat-label>
+                  <mat-select formControlName="dosageForm">
+                    <mat-option *ngFor="let form of dosageForms" [value]="form">
+                      {{ form.replace('_', ' ') | titlecase }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'dosageForm')">
+                    {{ getMedicationFieldError(i, 'dosageForm') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Frequency -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Frequency</mat-label>
+                  <input matInput type="number" formControlName="frequency" placeholder="e.g., 2" min="1">
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'frequency')">
+                    {{ getMedicationFieldError(i, 'frequency') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Frequency Type -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Frequency Type</mat-label>
+                  <mat-select formControlName="frequencyType">
+                    <mat-option *ngFor="let type of frequencyTypes" [value]="type">
+                      {{ type.replace('_', ' ') | titlecase }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'frequencyType')">
+                    {{ getMedicationFieldError(i, 'frequencyType') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Duration -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Duration</mat-label>
+                  <input matInput type="number" formControlName="duration" placeholder="e.g., 7" min="1">
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'duration')">
+                    {{ getMedicationFieldError(i, 'duration') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Duration Unit -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Duration Unit</mat-label>
+                  <mat-select formControlName="durationUnit">
+                    <mat-option *ngFor="let unit of durationUnits" [value]="unit">
+                      {{ unit.replace('_', ' ') | titlecase }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'durationUnit')">
+                    {{ getMedicationFieldError(i, 'durationUnit') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Quantity -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Quantity</mat-label>
+                  <input matInput type="number" formControlName="quantity" placeholder="e.g., 30" min="1">
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'quantity')">
+                    {{ getMedicationFieldError(i, 'quantity') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Refills -->
+                <mat-form-field appearance="outline" class="medication-field">
+                  <mat-label>Refills</mat-label>
+                  <input matInput type="number" formControlName="refills" placeholder="0" min="0" max="12">
+                  <mat-error *ngIf="isMedicationFieldInvalid(i, 'refills')">
+                    {{ getMedicationFieldError(i, 'refills') }}
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- Instructions -->
+                <mat-form-field appearance="outline" class="medication-field full-width">
+                  <mat-label>Instructions</mat-label>
+                  <textarea matInput formControlName="instructions" rows="2" 
+                            placeholder="e.g., Take with food, avoid alcohol"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Add Another Medication Button -->
+            <div class="add-medication-section">
+              <button mat-stroked-button color="primary" type="button" (click)="addMedication()">
+                <mat-icon>add</mat-icon>
+                Add Another Medication
+              </button>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Additional Information Section -->
+        <mat-expansion-panel class="form-section">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>notes</mat-icon>
+              Additional Information
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <!-- General Instructions -->
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>General Instructions</mat-label>
+              <textarea matInput formControlName="instructions" rows="4" 
+                        placeholder="General instructions for the patient..."></textarea>
+            </mat-form-field>
+
+            <!-- Notes -->
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="3" 
+                        placeholder="Internal notes..."></textarea>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving">
+            <mat-icon *ngIf="saving">hourglass_empty</mat-icon>
+            <mat-icon *ngIf="!saving">save</mat-icon>
+            {{ saving ? 'Saving...' : (isEditMode ? 'Update Prescription' : 'Create Prescription') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

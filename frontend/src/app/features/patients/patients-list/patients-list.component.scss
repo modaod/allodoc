@@ -1,0 +1,158 @@
+.patients-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  mat-card {
+    margin-bottom: 20px;
+  }
+
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 16px;
+
+    .search-field {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    button {
+      white-space: nowrap;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+
+  .table-container {
+    .patients-table {
+      width: 100%;
+      background-color: white;
+
+      .mat-column-patientNumber {
+        max-width: 100px;
+      }
+
+      .mat-column-name {
+        min-width: 150px;
+      }
+
+      .mat-column-dateOfBirth {
+        max-width: 120px;
+      }
+
+      .mat-column-gender {
+        max-width: 80px;
+      }
+
+      .mat-column-phone {
+        min-width: 120px;
+      }
+
+      .mat-column-lastVisit {
+        max-width: 120px;
+      }
+
+      .mat-column-actions {
+        max-width: 140px;
+        text-align: center;
+      }
+
+      .patient-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+
+      .gender-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        display: inline-block;
+        min-width: 50px;
+
+        &.male {
+          background-color: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &.female {
+          background-color: #fce4ec;
+          color: #c2185b;
+        }
+      }
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        margin: 16px 0 8px 0;
+        font-weight: 400;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #888;
+      }
+
+      button mat-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .patients-container {
+    padding: 10px;
+
+    .actions-bar {
+      flex-direction: column;
+      align-items: stretch;
+
+      .search-field {
+        max-width: none;
+        margin-bottom: 16px;
+      }
+    }
+
+    .table-container {
+      .patients-table {
+        .mat-column-dateOfBirth,
+        .mat-column-lastVisit {
+          display: none;
+        }
+      }
+    }
+  }
+}

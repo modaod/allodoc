@@ -1,0 +1,291 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+
+import { 
+  Consultation, 
+  CreateConsultationRequest, 
+  UpdateConsultationRequest,
+  ConsultationStatus,
+  ConsultationType,
+  DiagnosisType,
+  DiagnosisSeverity
+} from '../models/consultation.model';
+import { ConsultationsService } from '../services/consultations.service';
+import { PatientsService } from '../../patients/services/patients.service';
+import { Patient } from '../../patients/models/patient.model';
+
+@Component({
+  selector: 'app-consultation-form',
+  templateUrl: './consultation-form.component.html',
+  styleUrls: ['./consultation-form.component.scss']
+})
+export class ConsultationFormComponent implements OnInit {
+  consultationForm!: FormGroup;
+  isEditMode = false;
+  consultationId: string | null = null;
+  loading = false;
+  saving = false;
+
+  // Data for dropdowns
+  patients: Patient[] = [];
+  consultationTypes = Object.values(ConsultationType);
+  consultationStatuses = Object.values(ConsultationStatus);
+  diagnosisTypes = Object.values(DiagnosisType);
+  diagnosisSeverities = Object.values(DiagnosisSeverity);
+
+  constructor(
+    private fb: FormBuilder,
+    private consultationsService: ConsultationsService,
+    private patientsService: PatientsService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.loadPatients();
+    this.checkRouteParams();
+  }
+
+  initializeForm(): void {
+    this.consultationForm = this.fb.group({
+      patientId: ['', Validators.required],
+      consultationDate: ['', Validators.required],
+      type: ['', Validators.required],
+      status: [ConsultationStatus.SCHEDULED],
+      chiefComplaint: ['', [Validators.required, Validators.minLength(5)]],
+      historyOfPresentIllness: [''],
+      
+      // Vital Signs
+      vitalSigns: this.fb.group({
+        temperature: ['', [Validators.min(35), Validators.max(42)]],
+        bloodPressure: this.fb.group({
+          systolic: ['', [Validators.min(70), Validators.max(300)]],
+          diastolic: ['', [Validators.min(40), Validators.max(200)]]
+        }),
+        heartRate: ['', [Validators.min(30), Validators.max(220)]],
+        respiratoryRate: ['', [Validators.min(8), Validators.max(60)]],
+        oxygenSaturation: ['', [Validators.min(70), Validators.max(100)]],
+        weight: ['', [Validators.min(0.5), Validators.max(500)]],
+        height: ['', [Validators.min(30), Validators.max(250)]],
+        bmi: [{value: '', disabled: true}]
+      }),
+
+      // Physical Examination
+      physicalExamination: this.fb.group({
+        general: [''],
+        cardiovascular: [''],
+        respiratory: [''],
+        gastrointestinal: [''],
+        neurological: [''],
+        musculoskeletal: [''],
+        dermatological: [''],
+        other: ['']
+      }),
+
+      // Diagnosis Array
+      diagnosis: this.fb.array([]),
+      
+      treatmentPlan: [''],
+      followUpInstructions: [''],
+      notes: [''],
+      duration: ['', [Validators.min(5), Validators.max(480)]],
+      fee: ['', [Validators.min(0), Validators.max(10000)]]
+    });
+
+    // Calculate BMI when weight or height changes
+    this.setupBMICalculation();
+  }
+
+  setupBMICalculation(): void {
+    const weightControl = this.consultationForm.get('vitalSigns.weight');
+    const heightControl = this.consultationForm.get('vitalSigns.height');
+    const bmiControl = this.consultationForm.get('vitalSigns.bmi');
+
+    if (weightControl && heightControl && bmiControl) {
+      [weightControl, heightControl].forEach(control => {
+        control.valueChanges.subscribe(() => {
+          const weight = weightControl.value;
+          const height = heightControl.value;
+          if (weight && height) {
+            const heightInMeters = height / 100;
+            const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+            bmiControl.setValue(bmi);
+          }
+        });
+      });
+    }
+  }
+
+  loadPatients(): void {
+    this.patientsService.getAllPatients().subscribe({
+      next: (response) => {
+        this.patients = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading patients:', error);
+      }
+    });
+  }
+
+  checkRouteParams(): void {
+    this.consultationId = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = this.consultationId !== null && this.consultationId !== 'new';
+
+    if (this.isEditMode && this.consultationId) {
+      this.loadConsultation(this.consultationId);
+    } else {
+      // Check for query parameters to pre-populate form
+      const patientId = this.route.snapshot.queryParamMap.get('patientId');
+      const patientName = this.route.snapshot.queryParamMap.get('patientName');
+      
+      if (patientId) {
+        this.consultationForm.patchValue({
+          patientId: patientId
+        });
+      }
+    }
+  }
+
+  loadConsultation(id: string): void {
+    this.loading = true;
+    this.consultationsService.getConsultationById(id).subscribe({
+      next: (consultation) => {
+        this.populateForm(consultation);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading consultation:', error);
+        this.loading = false;
+        this.router.navigate(['/consultations']);
+      }
+    });
+  }
+
+  populateForm(consultation: Consultation): void {
+    this.consultationForm.patchValue({
+      patientId: consultation.patientId,
+      consultationDate: consultation.consultationDate,
+      type: consultation.type,
+      status: consultation.status,
+      chiefComplaint: consultation.chiefComplaint,
+      historyOfPresentIllness: consultation.historyOfPresentIllness,
+      vitalSigns: consultation.vitalSigns || {},
+      physicalExamination: consultation.physicalExamination || {},
+      treatmentPlan: consultation.treatmentPlan,
+      followUpInstructions: consultation.followUpInstructions,
+      notes: consultation.notes,
+      duration: consultation.duration,
+      fee: consultation.fee
+    });
+
+    // Populate diagnosis array
+    if (consultation.diagnosis && consultation.diagnosis.length > 0) {
+      consultation.diagnosis.forEach(diagnosis => {
+        this.addDiagnosis(diagnosis);
+      });
+    }
+  }
+
+  get diagnosis(): FormArray {
+    return this.consultationForm.get('diagnosis') as FormArray;
+  }
+
+  addDiagnosis(existingDiagnosis?: any): void {
+    const diagnosisGroup = this.fb.group({
+      code: [existingDiagnosis?.code || ''],
+      description: [existingDiagnosis?.description || '', Validators.required],
+      type: [existingDiagnosis?.type || DiagnosisType.PRIMARY, Validators.required],
+      severity: [existingDiagnosis?.severity || DiagnosisSeverity.MILD],
+      notes: [existingDiagnosis?.notes || '']
+    });
+
+    this.diagnosis.push(diagnosisGroup);
+  }
+
+  removeDiagnosis(index: number): void {
+    this.diagnosis.removeAt(index);
+  }
+
+  onSubmit(): void {
+    if (this.consultationForm.valid) {
+      this.saving = true;
+      const formValue = this.consultationForm.value;
+
+      if (this.isEditMode && this.consultationId) {
+        const updateRequest: UpdateConsultationRequest = {
+          id: this.consultationId,
+          ...formValue
+        };
+        this.consultationsService.updateConsultation(this.consultationId, updateRequest).subscribe({
+          next: () => {
+            this.saving = false;
+            this.router.navigate(['/consultations', this.consultationId]);
+          },
+          error: (error) => {
+            console.error('Error updating consultation:', error);
+            this.saving = false;
+          }
+        });
+      } else {
+        const createRequest: CreateConsultationRequest = formValue;
+        this.consultationsService.createConsultation(createRequest).subscribe({
+          next: (consultation) => {
+            this.saving = false;
+            this.router.navigate(['/consultations', consultation.id]);
+          },
+          error: (error) => {
+            console.error('Error creating consultation:', error);
+            this.saving = false;
+          }
+        });
+      }
+    } else {
+      this.markFormGroupTouched(this.consultationForm);
+    }
+  }
+
+  onCancel(): void {
+    if (this.isEditMode && this.consultationId) {
+      this.router.navigate(['/consultations', this.consultationId]);
+    } else {
+      this.router.navigate(['/consultations']);
+    }
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.consultationForm.get(fieldName);
+    if (field?.errors && field.touched) {
+      if (field.errors['required']) return `${fieldName} is required`;
+      if (field.errors['minlength']) return `${fieldName} is too short`;
+      if (field.errors['min']) return `Value is too low`;
+      if (field.errors['max']) return `Value is too high`;
+    }
+    return '';
+  }
+
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        control.controls.forEach(arrayControl => {
+          if (arrayControl instanceof FormGroup) {
+            this.markFormGroupTouched(arrayControl);
+          } else {
+            arrayControl.markAsTouched();
+          }
+        });
+      } else {
+        control?.markAsTouched();
+      }
+    });
+  }
+
+  getPatientName(patientId: string): string {
+    const patient = this.patients.find(p => p.id === patientId);
+    return patient ? `${patient.firstName} ${patient.lastName}` : '';
+  }
+}

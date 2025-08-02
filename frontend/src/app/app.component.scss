@@ -1,0 +1,324 @@
+mat-toolbar {
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  // App Menu Button
+  .app-menu-button {
+    color: rgba(255, 255, 255, 0.9);
+    margin-right: 16px;
+    
+    &:hover {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+  
+  // App Logo and Title
+  .app-logo {
+    color: white;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    margin-right: 12px;
+  }
+  
+  .app-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: white;
+    margin-right: 32px;
+  }
+
+  .nav-menu {
+    display: flex;
+    gap: 8px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+      border-radius: 8px;
+      padding: 8px 16px;
+
+      &:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-1px);
+      }
+
+      &.active {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  // Organization Context
+  .organization-context {
+    margin: 0 16px;
+    
+    .current-org-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      
+      .org-name {
+        font-weight: 500;
+        font-size: 0.9em;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+    
+    .organization-switcher {
+      .org-switcher-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 12px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          color: white;
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .org-name {
+          font-weight: 500;
+          font-size: 0.9em;
+          max-width: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        .dropdown-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+  }
+  
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .user-name {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9em;
+    }
+    
+    button {
+      color: rgba(255, 255, 255, 0.8);
+      
+      &:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// App Menu Styling
+.app-menu {
+  margin-top: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  
+  .mat-mdc-menu-content {
+    padding: 8px;
+    
+    .mat-mdc-menu-item {
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      &:hover {
+        background-color: #f8fafc;
+        transform: translateX(4px);
+      }
+      
+      mat-icon {
+        color: #64748b;
+        margin-right: 12px;
+      }
+      
+      span {
+        font-weight: 500;
+        color: #374151;
+      }
+    }
+    
+    mat-divider {
+      margin: 8px 0;
+      background-color: #e2e8f0;
+    }
+  }
+}
+
+// Organization Menu Styling
+.org-menu {
+  margin-top: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  
+  .org-menu-header {
+    padding: 12px 16px 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .mat-mdc-menu-content {
+    padding: 0 8px 8px;
+    
+    .mat-mdc-menu-item {
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+      min-height: 48px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      &:hover {
+        background-color: #f8fafc;
+      }
+      
+      &.current {
+        background-color: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+      }
+      
+      .org-menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        
+        .org-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          
+          .org-name {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.95em;
+          }
+          
+          .org-role {
+            font-size: 0.8em;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+        
+        .check-icon {
+          color: #667eea;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+    
+    mat-divider {
+      margin: 8px 0;
+      background-color: #e2e8f0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  mat-toolbar {
+    .nav-menu {
+      display: none;
+    }
+    
+    .app-title {
+      font-size: 1.1rem;
+      margin-right: 16px;
+    }
+    
+    .user-name {
+      display: none;
+    }
+    
+    .organization-switcher {
+      margin: 0 8px;
+      
+      .org-switcher-button {
+        padding: 6px 8px;
+        
+        .org-name {
+          max-width: 100px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  mat-toolbar {
+    .app-title {
+      display: none;
+    }
+    
+    .app-logo {
+      margin-right: 8px;
+    }
+    
+    .organization-switcher {
+      .org-name {
+        display: none;
+      }
+    }
+  }
+}

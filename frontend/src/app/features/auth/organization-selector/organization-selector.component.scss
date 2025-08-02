@@ -1,0 +1,174 @@
+.organization-selector-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.selector-card {
+  width: 100%;
+  max-width: 600px;
+  
+  mat-card {
+    padding: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.header-content {
+  text-align: center;
+  padding: 24px 24px 16px;
+  
+  .org-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #667eea;
+    margin-bottom: 16px;
+  }
+  
+  mat-card-title {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  mat-card-subtitle {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+mat-card-content {
+  padding: 0 24px 24px;
+}
+
+.organizations-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.organization-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.selected {
+    border-color: #667eea;
+    background-color: rgba(102, 126, 234, 0.05);
+  }
+  
+  mat-card-header {
+    padding: 16px;
+  }
+  
+  .org-avatar {
+    background-color: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-icon {
+      margin: 0;
+    }
+  }
+  
+  .org-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  
+  .role-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    
+    &.doctor {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    &.secretary {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    &.admin {
+      background-color: #fce4ec;
+      color: #c2185b;
+    }
+  }
+  
+  .last-accessed {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  mat-card-actions {
+    padding: 0 16px 8px;
+    margin: 0;
+  }
+}
+
+.remember-section {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  .continue-button {
+    mat-progress-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+  
+  button {
+    width: 100%;
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 600px) {
+  .organization-selector-container {
+    padding: 0;
+    align-items: flex-start;
+    background: white;
+  }
+  
+  .selector-card {
+    max-width: 100%;
+    height: 100vh;
+    
+    mat-card {
+      height: 100%;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+  
+  .organizations-grid {
+    max-height: calc(100vh - 350px);
+  }
+}

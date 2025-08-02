@@ -1,0 +1,117 @@
+<div class="consultations-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Consultations Management</mat-card-title>
+      <mat-card-subtitle>View and manage all patient consultations</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Search and Actions Bar -->
+      <div class="actions-bar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search consultations...</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Search by patient name or consultation">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <button mat-raised-button color="primary" (click)="newConsultation()">
+          <mat-icon>add</mat-icon>
+          New Consultation
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading consultations...</p>
+      </div>
+
+      <!-- Consultations Table -->
+      <div *ngIf="!loading" class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="consultations-table">
+          <!-- Consultation Number Column -->
+          <ng-container matColumnDef="consultationNumber">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Consultation #</th>
+            <td mat-cell *matCellDef="let consultation">{{ consultation.consultationNumber || 'N/A' }}</td>
+          </ng-container>
+
+          <!-- Patient Name Column -->
+          <ng-container matColumnDef="patientName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient</th>
+            <td mat-cell *matCellDef="let consultation">
+              {{ consultation.patient ? (consultation.patient.firstName + ' ' + consultation.patient.lastName) : (consultation.patientName || 'Unknown Patient') }}
+            </td>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="consultationDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <td mat-cell *matCellDef="let consultation">{{ formatDate(consultation.consultationDate) }}</td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <td mat-cell *matCellDef="let consultation">
+              <span class="type-badge" [class]="getTypeClass(consultation.type)">
+                {{ consultation.type?.replace('_', ' ') | titlecase }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let consultation">
+              <span class="status-badge" [class]="getStatusClass(consultation.status)">
+                {{ consultation.status?.replace('_', ' ') | titlecase }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Chief Complaint Column -->
+          <ng-container matColumnDef="chiefComplaint">
+            <th mat-header-cell *matHeaderCellDef>Chief Complaint</th>
+            <td mat-cell *matCellDef="let consultation">{{ consultation.chiefComplaint || consultation.reason || '-' }}</td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let consultation">
+              <button mat-icon-button color="primary" (click)="viewConsultation(consultation)" matTooltip="View Consultation">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button color="accent" (click)="editConsultation(consultation)" matTooltip="Edit Consultation">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="consultation-row"></tr>
+        </table>
+
+        <!-- No Data Message -->
+        <div *ngIf="dataSource.data.length === 0" class="no-data">
+          <mat-icon>medical_services</mat-icon>
+          <h3>No consultations found</h3>
+          <p>{{ searchControl.value ? 'No consultations match your search criteria.' : 'Start by creating your first consultation.' }}</p>
+          <button mat-raised-button color="primary" (click)="newConsultation()">
+            <mat-icon>add</mat-icon>
+            Create First Consultation
+          </button>
+        </div>
+
+        <!-- Paginator -->
+        <mat-paginator 
+          *ngIf="dataSource.data.length > 0"
+          [length]="totalConsultations"
+          [pageSize]="10"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

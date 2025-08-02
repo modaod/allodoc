@@ -1,0 +1,347 @@
+.prescription-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.prescription-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Header Actions
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+// Cards
+.info-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  mat-card-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    
+    .prescription-avatar {
+      background-color: #4caf50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      mat-icon {
+        color: #4caf50;
+      }
+    }
+  }
+  
+  mat-card-content {
+    padding-top: 20px;
+  }
+}
+
+// Info Grid
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    .label {
+      font-weight: 500;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    .value {
+      font-weight: 400;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+// Status and Warning Classes
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.status-active {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.status-dispensed {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.status-completed {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+  
+  &.status-cancelled {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  &.status-expired {
+    background-color: #fafafa;
+    color: #616161;
+  }
+  
+  &.status-draft {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+}
+
+.expiring-soon {
+  color: #ff9800 !important;
+  font-weight: 500;
+}
+
+.expired {
+  color: #f44336 !important;
+  font-weight: 500;
+}
+
+.text-warning {
+  color: #ff9800;
+  font-weight: 500;
+}
+
+.text-danger {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.warning-icon {
+  color: #ff9800;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.error-icon {
+  color: #f44336;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+// Medications List
+.medications-list {
+  .medication-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    
+    .medication-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      
+      .medication-name {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        
+        strong {
+          color: #333;
+          font-size: 1.1em;
+        }
+        
+        .medication-form {
+          color: #666;
+          font-size: 0.9em;
+          font-style: italic;
+        }
+      }
+      
+      .medication-badges {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .medication-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: white;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        
+        mat-icon {
+          color: #4caf50;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+        
+        .detail-label {
+          font-weight: 500;
+          color: #666;
+          font-size: 0.85em;
+        }
+        
+        .detail-value {
+          color: #333;
+          font-weight: 400;
+        }
+      }
+    }
+    
+    .medication-instructions {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background-color: #fff3e0;
+      border-radius: 6px;
+      border-left: 4px solid #ff9800;
+      
+      mat-icon {
+        color: #ff9800;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+      }
+      
+      .instructions-content {
+        flex: 1;
+        
+        strong {
+          color: #333;
+          display: block;
+          margin-bottom: 4px;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+}
+
+.dosage-badge {
+  padding: 4px 8px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+// Text Content
+.instructions-text, .notes-text {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #4caf50;
+  white-space: pre-line;
+  line-height: 1.6;
+  color: #666;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .prescription-detail-container {
+    padding: 16px;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    
+    .action-buttons {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .medication-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .medication-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .medication-instructions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .prescription-detail-container {
+    padding: 12px;
+  }
+  
+  .medication-item {
+    padding: 16px;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+  }
+}

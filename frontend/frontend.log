@@ -1,0 +1,28 @@
+
+> frontend@0.0.0 start
+> ng serve --proxy-config proxy.conf.json --host 0.0.0.0
+
+
+Warning: This is a simple server for use in testing or debugging Angular applications
+locally. It hasn't been reviewed for security issues.
+
+Binding this server to an open connection can result in compromising your application or
+computer. Using a different host than the one passed to the "--host" flag might result in
+websocket connection issues. You might need to use "--disable-host-check" if that's the
+case.
+    
+- Generating browser application bundles (phase: setup)...
+An unhandled exception occurred: Proxy configuration file /home/dev/projects/allodoc/frontend/proxy.conf.json contains parse errors:
+[8, 19] InvalidSymbol
+[8, 36] ValueExpected
+[8, 38] InvalidSymbol
+[8, 41] PropertyNameExpected
+[8, 41] ValueExpected
+[8, 43] InvalidSymbol
+[8, 48] PropertyNameExpected
+[9, 7] InvalidSymbol
+[9, 43] InvalidSymbol
+[9, 45] InvalidSymbol
+[10, 5] ValueExpected
+[12, 1] EndOfFileExpected
+See "/tmp/ng-FOylwq/angular-errors.log" for further details.

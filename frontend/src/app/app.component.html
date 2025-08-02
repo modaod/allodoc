@@ -1,0 +1,113 @@
+<mat-toolbar color="primary" *ngIf="isAuthenticated">
+  <!-- App Menu Button -->
+  <button mat-icon-button [matMenuTriggerFor]="appMenu" class="app-menu-button">
+    <mat-icon>menu</mat-icon>
+  </button>
+  
+  <!-- App Menu -->
+  <mat-menu #appMenu="matMenu" class="app-menu">
+    <button mat-menu-item routerLink="/dashboard">
+      <mat-icon>dashboard</mat-icon>
+      <span>Dashboard</span>
+    </button>
+    <button mat-menu-item routerLink="/patients">
+      <mat-icon>people</mat-icon>
+      <span>Patients</span>
+    </button>
+    <button mat-menu-item routerLink="/consultations">
+      <mat-icon>medical_services</mat-icon>
+      <span>Consultations</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/patients/new">
+      <mat-icon>person_add</mat-icon>
+      <span>Add Patient</span>
+    </button>
+    <button mat-menu-item routerLink="/consultations/new">
+      <mat-icon>add</mat-icon>
+      <span>New Consultation</span>
+    </button>
+  </mat-menu>
+
+  <mat-icon class="app-logo">local_hospital</mat-icon>
+  <span class="app-title">AlloDoc</span>
+  
+  <!-- Main Navigation Menu (Desktop) -->
+  <div class="nav-menu">
+    <button mat-button routerLink="/dashboard" routerLinkActive="active">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </button>
+    <button mat-button routerLink="/patients" routerLinkActive="active">
+      <mat-icon>people</mat-icon>
+      Patients
+    </button>
+    <button mat-button routerLink="/consultations" routerLinkActive="active">
+      <mat-icon>medical_services</mat-icon>
+      Consultations
+    </button>
+  </div>
+  
+  <!-- Organization Context -->
+  <div class="organization-context" *ngIf="getCurrentOrganization()">
+    <div class="current-org-display" *ngIf="!hasMultipleOrganizations()">
+      <mat-icon>business</mat-icon>
+      <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
+    </div>
+    
+    <!-- Organization Switcher (only if multiple orgs) -->
+    <div class="organization-switcher" *ngIf="hasMultipleOrganizations()">
+      <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button">
+        <mat-icon>business</mat-icon>
+        <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
+        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #orgMenu="matMenu" class="org-menu">
+        <div class="org-menu-header">
+          <span>Switch Organization</span>
+        </div>
+        <mat-divider></mat-divider>
+        <button 
+          mat-menu-item 
+          *ngFor="let org of getUserOrganizations()" 
+          (click)="switchOrganization(org.id)"
+          [class.current]="org.id === getCurrentOrganization()?.id">
+          <div class="org-menu-item">
+            <div class="org-info">
+              <span class="org-name">{{ org.name }}</span>
+              <span class="org-role">{{ org.role }}</span>
+            </div>
+            <mat-icon *ngIf="org.id === getCurrentOrganization()?.id" class="check-icon">check</mat-icon>
+          </div>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+  
+  <span class="spacer"></span>
+  
+  <!-- User Menu -->
+  <div class="user-menu">
+    <span class="user-name">{{ getUserDisplayName() }}</span>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
+
+<router-outlet></router-outlet>
