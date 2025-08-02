@@ -15,7 +15,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { Role, RoleName } from './role.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
-import { AuditableEntity } from 'src/common/entities/auditable.entity';
+import { AuditableEntity } from '../../common/entities/auditable.entity';
 
 @Entity('users')
 @Index(['email', 'organizationId'], { unique: true })
