@@ -1,216 +1,321 @@
-# README.md
+# AlloDoc Backend - Medical Management API
 
-This file provides guidance when working with code in this repository.
+A robust RESTful API built with NestJS for managing medical operations including patient records, consultations, prescriptions, and appointments.
 
-## Development Commands
+## Architecture Overview
 
-### Core Development
+This backend follows a modular architecture using NestJS with the following key patterns:
+- **Repository Pattern**: For data access layer abstraction
+- **DTO Pattern**: For request/response data validation
+- **Guard Pattern**: For authentication and authorization
+- **Interceptor Pattern**: For cross-cutting concerns like audit logging
 
+## Features
+
+### Core Modules
+
+- **Authentication (`/auth`)**
+  - JWT-based authentication with refresh tokens
+  - Local strategy for username/password login
+  - Organization selection support
+  - Secure password hashing with bcrypt
+
+- **Organizations (`/organizations`)**
+  - Multi-tenant support
+  - Organization-specific data isolation
+  - Organization switching for users
+
+- **Users (`/users`)**
+  - Role-based access control (Admin, Doctor, Nurse, Receptionist)
+  - User profile management
+  - Doctor search functionality
+
+- **Patients (`/patients`)**
+  - Complete patient record management
+  - Medical history tracking
+  - Search and filtering capabilities
+
+- **Consultations (`/consultations`)**
+  - Detailed medical consultation records
+  - Vital signs recording
+  - File attachments support
+  - Integration with prescriptions
+
+- **Prescriptions (`/prescriptions`)**
+  - Medication management
+  - Linked to consultations
+  - Dosage and duration tracking
+
+- **Appointments (`/appointments`)**
+  - Appointment scheduling
+  - Status tracking
+  - Integration with consultations
+
+- **Dashboard (`/dashboard`)**
+  - Real-time statistics
+  - Recent activity tracking
+  - Organization-specific metrics
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL 15+
+- Docker and Docker Compose (optional)
+
+## Installation
+
+### Using Docker (Recommended)
+
+1. Clone the repository and navigate to backend:
 ```bash
-# Install dependencies
+cd backend
+```
+
+2. Start all services:
+```bash
+docker-compose up -d
+```
+
+This will start:
+- PostgreSQL database on port 5432
+- Redis cache on port 6379
+- NestJS application on port 3000
+- pgAdmin on port 5050
+
+### Manual Setup
+
+1. Install dependencies:
+```bash
 npm install
-
-# Development server with hot reload
-npm run start:dev
-
-# Production build
-npm run build
-
-# Run production server
-npm run start:prod
-
-# Format code
-npm run format
-
-# Lint and fix
-npm run lint
 ```
 
-### Testing
-
+2. Set up environment variables:
 ```bash
-# Unit tests
-npm run test
-
-# Watch mode for tests
-npm run test:watch
-
-# Test coverage
-npm run test:cov
-
-# End-to-end tests
-npm run test:e2e
-
-# Debug tests
-npm run test:debug
+cp .env.example .env
 ```
 
-### Database Management
+3. Configure your `.env` file:
+```env
+# Application
+NODE_ENV=development
+PORT=3000
+API_PREFIX=api
 
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=medical_user
+DATABASE_PASSWORD=medical_password
+DATABASE_NAME=medical_db
+
+# JWT
+JWT_ACCESS_SECRET=your-access-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_ACCESS_EXPIRATION=1d
+JWT_REFRESH_EXPIRATION=30d
+
+# CORS
+CORS_ORIGIN=http://localhost:4200
+CORS_CREDENTIALS=true
+```
+
+4. Run database migrations:
 ```bash
-# Generate new migration from entity changes
-npm run migration:generate -- src/database/migrations/MigrationName
-
-# Run pending migrations
 npm run migration:run
-
-# Revert last migration
-npm run migration:revert
-
-# Sync database schema (development only)
-npm run schema:sync
-
-# Run database seeds
-npm run db:seed
 ```
 
-### Docker Development
+5. Start the application:
+```bash
+npm run start:dev
+```
+
+## Available Scripts
 
 ```bash
-# Start all services (PostgreSQL, Redis, PgAdmin, App)
-npm run docker:dev
+# Development
+npm run start:dev        # Start in watch mode
+npm run start:debug      # Start with debugging
 
-# Start only database
-npm run docker:db
+# Production
+npm run build           # Build the application
+npm run start:prod      # Start production build
 
-# Stop all services
-npm run docker:down
+# Database
+npm run migration:generate -- -n MigrationName  # Generate migration
+npm run migration:run                           # Run migrations
+npm run migration:revert                        # Revert last migration
+npm run schema:sync                             # Sync schema (dev only)
 
-# Alternative: use the startup script
-./start-app.sh
+# Testing
+npm run test            # Run unit tests
+npm run test:watch      # Run tests in watch mode
+npm run test:cov        # Run tests with coverage
+npm run test:e2e        # Run e2e tests
+
+# Code Quality
+npm run lint            # Run ESLint
+npm run format          # Format code with Prettier
+
+# Docker
+npm run docker:dev      # Start all Docker services
+npm run docker:db       # Start only PostgreSQL
+npm run docker:down     # Stop all Docker services
 ```
 
-## High-Level Architecture
+## API Documentation
 
-### Multi-Tenant Medical Management System
+When running in development mode, Swagger documentation is available at:
+```
+http://localhost:3000/api/docs
+```
 
-This is a NestJS-based backend for a medical management system with the following key architectural patterns:
+### API Endpoints Overview
 
-**Multi-Tenancy**: All entities are scoped to an Organization. Users, patients, appointments, etc. are isolated by `organizationId`.
+- **Auth**: `/api/v1/auth/*`
+  - POST `/login` - User login
+  - POST `/register` - User registration
+  - POST `/refresh` - Refresh access token
+  - POST `/logout` - User logout
+  - POST `/select-organization` - Select active organization
 
-**Role-Based Access Control (RBAC)**:
+- **Users**: `/api/v1/users/*`
+  - GET `/` - List users
+  - GET `/:id` - Get user details
+  - POST `/` - Create user
+  - PATCH `/:id` - Update user
+  - DELETE `/:id` - Delete user
+  - GET `/doctors/search` - Search doctors
 
-- Users have roles (SUPER_ADMIN, ADMIN, DOCTOR, NURSE, RECEPTIONIST)
-- Each role has specific permissions
-- Global guards enforce authentication and authorization
+- **Patients**: `/api/v1/patients/*`
+  - GET `/` - List patients
+  - GET `/:id` - Get patient details
+  - POST `/` - Create patient
+  - PATCH `/:id` - Update patient
+  - DELETE `/:id` - Delete patient
 
-**Repository Pattern**: All data access goes through repository classes that extend `BaseRepository<T>`, providing:
+- **Consultations**: `/api/v1/consultations/*`
+  - GET `/` - List consultations
+  - GET `/:id` - Get consultation details
+  - POST `/` - Create consultation
+  - PATCH `/:id` - Update consultation
+  - DELETE `/:id` - Delete consultation
 
-- Standard CRUD operations
-- Organization-scoped queries
-- Pagination
-- Search functionality
-- Audit trail support
+- **Prescriptions**: `/api/v1/prescriptions/*`
+  - GET `/` - List prescriptions
+  - GET `/:id` - Get prescription details
+  - POST `/` - Create prescription
+  - PATCH `/:id` - Update prescription
+  - DELETE `/:id` - Delete prescription
 
-**Auditable Entities**: All entities extend `AuditableEntity` which automatically tracks:
+## Database Schema
 
-- `createdAt`/`updatedAt` timestamps
-- `createdBy`/`updatedBy` user references
-- Utility methods for audit information
+The application uses PostgreSQL with TypeORM. Key entities include:
 
-### Module Structure
+- **User**: System users with roles and organization associations
+- **Organization**: Medical facilities/clinics
+- **Patient**: Patient records with personal and medical information
+- **Consultation**: Medical consultation records with vital signs
+- **Prescription**: Medication prescriptions linked to consultations
+- **Appointment**: Scheduled appointments
+- **RefreshToken**: JWT refresh token storage
 
-- **Auth Module**: JWT-based authentication with refresh tokens
-- **Organizations Module**: Multi-tenant organization management
-- **Users Module**: User management with roles and permissions
-- **Patients Module**: Patient records with medical history (JSON field)
-- **Appointments Module**: Appointment scheduling
-- **Consultations Module**: Medical consultation records
-- **Prescriptions Module**: Prescription management
-- **Common Module**: Shared utilities, guards, decorators, DTOs
+## Security
 
-### Global Configuration
+- **Authentication**: JWT-based with access and refresh tokens
+- **Password Security**: Bcrypt hashing with salt rounds
+- **CORS**: Configurable CORS with credentials support
+- **Helmet**: Security headers for production
+- **Rate Limiting**: Throttling support via @nestjs/throttler
+- **Input Validation**: DTOs with class-validator
+- **SQL Injection Protection**: TypeORM parameterized queries
 
-- **Guards**: JWT authentication, role-based authorization, organization isolation, rate limiting
-- **Interceptors**: Audit logging for all operations
-- **Filters**: Centralized HTTP exception handling
-- **Validation**: Class-validator with whitelist and transformation
-- **Security**: Helmet, CORS, compression enabled
+## Error Handling
 
-### Database Setup
+The application implements global exception filters that provide consistent error responses:
 
-- **PostgreSQL** with TypeORM
-- **Migrations**: Located in `src/database/migrations/`
-- **Seeds**: Default data setup via `SeedService`
-- **Initialization**: SQL scripts in `src/database/init/` run on container startup
-
-### Development Services
-
-- **API**: http://localhost:3000/api (with Swagger docs at /api/docs)
-- **Database**: PostgreSQL on localhost:5432
-- **PgAdmin**: http://localhost:5050 (admin@medical.com / admin123)
-- **Redis**: localhost:6379 (for sessions/cache)
-
-### Key Patterns to Follow
-
-**Repository Pattern**: Always extend `BaseRepository<T>` for data access:
-
-```typescript
-@Injectable()
-export class PatientsRepository extends BaseRepository<Patient> {
-    constructor(@InjectRepository(Patient) repository: Repository<Patient>) {
-        super(repository);
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Invalid email format"
     }
-
-    // Add custom methods here
+  ],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "path": "/api/v1/users"
 }
 ```
 
-**Entity Pattern**: All business entities should extend `AuditableEntity`:
+## Testing
 
-```typescript
-@Entity('table_name')
-export class MyEntity extends AuditableEntity {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column()
-    organizationId: string; // Required for multi-tenancy
-
-    @ManyToOne(() => Organization)
-    organization: Organization;
-}
+### Unit Tests
+```bash
+npm run test
 ```
 
-**DTO Validation**: Use class-validator decorators for all DTOs:
-
-```typescript
-export class CreateEntityDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
-
-    @IsOptional()
-    @IsString()
-    description?: string;
-}
+### E2E Tests
+```bash
+npm run test:e2e
 ```
 
-**Multi-tenant Queries**: Always filter by organization in repositories:
-
-```typescript
-async findByOrganization(organizationId: string): Promise<MyEntity[]> {
-  return this.repository.find({ where: { organizationId } });
-}
+### Test Coverage
+```bash
+npm run test:cov
 ```
 
-**Authentication Decorators**: Use provided decorators for route protection:
+## Deployment
 
-```typescript
-@UseGuards(JwtAuthGuard)
-@Roles(RoleName.DOCTOR, RoleName.ADMIN)
-@ApiBearer('JWT-auth')
-getProtectedRoute(@CurrentUser() user: User, @Organization() org: Organization) {
-  // Implementation
-}
+### Docker Production Build
+
+1. Build the Docker image:
+```bash
+docker build -t allodoc-backend .
 ```
 
-### Configuration
+2. Run with environment variables:
+```bash
+docker run -p 3000:3000 --env-file .env.production allodoc-backend
+```
 
-Environment variables are loaded from `.env.development` (or `.env.production`). Key configurations are organized in `src/config/`:
+### Traditional Deployment
 
-- `app.config.ts`: Application settings (port, CORS, rate limiting)
-- `database.config.ts`: Database connection settings
-- `jwt.config.ts`: JWT token configuration
+1. Build the application:
+```bash
+npm run build
+```
 
-The system uses TypeORM with automatic entity discovery and supports both synchronization (development) and migrations (production).
+2. Start the production server:
+```bash
+npm run start:prod
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Error**
+   - Ensure PostgreSQL is running
+   - Check database credentials in `.env`
+   - Verify database exists
+
+2. **Migration Errors**
+   - Run `npm run schema:sync` in development
+   - Check migration files for conflicts
+
+3. **JWT Errors**
+   - Ensure JWT secrets are set in environment
+   - Check token expiration settings
+
+## Contributing
+
+1. Follow the existing code structure and patterns
+2. Write unit tests for new features
+3. Update API documentation
+4. Run linting before committing
+5. Create detailed pull requests
+
+## License
+
+UNLICENSED
