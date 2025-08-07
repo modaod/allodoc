@@ -237,6 +237,22 @@ export class PrescriptionFormComponent implements OnInit {
         id: this.isEditMode ? this.prescriptionId : undefined
       };
 
+      // Map simple medication structure to backend expected format
+      const mappedMedications = prescription.medications.map(med => ({
+        medicationName: (med as any).name || (med as any).medicationName || 'Unknown',
+        genericName: '',
+        strength: med.dosage || '',
+        dosageForm: 'TABLET' as any,
+        quantity: med.quantity || 1,
+        dosage: med.dosage || '',
+        frequency: med.frequency || '',
+        frequencyType: 'DAILY' as any,
+        duration: med.duration || '',
+        durationUnit: 'DAYS' as any,
+        route: 'ORAL' as any,
+        instructions: med.instructions || ''
+      }));
+
       const saveOperation = this.isEditMode
         ? this.prescriptionsService.updatePrescription(prescription.id!, {
             id: prescription.id!,
@@ -244,14 +260,24 @@ export class PrescriptionFormComponent implements OnInit {
             consultationId: prescription.consultationId,
             prescriptionDate: prescription.prescriptionDate,
             status: prescription.status,
-            medications: prescription.medications,
+            medications: mappedMedications,
             instructions: prescription.instructions,
             notes: prescription.notes,
             refillsAllowed: prescription.refillsAllowed,
             validUntil: prescription.validUntil,
             pharmacyInstructions: prescription.pharmacyInstructions
           })
-        : this.prescriptionsService.createPrescription(prescription);
+        : this.prescriptionsService.createPrescription({
+            patientId: prescription.patientId!,
+            consultationId: prescription.consultationId,
+            prescriptionDate: prescription.prescriptionDate || new Date(),
+            medications: mappedMedications,
+            instructions: prescription.instructions,
+            notes: prescription.notes,
+            refillsAllowed: prescription.refillsAllowed,
+            validUntil: prescription.validUntil,
+            pharmacyInstructions: prescription.pharmacyInstructions
+          });
 
       saveOperation.subscribe({
         next: (savedPrescription) => {

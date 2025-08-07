@@ -26,17 +26,55 @@ export class PrescriptionDetailComponent implements OnInit {
     }
   }
 
+  getPatientName(): string {
+    if (this.prescription?.consultation?.patient) {
+      const patient = this.prescription.consultation.patient;
+      return `${patient.firstName} ${patient.lastName}`;
+    }
+    return this.prescription?.patientName || '';
+  }
+
+  getDoctorName(): string {
+    if (this.prescription?.consultation?.doctor) {
+      const doctor = this.prescription.consultation.doctor;
+      return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    }
+    return this.prescription?.doctorName || '';
+  }
+
+  getPrescriptionDate(): string {
+    if (this.prescription?.prescribedDate) {
+      return this.formatDate(this.prescription.prescribedDate);
+    }
+    return this.formatDate(this.prescription?.prescriptionDate);
+  }
+
+  getPrescriptionNumber(): string {
+    return this.prescription?.prescriptionNumber || `PR-${this.prescription?.id?.substring(0, 8)}` || '';
+  }
+
+  getInstructions(): string {
+    return this.prescription?.generalInstructions || this.prescription?.instructions || '';
+  }
+
+  getMedicationsCount(): number {
+    return this.prescription?.medications?.length || 0;
+  }
+
   loadPrescription(id: string): void {
+    console.log('Loading prescription with ID:', id);
     this.loading = true;
     this.prescriptionsService.getPrescriptionById(id).subscribe({
       next: (prescription) => {
+        console.log('Prescription loaded:', prescription);
         this.prescription = prescription;
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading prescription:', error);
         this.loading = false;
-        this.router.navigate(['/prescriptions']);
+        // Don't navigate away immediately - show error message
+        alert(`Failed to load prescription details. Error: ${error?.message || 'Unknown error'}`);
       }
     });
   }

@@ -58,12 +58,15 @@ export class PrescriptionsListComponent implements OnInit {
     this.loading = true;
     this.prescriptionsService.getAllPrescriptions(params).subscribe({
       next: (response) => {
-        this.dataSource.data = response.data;
-        this.totalPrescriptions = response.total;
+        console.log('Prescriptions list received:', response);
+        this.dataSource.data = response.data || [];
+        this.totalPrescriptions = response.total || 0;
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading prescriptions:', error);
+        this.dataSource.data = [];
+        this.totalPrescriptions = 0;
         this.loading = false;
       }
     });
@@ -156,10 +159,10 @@ export class PrescriptionsListComponent implements OnInit {
     }
     
     if (prescription.medications.length === 1) {
-      return prescription.medications[0].medicationName;
+      return (prescription.medications[0] as any).name || (prescription.medications[0] as any).medicationName;
     }
     
-    return `${prescription.medications[0].medicationName} +${prescription.medications.length - 1} more`;
+    return `${(prescription.medications[0] as any).name || (prescription.medications[0] as any).medicationName} +${prescription.medications.length - 1} more`;
   }
 
   getMedicationsCount(prescription: Prescription): number {

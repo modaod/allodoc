@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { 
   Prescription, 
   CreatePrescriptionRequest, 
@@ -13,6 +13,7 @@ import {
   MedicationTemplatesResponse
 } from '../models/prescription.model';
 import { environment } from '../../../../environments/environment';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +22,12 @@ export class PrescriptionsService {
   private readonly apiUrl = `${environment.apiUrl}/prescriptions`;
   private readonly medicationsApiUrl = `${environment.apiUrl}/medications`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private errorHandler: ErrorHandlerService
+  ) { }
 
-  getAllPrescriptions(params?: PrescriptionSearchParams): Observable<PrescriptionsResponse> {
+  getAllPrescriptions(params?: PrescriptionSearchParams): Observable<any> {
     let httpParams = new HttpParams();
     
     if (params) {
@@ -35,21 +39,41 @@ export class PrescriptionsService {
       });
     }
     
-    return this.http.get<PrescriptionsResponse>(this.apiUrl, { params: httpParams })
+    return this.http.get<any>(this.apiUrl, { params: httpParams })
       .pipe(
+        map(response => {
+          console.log('Prescriptions getAllPrescriptions response:', response);
+          // Handle different response formats
+          if (Array.isArray(response)) {
+            // If backend returns direct array, wrap it in expected format
+            return { data: response, total: response.length };
+          } else if (response && response.data) {
+            // If backend returns paginated format, use as is
+            return response;
+          } else {
+            // Fallback
+            return { data: [], total: 0 };
+          }
+        }),
         catchError(error => {
           console.error('Error fetching prescriptions:', error);
-          throw error;
+          // Return empty response structure on error
+          return of({ data: [], total: 0 });
         })
       );
   }
 
   getPrescriptionById(id: string): Observable<Prescription> {
+    console.log(`Fetching prescription from: ${this.apiUrl}/${id}`);
     return this.http.get<Prescription>(`${this.apiUrl}/${id}`)
       .pipe(
+        map(response => {
+          console.log('Prescription by ID response:', response);
+          return response;
+        }),
         catchError(error => {
-          console.error('Error fetching prescription:', error);
-          throw error;
+          console.error('Error fetching prescription by ID:', error);
+          return this.errorHandler.handleError(error);
         })
       );
   }
@@ -85,12 +109,13 @@ export class PrescriptionsService {
   }
 
   getPrescriptionsByPatient(patientId: string): Observable<Prescription[]> {
-    const params = new HttpParams().set('patientId', patientId);
-    return this.http.get<Prescription[]>(`${this.apiUrl}/patient/${patientId}`, { params })
+    // Use the correct endpoint - no extra params needed
+    return this.http.get<Prescription[]>(`${this.apiUrl}/patient/${patientId}`)
       .pipe(
         catchError(error => {
           console.error('Error fetching prescriptions by patient:', error);
-          throw error;
+          // Return empty array on error to prevent timeline from breaking
+          return of([]);
         })
       );
   }

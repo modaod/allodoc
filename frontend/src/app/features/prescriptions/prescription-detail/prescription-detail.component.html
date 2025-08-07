@@ -35,66 +35,35 @@
         <div mat-card-avatar class="prescription-avatar">
           <mat-icon>medication</mat-icon>
         </div>
-        <mat-card-title>Prescription {{ prescription.prescriptionNumber }}</mat-card-title>
-        <mat-card-subtitle>{{ formatDateTime(prescription.prescriptionDate) }}</mat-card-subtitle>
+        <mat-card-title>Prescription {{ getPrescriptionNumber() }}</mat-card-title>
+        <mat-card-subtitle>{{ getPrescriptionDate() }}</mat-card-subtitle>
       </mat-card-header>
       
       <mat-card-content>
         <div class="info-grid">
           <div class="info-item">
             <span class="label">Patient:</span>
-            <span class="value">{{ prescription.patientName }}</span>
+            <span class="value">{{ getPatientName() }}</span>
           </div>
           
           <div class="info-item">
             <span class="label">Doctor:</span>
-            <span class="value">{{ prescription.doctorName }}</span>
+            <span class="value">{{ getDoctorName() }}</span>
           </div>
           
           <div class="info-item">
             <span class="label">Prescription Date:</span>
-            <span class="value">{{ formatDate(prescription.prescriptionDate) }}</span>
+            <span class="value">{{ getPrescriptionDate() }}</span>
           </div>
           
           <div class="info-item">
-            <span class="label">Valid Until:</span>
-            <span class="value">
-              <span [ngClass]="{
-                'expiring-soon': isExpiringSoon(prescription.validUntil),
-                'expired': isExpired(prescription.validUntil)
-              }">
-                {{ formatDate(prescription.validUntil) }}
-              </span>
-              <mat-icon *ngIf="isExpiringSoon(prescription.validUntil)" 
-                        class="warning-icon" 
-                        matTooltip="Expires within 30 days">
-                warning
-              </mat-icon>
-              <mat-icon *ngIf="isExpired(prescription.validUntil)" 
-                        class="error-icon" 
-                        matTooltip="Expired">
-                error
-              </mat-icon>
-            </span>
+            <span class="label">Number of Medications:</span>
+            <span class="value">{{ getMedicationsCount() }}</span>
           </div>
-
-          <div class="info-item">
-            <span class="label">Status:</span>
-            <span class="value">
-              <span class="status-badge" [ngClass]="getStatusClass(prescription.status)">
-                {{ prescription.status.replace('_', ' ') | titlecase }}
-              </span>
-            </span>
-          </div>
-
-          <div class="info-item" *ngIf="prescription.validUntil">
-            <span class="label">Days Remaining:</span>
-            <span class="value" [ngClass]="{
-              'text-warning': getRemainingDays(prescription.validUntil) <= 30 && getRemainingDays(prescription.validUntil) > 0,
-              'text-danger': getRemainingDays(prescription.validUntil) <= 0
-            }">
-              {{ getRemainingDays(prescription.validUntil) }} days
-            </span>
+          
+          <div class="info-item" *ngIf="getInstructions()">
+            <span class="label">Instructions:</span>
+            <span class="value">{{ getInstructions() }}</span>
           </div>
         </div>
       </mat-card-content>
@@ -114,11 +83,11 @@
           <div *ngFor="let medication of prescription.medications; let i = index" class="medication-item">
             <div class="medication-header">
               <div class="medication-name">
-                <strong>{{ i + 1 }}. {{ medication.medicationName }}</strong>
-                <span class="medication-form">{{ medication.dosageForm.replace('_', ' ') | titlecase }}</span>
+                <strong>{{ i + 1 }}. {{ medication.name }}</strong>
+                <!-- Dosage form not available in simple medication structure -->
               </div>
               <div class="medication-badges">
-                <span class="dosage-badge">{{ medication.dosage }} {{ medication.dosageForm.toLowerCase() }}</span>
+                <span class="dosage-badge">{{ medication.dosage }}</span>
               </div>
             </div>
 
@@ -126,13 +95,13 @@
               <div class="detail-item">
                 <mat-icon>schedule</mat-icon>
                 <span class="detail-label">Frequency:</span>
-                <span class="detail-value">{{ medication.frequency }} times {{ medication.frequencyType.toLowerCase() }}</span>
+                <span class="detail-value">{{ medication.frequency }}</span>
               </div>
 
               <div class="detail-item">
                 <mat-icon>timelapse</mat-icon>
                 <span class="detail-label">Duration:</span>
-                <span class="detail-value">{{ medication.duration }} {{ medication.durationUnit.toLowerCase() }}</span>
+                <span class="detail-value">{{ medication.duration }}</span>
               </div>
 
               <div class="detail-item">
@@ -141,11 +110,7 @@
                 <span class="detail-value">{{ medication.quantity }}</span>
               </div>
 
-              <div class="detail-item" *ngIf="medication.refills && medication.refills > 0">
-                <mat-icon>refresh</mat-icon>
-                <span class="detail-label">Refills:</span>
-                <span class="detail-value">{{ medication.refills }}</span>
-              </div>
+              <!-- Refills not available in simple medication structure -->
             </div>
 
             <div class="medication-instructions" *ngIf="medication.instructions">

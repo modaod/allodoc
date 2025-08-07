@@ -1,16 +1,43 @@
 export interface Prescription {
   id?: string;
   prescriptionNumber?: string;
-  patientId: string;
+  patientId?: string;
   patientName?: string;
   doctorId?: string;
   doctorName?: string;
   consultationId?: string;
-  prescriptionDate: Date;
-  status: PrescriptionStatus;
-  medications: PrescriptionMedication[];
+  consultation?: {
+    patient?: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    doctor?: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      specialty?: string;
+    };
+  };
+  prescriptionDate?: Date;
+  prescribedDate?: Date; // Backend uses this field name
+  status?: PrescriptionStatus;
+  medications: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    instructions: string;
+    quantity?: number;
+  }>;
   instructions?: string;
+  generalInstructions?: string; // Backend uses this field name
   notes?: string;
+  warnings?: Array<{
+    type: 'allergy' | 'interaction' | 'contraindication' | 'warning';
+    message: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+  }>;
   refillsAllowed?: number;
   validUntil?: Date;
   pharmacyInstructions?: string;
