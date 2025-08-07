@@ -33,19 +33,18 @@ export class AuthService {
             if (organizationId) {
                 user = await this.usersService.findByEmail(email, organizationId);
             } else {
-                // For super admin, allow login without specific organization
-                // This is a simplified approach - in production you might want more complex logic
-                const users = await this.usersService.findAll(); // You'd need to implement this method
-                user =
-                    users.find((u) => u.email === email && u.hasRole(RoleName.SUPER_ADMIN)) || null;
+                // When no organizationId is provided, search through all users
+                const users = await this.usersService.findAll();
+                user = users.find((u) => u.email === email) || null;
             }
 
             if (!user) {
                 return null;
             }
-
+            
             // Verify password
             const isPasswordValid = await bcrypt.compare(password, user.password);
+            
             if (!isPasswordValid) {
                 return null;
             }
