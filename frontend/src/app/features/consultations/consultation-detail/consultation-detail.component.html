@@ -61,7 +61,7 @@
             <span class="value">{{ getDoctorSpecialty() }}</span>
           </div>
           
-          <div class="info-item">
+          <div class="info-item" *ngIf="consultation.type">
             <span class="label">Type:</span>
             <span class="value">
               <span class="type-badge" [ngClass]="getTypeClass(consultation.type)">
@@ -70,7 +70,7 @@
             </span>
           </div>
           
-          <div class="info-item">
+          <div class="info-item" *ngIf="consultation.status">
             <span class="label">Status:</span>
             <span class="value">
               <span class="status-badge" [ngClass]="getStatusClass(consultation.status)">
@@ -258,14 +258,19 @@
       
       <mat-card-content>
         <div class="info-grid">
-          <div class="info-item">
+          <div class="info-item" *ngIf="consultation.createdAt">
             <span class="label">Created:</span>
             <span class="value">{{ formatDateTime(consultation.createdAt) }}</span>
           </div>
           
-          <div class="info-item">
+          <div class="info-item" *ngIf="consultation.updatedAt">
             <span class="label">Last Updated:</span>
             <span class="value">{{ formatDateTime(consultation.updatedAt) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="consultation.organizationId">
+            <span class="label">Organization ID:</span>
+            <span class="value">{{ consultation.organizationId }}</span>
           </div>
         </div>
       </mat-card-content>

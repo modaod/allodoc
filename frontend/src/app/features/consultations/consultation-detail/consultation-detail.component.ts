@@ -68,6 +68,15 @@ export class ConsultationDetailComponent implements OnInit {
     this.loading = true;
     this.consultationsService.getConsultationById(id).subscribe({
       next: (consultation) => {
+        // Temporary debug to understand data structure
+        console.log('Consultation data received:', consultation);
+        console.log('Type:', consultation.type);
+        console.log('Reason:', consultation.reason);
+        console.log('Chief complaint:', consultation.chiefComplaint);
+        console.log('Physical examination:', consultation.physicalExamination);
+        console.log('Diagnosis:', consultation.diagnosis);
+        console.log('Follow-up:', consultation.followUpInstructions);
+        console.log('Treatment plan:', consultation.treatmentPlan);
         this.consultation = consultation;
         this.loading = false;
       },
