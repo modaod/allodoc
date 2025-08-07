@@ -62,6 +62,8 @@ start-app.sh
 # Database files
 *.db
 *.sql
+!medical_db_session.db
+!populate-test-data.sql
 
 # Markdown files (except README.md)
 *.md

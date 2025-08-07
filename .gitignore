@@ -1,0 +1,14 @@
+# Markdown files (except README.md)
+*.md
+!README.md
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
