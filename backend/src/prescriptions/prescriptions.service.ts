@@ -36,6 +36,7 @@ export class PrescriptionsService {
         return await this.prescriptionsRepository.findById(id, [
             'consultation',
             'consultation.patient',
+            'consultation.doctor',
         ]);
     }
 
