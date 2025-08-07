@@ -83,7 +83,7 @@ export class Consultation extends AuditableEntity {
     @Column({ 
         type: 'enum', 
         enum: ['INITIAL', 'FOLLOW_UP', 'EMERGENCY', 'ROUTINE_CHECKUP', 'SPECIALIST', 'TELEMEDICINE'],
-        nullable: true 
+        default: 'ROUTINE_CHECKUP'
     })
     type: string;
 
