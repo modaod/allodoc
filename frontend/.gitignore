@@ -44,3 +44,6 @@ Thumbs.db
 # Markdown files (except README.md)
 *.md
 !README.md
+
+# Log files
+frontend.log
