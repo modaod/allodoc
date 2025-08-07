@@ -81,11 +81,36 @@ export class ErrorHandlerService {
   }
 
   getErrorMessage(error: any): string {
+    // Check for nested error message structure from backend
+    if (error?.error?.message) {
+      // Handle nested message object from backend
+      if (typeof error.error.message === 'object' && error.error.message.message) {
+        return error.error.message.message;
+      }
+      return error.error.message;
+    }
+    // Check for direct message property
     if (error?.message) {
       return error.message;
     }
+    // Check if error is a string
     if (typeof error === 'string') {
       return error;
+    }
+    // Check for status-specific messages
+    if (error?.status) {
+      switch (error.status) {
+        case 401:
+          return 'Authentication required. Please log in.';
+        case 403:
+          return 'You do not have permission to perform this action.';
+        case 404:
+          return 'Resource not found.';
+        case 400:
+          return 'Invalid request. Please check your input.';
+        default:
+          return `Server error (${error.status})`;
+      }
     }
     return 'An unexpected error occurred';
   }

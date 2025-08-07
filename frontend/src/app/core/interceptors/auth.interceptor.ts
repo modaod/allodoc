@@ -9,19 +9,37 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    console.log(`=== AUTH INTERCEPTOR DEBUG ===`);
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Request method: ${req.method}`);
+    
     // Skip auth header for auth endpoints
     if (this.isAuthEndpoint(req.url)) {
+      console.log('Skipping auth header for auth endpoint');
       return next.handle(req);
     }
 
     // Add auth header if user is authenticated
     const authToken = this.authService.getAccessToken();
+    console.log(`Auth token exists: ${!!authToken}`);
     if (authToken) {
+      console.log(`Auth token (first 20 chars): ${authToken.substring(0, 20)}...`);
       req = this.addAuthHeader(req, authToken);
+      console.log('Added auth header to request');
+    } else {
+      console.log('No auth token found!');
     }
+    
+    console.log(`Final request headers:`, req.headers.keys());
+    console.log(`=== END AUTH INTERCEPTOR DEBUG ===`);
 
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.log(`=== AUTH INTERCEPTOR ERROR ===`);
+        console.log(`Error status: ${error.status}`);
+        console.log(`Error URL: ${req.url}`);
+        console.log(`=== END AUTH INTERCEPTOR ERROR ===`);
+        
         // Handle 401 errors by attempting token refresh
         if (error.status === 401 && !this.isAuthEndpoint(req.url)) {
           return this.handle401Error(req, next);

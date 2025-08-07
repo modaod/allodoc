@@ -262,7 +262,12 @@ export class AuthService {
     let errorMessage = 'An error occurred';
     
     if (error.error?.message) {
-      errorMessage = error.error.message;
+      // Handle nested message structure from backend
+      if (typeof error.error.message === 'object' && error.error.message.message) {
+        errorMessage = error.error.message.message;
+      } else if (typeof error.error.message === 'string') {
+        errorMessage = error.error.message;
+      }
     } else if (error.message) {
       errorMessage = error.message;
     }
