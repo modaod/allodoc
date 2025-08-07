@@ -4,11 +4,6 @@
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
   </div>
 
-  <!-- DEBUG: Show raw consultation data -->
-  <div *ngIf="!loading" style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 12px;">
-    <strong>DEBUG - Raw Consultation Data:</strong>
-    <pre>{{ consultation | json }}</pre>
-  </div>
 
   <!-- Consultation Details -->
   <div *ngIf="!loading && consultation" class="consultation-content">

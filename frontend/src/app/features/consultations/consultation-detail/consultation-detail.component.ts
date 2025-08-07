@@ -65,25 +65,9 @@ export class ConsultationDetailComponent implements OnInit {
   }
 
   loadConsultation(id: string): void {
-    console.log('Loading consultation with ID:', id);
     this.loading = true;
     this.consultationsService.getConsultationById(id).subscribe({
       next: (consultation) => {
-        console.log('=== CONSULTATION DETAIL DEBUG ===');
-        console.log('Raw consultation object:', JSON.stringify(consultation, null, 2));
-        console.log('Object keys:', Object.keys(consultation || {}));
-        console.log('Patient data:', consultation?.patient);
-        console.log('Doctor data:', consultation?.doctor);
-        console.log('Type:', consultation?.type);
-        console.log('Status:', consultation?.status);
-        console.log('Reason field:', consultation?.reason);
-        console.log('Chief complaint field:', consultation?.chiefComplaint);
-        console.log('Physical examination:', consultation?.physicalExamination);
-        console.log('Diagnosis:', consultation?.diagnosis);
-        console.log('Vital signs:', consultation?.vitalSigns);
-        console.log('Symptoms:', consultation?.symptoms);
-        console.log('Treatment plan:', consultation?.treatmentPlan);
-        console.log('=== END DEBUG ===');
         this.consultation = consultation;
         this.loading = false;
       },
