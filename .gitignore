@@ -1,7 +1,8 @@
-# Markdown files (except README.md and GIT_WORKFLOW.md)
+# Markdown files (except specific documentation files)
 *.md
 !README.md
 !GIT_WORKFLOW.md
+!CLAUDE.md
 
 # IDE files
 .vscode/
