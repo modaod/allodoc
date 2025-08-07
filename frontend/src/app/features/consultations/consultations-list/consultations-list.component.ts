@@ -48,12 +48,15 @@ export class ConsultationsListComponent implements OnInit {
     this.loading = true;
     this.consultationsService.getAllConsultations(params).subscribe({
       next: (response) => {
-        this.dataSource.data = response.data;
-        this.totalConsultations = response.total;
+        console.log('Consultations list received:', response);
+        this.dataSource.data = response.data || [];
+        this.totalConsultations = response.total || 0;
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading consultations:', error);
+        this.dataSource.data = [];
+        this.totalConsultations = 0;
         this.loading = false;
       }
     });

@@ -4,6 +4,12 @@
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
   </div>
 
+  <!-- DEBUG: Show raw consultation data -->
+  <div *ngIf="!loading" style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 12px;">
+    <strong>DEBUG - Raw Consultation Data:</strong>
+    <pre>{{ consultation | json }}</pre>
+  </div>
+
   <!-- Consultation Details -->
   <div *ngIf="!loading && consultation" class="consultation-content">
     <!-- Header -->
@@ -47,12 +53,17 @@
         <div class="info-grid">
           <div class="info-item">
             <span class="label">Patient:</span>
-            <span class="value">{{ consultation.patientName }}</span>
+            <span class="value">{{ getPatientName() }}</span>
           </div>
           
           <div class="info-item">
             <span class="label">Doctor:</span>
-            <span class="value">{{ consultation.doctorName }}</span>
+            <span class="value">{{ getDoctorName() }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="getDoctorSpecialty()">
+            <span class="label">Specialty:</span>
+            <span class="value">{{ getDoctorSpecialty() }}</span>
           </div>
           
           <div class="info-item">
@@ -95,7 +106,12 @@
       <mat-card-content>
         <div class="content-section">
           <h4>Chief Complaint</h4>
-          <p class="complaint-text">{{ consultation.chiefComplaint }}</p>
+          <p class="complaint-text">{{ getChiefComplaint() }}</p>
+        </div>
+
+        <div class="content-section" *ngIf="consultation.symptoms">
+          <h4>Symptoms</h4>
+          <p class="symptoms-text">{{ consultation.symptoms }}</p>
         </div>
 
         <div class="content-section" *ngIf="consultation.historyOfPresentIllness">

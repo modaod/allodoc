@@ -30,53 +30,68 @@ export class ConsultationDetailComponent implements OnInit {
   getPhysicalExaminationText(): string {
     if (!this.consultation?.physicalExamination) return '';
     
-    if (typeof this.consultation.physicalExamination === 'string') {
-      return this.consultation.physicalExamination;
-    }
-    
-    // Convert complex structure to simple text
-    const exam = this.consultation.physicalExamination;
-    const parts = [];
-    if (exam.general) parts.push(`General: ${exam.general}`);
-    if (exam.cardiovascular) parts.push(`Cardiovascular: ${exam.cardiovascular}`);
-    if (exam.respiratory) parts.push(`Respiratory: ${exam.respiratory}`);
-    if (exam.gastrointestinal) parts.push(`Gastrointestinal: ${exam.gastrointestinal}`);
-    if (exam.neurological) parts.push(`Neurological: ${exam.neurological}`);
-    if (exam.musculoskeletal) parts.push(`Musculoskeletal: ${exam.musculoskeletal}`);
-    if (exam.dermatological) parts.push(`Dermatological: ${exam.dermatological}`);
-    if (exam.other) parts.push(`Other: ${exam.other}`);
-    
-    return parts.join('\n');
+    // Backend stores as simple text, not complex object
+    return this.consultation.physicalExamination.toString();
   }
 
   getDiagnosisText(): string {
     if (!this.consultation?.diagnosis) return '';
     
-    if (typeof this.consultation.diagnosis === 'string') {
-      return this.consultation.diagnosis;
-    }
-    
-    // Convert complex structure to simple text
-    return this.consultation.diagnosis
-      .map((d, i) => `${i + 1}. ${d.description}`)
-      .join('\n');
+    // Backend stores as simple text, not complex object
+    return this.consultation.diagnosis.toString();
   }
 
   getChiefComplaint(): string {
-    return this.consultation?.chiefComplaint || this.consultation?.reason || '';
+    // Backend uses 'reason' field
+    return this.consultation?.reason || this.consultation?.chiefComplaint || '';
+  }
+
+  getPatientName(): string {
+    if (this.consultation?.patient) {
+      return `${this.consultation.patient.firstName} ${this.consultation.patient.lastName}`;
+    }
+    return this.consultation?.patientName || '';
+  }
+
+  getDoctorName(): string {
+    if (this.consultation?.doctor) {
+      return `Dr. ${this.consultation.doctor.firstName} ${this.consultation.doctor.lastName}`;
+    }
+    return this.consultation?.doctorName || '';
+  }
+
+  getDoctorSpecialty(): string {
+    return this.consultation?.doctor?.specialty || '';
   }
 
   loadConsultation(id: string): void {
+    console.log('Loading consultation with ID:', id);
     this.loading = true;
     this.consultationsService.getConsultationById(id).subscribe({
       next: (consultation) => {
+        console.log('=== CONSULTATION DETAIL DEBUG ===');
+        console.log('Raw consultation object:', JSON.stringify(consultation, null, 2));
+        console.log('Object keys:', Object.keys(consultation || {}));
+        console.log('Patient data:', consultation?.patient);
+        console.log('Doctor data:', consultation?.doctor);
+        console.log('Type:', consultation?.type);
+        console.log('Status:', consultation?.status);
+        console.log('Reason field:', consultation?.reason);
+        console.log('Chief complaint field:', consultation?.chiefComplaint);
+        console.log('Physical examination:', consultation?.physicalExamination);
+        console.log('Diagnosis:', consultation?.diagnosis);
+        console.log('Vital signs:', consultation?.vitalSigns);
+        console.log('Symptoms:', consultation?.symptoms);
+        console.log('Treatment plan:', consultation?.treatmentPlan);
+        console.log('=== END DEBUG ===');
         this.consultation = consultation;
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading consultation:', error);
         this.loading = false;
-        this.router.navigate(['/consultations']);
+        // Don't navigate away immediately - show error message
+        alert(`Failed to load consultation details. Error: ${error?.message || 'Unknown error'}`);
       }
     });
   }
