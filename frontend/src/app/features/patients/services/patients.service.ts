@@ -17,7 +17,7 @@ export class PatientsService {
     private errorHandler: ErrorHandlerService
   ) { }
 
-  getAllPatients(params?: PatientSearchParams): Observable<PatientsResponse> {
+  getAllPatients(params?: PatientSearchParams): Observable<PatientsResponse | any> {
     let httpParams = new HttpParams();
     
     if (params) {
@@ -29,7 +29,7 @@ export class PatientsService {
       });
     }
     
-    return this.http.get<PatientsResponse>(this.apiUrl, { params: httpParams })
+    return this.http.get<any>(this.apiUrl, { params: httpParams })
       .pipe(
         catchError(this.errorHandler.handleError.bind(this.errorHandler))
       );
@@ -50,9 +50,15 @@ export class PatientsService {
   }
 
   updatePatient(id: string, patient: UpdatePatientRequest): Observable<Patient> {
-    return this.http.put<Patient>(`${this.apiUrl}/${id}`, patient)
+    console.log('Updating patient with ID:', id);
+    console.log('Update payload:', patient);
+    // Backend uses PATCH, not PUT
+    return this.http.patch<Patient>(`${this.apiUrl}/${id}`, patient)
       .pipe(
-        catchError(this.errorHandler.handleError.bind(this.errorHandler))
+        catchError(error => {
+          console.error('Patient service update error:', error);
+          return this.errorHandler.handleError(error);
+        })
       );
   }
 

@@ -80,28 +80,38 @@ export class PatientDetailComponent implements OnInit {
   }
 
   private loadMedicalHistory(patientId: string): void {
-    // Try to load consultations and prescriptions separately
+    console.log('Loading medical history for patient:', patientId);
+    
+    // Use the patient-specific endpoints
     const consultations$ = this.consultationsService ? 
-      this.consultationsService.getAllConsultations({ patientId }) : 
+      this.consultationsService.getConsultationsByPatient(patientId) : 
       new Observable<any>(observer => { 
         console.log('ConsultationsService not available');
-        observer.next({ data: [] }); 
+        observer.next([]); 
         observer.complete(); 
       });
       
     const prescriptions$ = this.prescriptionsService ? 
-      this.prescriptionsService.getAllPrescriptions({ patientId }) : 
+      this.prescriptionsService.getPrescriptionsByPatient(patientId) : 
       new Observable<any>(observer => { 
         console.log('PrescriptionsService not available');
-        observer.next({ data: [] }); 
+        observer.next([]); 
         observer.complete(); 
       });
 
     combineLatest([consultations$, prescriptions$]).subscribe({
       next: ([consultationsResponse, prescriptionsResponse]) => {
-        console.log('Medical history loaded:', { consultationsResponse, prescriptionsResponse });
-        this.consultations = (consultationsResponse as any)?.data || [];
-        this.prescriptions = (prescriptionsResponse as any)?.data || [];
+        console.log('Medical history API responses:', { consultationsResponse, prescriptionsResponse });
+        
+        // Now we're getting arrays directly from the patient-specific endpoints
+        this.consultations = Array.isArray(consultationsResponse) ? consultationsResponse : [];
+        this.prescriptions = Array.isArray(prescriptionsResponse) ? prescriptionsResponse : [];
+
+        console.log('Processed medical data:', { 
+          consultations: this.consultations, 
+          prescriptions: this.prescriptions 
+        });
+        
         this.buildMedicalTimeline();
         this.loadingTimeline = false;
       },
@@ -162,39 +172,54 @@ export class PatientDetailComponent implements OnInit {
   }
 
   buildMedicalTimeline(): void {
+    console.log('Building medical timeline with data:', { 
+      consultations: this.consultations, 
+      prescriptions: this.prescriptions 
+    });
+    
     this.medicalTimeline = [];
 
     // Add consultations to timeline
-    this.consultations.forEach(consultation => {
-      this.medicalTimeline.push({
-        id: consultation.id!,
-        type: 'consultation',
-        date: consultation.consultationDate,
-        title: `Consultation - ${consultation.type}`,
-        subtitle: consultation.consultationNumber,
-        description: consultation.chiefComplaint || consultation.reason || '',
-        status: consultation.status,
-        data: consultation
+    if (this.consultations && Array.isArray(this.consultations)) {
+      this.consultations.forEach(consultation => {
+        if (consultation && consultation.id) {
+          this.medicalTimeline.push({
+            id: consultation.id,
+            type: 'consultation',
+            date: new Date(consultation.consultationDate || consultation.createdAt),
+            title: `Consultation - ${consultation.type || 'General'}`,
+            subtitle: consultation.consultationNumber || 'No number',
+            description: consultation.reason || consultation.symptoms || (typeof consultation.diagnosis === 'string' ? consultation.diagnosis : 'No description'),
+            status: consultation.status || 'COMPLETED',
+            data: consultation
+          });
+        }
       });
-    });
+    }
 
     // Add prescriptions to timeline
-    this.prescriptions.forEach(prescription => {
-      const medicationNames = prescription.medications.map(m => m.medicationName).join(', ');
-      this.medicalTimeline.push({
-        id: prescription.id!,
-        type: 'prescription',
-        date: prescription.prescriptionDate,
-        title: `Prescription - ${prescription.prescriptionNumber}`,
-        subtitle: `${prescription.medications.length} medication(s)`,
-        description: medicationNames,
-        status: prescription.status,
-        data: prescription
+    if (this.prescriptions && Array.isArray(this.prescriptions)) {
+      this.prescriptions.forEach(prescription => {
+        if (prescription && prescription.id) {
+          const medicationNames = prescription.medications?.map(m => (m as any).name || (m as any).medicationName).join(', ') || 'No medications';
+          this.medicalTimeline.push({
+            id: prescription.id,
+            type: 'prescription',
+            date: new Date(prescription.prescriptionDate || prescription.prescribedDate || prescription.createdAt || new Date()),
+            title: `Prescription - ${prescription.prescriptionNumber || 'No number'}`,
+            subtitle: `${prescription.medications?.length || 0} medication(s)`,
+            description: medicationNames,
+            status: prescription.status || 'ACTIVE',
+            data: prescription
+          });
+        }
       });
-    });
+    }
 
     // Sort timeline by date (most recent first)
     this.medicalTimeline.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    console.log('Built medical timeline:', this.medicalTimeline);
   }
 
   newConsultation(): void {

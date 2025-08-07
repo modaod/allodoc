@@ -48,12 +48,24 @@ export class PatientsListComponent implements OnInit {
     this.loading = true;
     this.patientsService.getAllPatients(params).subscribe({
       next: (response) => {
-        this.dataSource.data = response.data;
-        this.totalPatients = response.total;
+        console.log('Patients response:', response);
+        // Handle both direct array and paginated response formats
+        if (Array.isArray(response)) {
+          this.dataSource.data = response;
+          this.totalPatients = response.length;
+        } else if (response && response.data) {
+          this.dataSource.data = response.data;
+          this.totalPatients = response.total || response.data.length;
+        } else {
+          this.dataSource.data = [];
+          this.totalPatients = 0;
+        }
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error loading patients:', error);
         this.loading = false;
+        this.dataSource.data = [];
         const errorMessage = this.errorHandler.getErrorMessage(error);
         this.notificationService.showError(`Failed to load patients: ${errorMessage}`);
       }

@@ -311,7 +311,7 @@
               <div *ngFor="let prescription of prescriptions" class="prescription-card">
                 <div class="prescription-header">
                   <h4>{{ prescription.prescriptionNumber }}</h4>
-                  <mat-chip [class]="getStatusColor('prescription', prescription.status)">
+                  <mat-chip [class]="getStatusColor('prescription', prescription.status || '')">
                     {{ prescription.status }}
                   </mat-chip>
                 </div>
@@ -321,7 +321,7 @@
                   <p><strong>Medications:</strong></p>
                   <ul class="medication-list">
                     <li *ngFor="let med of prescription.medications">
-                      <strong>{{ med.medicationName }}</strong> - {{ med.dosage }} {{ med.frequency }}/{{ med.frequencyType }}
+                      <strong>{{ med.name }}</strong> - {{ med.dosage }} {{ med.frequency }}
                     </li>
                   </ul>
                   <p *ngIf="prescription.instructions"><strong>Instructions:</strong> {{ prescription.instructions }}</p>

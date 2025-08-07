@@ -4,6 +4,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { Patient, CreatePatientRequest, UpdatePatientRequest } from '../models/patient.model';
 import { PatientsService } from '../services/patients.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 
 @Component({
   selector: 'app-patient-form',
@@ -24,7 +26,9 @@ export class PatientFormComponent implements OnInit {
     private fb: FormBuilder,
     private patientsService: PatientsService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private notificationService: NotificationService,
+    private errorHandler: ErrorHandlerService
   ) {}
 
   ngOnInit(): void {
@@ -75,16 +79,25 @@ export class PatientFormComponent implements OnInit {
       error: (error) => {
         console.error('Error loading patient:', error);
         this.loading = false;
+        const errorMessage = this.errorHandler.getErrorMessage(error);
+        this.notificationService.showError(`Failed to load patient: ${errorMessage}`);
         this.router.navigate(['/patients']);
       }
     });
   }
 
   populateForm(patient: Patient): void {
+    // Format the date correctly for the date input field
+    let formattedDate: any = patient.dateOfBirth;
+    if (patient.dateOfBirth) {
+      const date = new Date(patient.dateOfBirth);
+      formattedDate = date.toISOString().split('T')[0];
+    }
+    
     this.patientForm.patchValue({
       firstName: patient.firstName,
       lastName: patient.lastName,
-      dateOfBirth: patient.dateOfBirth,
+      dateOfBirth: formattedDate,
       gender: patient.gender,
       email: patient.email,
       phone: patient.phone,
@@ -203,19 +216,35 @@ export class PatientFormComponent implements OnInit {
       formValue.medicalHistory.allergies = this.allergies;
       formValue.medicalHistory.chronicDiseases = this.chronicDiseases;
 
+      // Convert date to ISO string if it's a Date object
+      if (formValue.dateOfBirth instanceof Date) {
+        formValue.dateOfBirth = formValue.dateOfBirth.toISOString().split('T')[0];
+      } else if (formValue.dateOfBirth && typeof formValue.dateOfBirth === 'string' && formValue.dateOfBirth.includes('T')) {
+        // If it's already an ISO string, extract just the date part
+        formValue.dateOfBirth = formValue.dateOfBirth.split('T')[0];
+      }
+
+      console.log('Form value before submission:', formValue);
+
       if (this.isEditMode && this.patientId) {
-        const updateRequest: UpdatePatientRequest = {
-          id: this.patientId,
-          ...formValue
-        };
+        const updateRequest: UpdatePatientRequest = formValue;
         this.patientsService.updatePatient(this.patientId, updateRequest).subscribe({
-          next: () => {
+          next: (updatedPatient) => {
             this.saving = false;
+            this.notificationService.showSuccess('Patient updated successfully');
             this.router.navigate(['/patients', this.patientId]);
           },
           error: (error) => {
-            console.error('Error updating patient:', error);
+            console.error('Error updating patient - Full error object:', error);
+            console.error('Error structure:', {
+              status: error?.status,
+              message: error?.message,
+              error: error?.error,
+              errorMessage: error?.error?.message
+            });
             this.saving = false;
+            const errorMessage = this.errorHandler.getErrorMessage(error);
+            this.notificationService.showError(`Failed to update patient: ${errorMessage}`);
           }
         });
       } else {
@@ -223,11 +252,14 @@ export class PatientFormComponent implements OnInit {
         this.patientsService.createPatient(createRequest).subscribe({
           next: (patient) => {
             this.saving = false;
+            this.notificationService.showSuccess('Patient created successfully');
             this.router.navigate(['/patients', patient.id]);
           },
           error: (error) => {
             console.error('Error creating patient:', error);
             this.saving = false;
+            const errorMessage = this.errorHandler.getErrorMessage(error);
+            this.notificationService.showError(`Failed to create patient: ${errorMessage}`);
           }
         });
       }
