@@ -150,8 +150,9 @@ export class PrescriptionsService {
         // Validate dates
         const prescribedDate = new Date(createPrescriptionDto.prescribedDate);
         const today = new Date();
+        today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
 
-        if (today <= prescribedDate) {
+        if (prescribedDate > today) {
             throw new BadRequestException('The prescribed date must be in the past or today');
         }
     }

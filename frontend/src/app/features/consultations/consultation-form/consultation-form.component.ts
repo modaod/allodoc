@@ -3,9 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { 
-  Consultation, 
-  CreateConsultationRequest, 
-  UpdateConsultationRequest,
+  Consultation,
   ConsultationStatus,
   ConsultationType
 } from '../models/consultation.model';
