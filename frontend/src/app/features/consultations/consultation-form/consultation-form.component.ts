@@ -247,6 +247,20 @@ export class ConsultationFormComponent implements OnInit {
       }
     }
 
+    if (this.isEditMode) {
+      // For updates, only send fields that are allowed by UpdateConsultationDto
+      return {
+        notes: formValue.notes,
+        vitalSigns: {
+          temperature: formValue.vitalSigns.temperature ? parseFloat(formValue.vitalSigns.temperature) : undefined,
+          heartRate: formValue.vitalSigns.heartRate ? parseInt(formValue.vitalSigns.heartRate) : undefined,
+          bloodPressure: bloodPressure,
+          weight: formValue.vitalSigns.weight ? parseFloat(formValue.vitalSigns.weight) : undefined
+        }
+      };
+    }
+
+    // For creation, prepare all required fields
     const baseData = {
       patientId: formValue.patientId,
       doctorId: currentUser?.id || '',  // Add doctorId from current user
@@ -267,19 +281,6 @@ export class ConsultationFormComponent implements OnInit {
       },
       prescriptions: formValue.prescriptions || [] // Add integrated prescriptions
     };
-
-    if (this.isEditMode) {
-      // For updates, only send fields that are allowed by UpdateConsultationDto
-      return {
-        notes: formValue.notes,
-        vitalSigns: {
-          temperature: formValue.vitalSigns.temperature ? parseFloat(formValue.vitalSigns.temperature) : undefined,
-          heartRate: formValue.vitalSigns.heartRate ? parseInt(formValue.vitalSigns.heartRate) : undefined,
-          bloodPressure: bloodPressure,
-          weight: formValue.vitalSigns.weight ? parseFloat(formValue.vitalSigns.weight) : undefined
-        }
-      };
-    }
 
     return baseData;
   }
