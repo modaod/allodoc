@@ -74,7 +74,7 @@ export class ConsultationsService {
   }
 
   updateConsultation(id: string, consultation: UpdateConsultationRequest): Observable<Consultation> {
-    return this.http.put<Consultation>(`${this.apiUrl}/${id}`, consultation)
+    return this.http.patch<Consultation>(`${this.apiUrl}/${id}`, consultation)
       .pipe(
         catchError(error => {
           console.error('Error updating consultation:', error);
