@@ -22,6 +22,20 @@
       <!-- Simplified Consultation Form -->
       <form *ngIf="!loading" [formGroup]="consultationForm" (ngSubmit)="onSubmit()" class="simple-form">
         
+        <!-- Edit Mode Information -->
+        <div *ngIf="showEditModeInfo" class="edit-mode-info">
+          <mat-card appearance="outlined" style="background-color: #fff3cd; border-color: #ffeeba; margin-bottom: 16px;">
+            <mat-card-content>
+              <div style="display: flex; align-items: center;">
+                <mat-icon style="color: #856404; margin-right: 8px;">info</mat-icon>
+                <span style="color: #856404;">
+                  <strong>Edit Mode:</strong> Only notes and vital signs can be modified in existing consultations. Other fields are read-only for data integrity.
+                </span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        
         <!-- Basic Information Section -->
         <div class="form-section">
           <h3 class="section-title">

@@ -23,6 +23,7 @@ export class ConsultationFormComponent implements OnInit {
   consultationId: string | null = null;
   loading = false;
   saving = false;
+  showEditModeInfo = false;
 
   // Data for dropdowns
   patients: Patient[] = [];
@@ -171,6 +172,32 @@ export class ConsultationFormComponent implements OnInit {
     });
 
     // For now, skip prescriptions since we need to integrate with backend properly
+    
+    // Disable fields that cannot be updated in edit mode
+    if (this.isEditMode) {
+      this.disableNonEditableFields();
+      this.showEditModeInfo = true;
+    }
+  }
+
+  disableNonEditableFields(): void {
+    // Only notes and vitalSigns can be updated according to UpdateConsultationDto
+    const fieldsToDisable = [
+      'patientId', 'consultationDate', 'type', 'status', 
+      'reason', 'symptoms', 'physicalExamination', 
+      'diagnosis', 'treatmentPlan', 'followUpInstructions', 'prescriptions'
+    ];
+
+    fieldsToDisable.forEach(fieldName => {
+      const control = this.consultationForm.get(fieldName);
+      if (control) {
+        control.disable();
+      }
+    });
+
+    // Keep vitalSigns and notes enabled (these can be updated)
+    // Notes field is already editable by default
+    // VitalSigns fields are already editable by default
   }
 
   onSubmit(): void {
