@@ -36,15 +36,12 @@ export class ConsultationsService {
             createConsultationDto.vitalSigns.bmi = bmi;
         }
 
-        // Support both reason and chiefComplaint - use chiefComplaint if provided, otherwise reason
-        const reason = createConsultationDto.chiefComplaint || createConsultationDto.reason;
-        if (!reason) {
-            throw new BadRequestException('Either chiefComplaint or reason must be provided');
+        if (!createConsultationDto.reason) {
+            throw new BadRequestException('Reason is required');
         }
 
         const consultationData = {
             ...createConsultationDto,
-            reason, // Always store as 'reason' in the database
             consultationDate: new Date(createConsultationDto.consultationDate),
             organizationId,
             consultationNumber: await this.generateConsultationNumber(organizationId),

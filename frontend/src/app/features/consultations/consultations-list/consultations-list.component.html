@@ -72,7 +72,7 @@
           <!-- Reason Column -->
           <ng-container matColumnDef="chiefComplaint">
             <th mat-header-cell *matHeaderCellDef>Reason</th>
-            <td mat-cell *matCellDef="let consultation">{{ consultation.reason || consultation.chiefComplaint || '-' }}</td>
+            <td mat-cell *matCellDef="let consultation">{{ consultation.reason || '-' }}</td>
           </ng-container>
 
           <!-- Actions Column -->

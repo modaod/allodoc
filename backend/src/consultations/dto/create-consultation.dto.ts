@@ -51,22 +51,12 @@ export class CreateConsultationDto {
     @IsEnum(ConsultationType)
     type: ConsultationType;
 
-    // Support both reason and chiefComplaint for compatibility
-    @IsOptional()
     @IsString()
-    reason?: string;
-
-    @IsOptional()
-    @IsString()
-    chiefComplaint?: string;
+    reason: string;
 
     @IsOptional()
     @IsString()
     symptoms?: string;
-
-    @IsOptional()
-    @IsString()
-    historyOfPresentIllness?: string;
 
     @IsOptional()
     @IsString()

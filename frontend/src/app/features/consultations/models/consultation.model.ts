@@ -22,9 +22,7 @@ export interface Consultation {
   consultationDate: Date;
   status: ConsultationStatus;
   type: ConsultationType;
-  reason?: string; // Backend field
-  chiefComplaint?: string; // Frontend field - both supported for compatibility
-  historyOfPresentIllness?: string;
+  reason?: string;
   symptoms?: string;
   physicalExamination?: PhysicalExamination | string; // Support both complex and simple
   vitalSigns?: VitalSigns;
@@ -129,23 +127,18 @@ export enum DiagnosisSeverity {
 // Request/Response interfaces
 export interface CreateConsultationRequest {
   patientId: string;
-  doctorId: string; // Required by backend
-  consultationDate: string; // ISO string for API
+  doctorId: string;
+  consultationDate: string;
   type: ConsultationType;
-  chiefComplaint?: string; // Deprecated - use reason
-  reason?: string; // Primary field for backend
-  historyOfPresentIllness?: string; // Deprecated - use symptoms
-  symptoms?: string; // Primary field for backend
-  physicalExamination?: string; // Simplified to string
+  reason?: string;
+  symptoms?: string;
+  physicalExamination?: string;
   vitalSigns?: VitalSigns;
-  diagnosis?: string; // Simplified to string
+  diagnosis?: string;
   treatmentPlan?: string;
   followUpInstructions?: string;
   notes?: string;
-  prescriptions?: EmbeddedPrescription[]; // Integrated prescriptions
-  // Deprecated fields - kept for compatibility
-  duration?: number;
-  fee?: number;
+  prescriptions?: EmbeddedPrescription[];
 }
 
 export interface UpdateConsultationRequest extends Partial<CreateConsultationRequest> {

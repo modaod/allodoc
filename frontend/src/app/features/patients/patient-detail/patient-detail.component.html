@@ -284,7 +284,7 @@
                 <div class="consultation-details">
                   <p><strong>Date:</strong> {{ formatDate(consultation.consultationDate) }}</p>
                   <p><strong>Type:</strong> {{ consultation.type }}</p>
-                  <p><strong>Chief Complaint:</strong> {{ consultation.chiefComplaint || consultation.reason }}</p>
+                  <p><strong>Reason:</strong> {{ consultation.reason }}</p>
                   <p *ngIf="consultation.treatmentPlan"><strong>Treatment:</strong> {{ consultation.treatmentPlan }}</p>
                 </div>
                 <div class="consultation-actions">

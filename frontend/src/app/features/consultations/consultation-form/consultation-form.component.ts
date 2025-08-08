@@ -154,8 +154,8 @@ export class ConsultationFormComponent implements OnInit {
       consultationDate: localISOTime,
       type: consultation.type || '',
       status: consultation.status || ConsultationStatus.COMPLETED,
-      reason: consultation.reason || consultation.chiefComplaint,  // Support both field names for backward compatibility
-      symptoms: consultation.symptoms || consultation.historyOfPresentIllness || '',  // Support both field names
+      reason: consultation.reason,
+      symptoms: consultation.symptoms || '',
       physicalExamination: typeof consultation.physicalExamination === 'string' 
         ? consultation.physicalExamination 
         : consultation.physicalExamination?.general || '',
