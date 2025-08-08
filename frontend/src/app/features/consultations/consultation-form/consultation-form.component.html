@@ -81,18 +81,18 @@
           <div class="form-section-content">
             <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Chief Complaint</mat-label>
-              <textarea matInput formControlName="chiefComplaint" rows="2" required 
+              <mat-label>Reason for Visit</mat-label>
+              <textarea matInput formControlName="reason" rows="2" required 
                         placeholder="What brought the patient to see you today?"></textarea>
-              <mat-error>{{ getFieldError('chiefComplaint') }}</mat-error>
+              <mat-error>{{ getFieldError('reason') }}</mat-error>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>History of Present Illness</mat-label>
-              <textarea matInput formControlName="historyOfPresentIllness" rows="3" 
-                        placeholder="Describe the patient's symptoms and history"></textarea>
+              <mat-label>Symptoms</mat-label>
+              <textarea matInput formControlName="symptoms" rows="3" 
+                        placeholder="Describe the patient's symptoms and complaints"></textarea>
             </mat-form-field>
           </div>
 

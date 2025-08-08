@@ -129,12 +129,13 @@ export enum DiagnosisSeverity {
 // Request/Response interfaces
 export interface CreateConsultationRequest {
   patientId: string;
+  doctorId: string; // Required by backend
   consultationDate: string; // ISO string for API
   type: ConsultationType;
-  chiefComplaint?: string;
-  reason?: string; // Backend compatibility
-  historyOfPresentIllness?: string;
-  symptoms?: string;
+  chiefComplaint?: string; // Deprecated - use reason
+  reason?: string; // Primary field for backend
+  historyOfPresentIllness?: string; // Deprecated - use symptoms
+  symptoms?: string; // Primary field for backend
   physicalExamination?: string; // Simplified to string
   vitalSigns?: VitalSigns;
   diagnosis?: string; // Simplified to string

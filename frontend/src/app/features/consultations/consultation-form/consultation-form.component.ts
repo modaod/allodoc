@@ -12,6 +12,7 @@ import {
 import { ConsultationsService } from '../services/consultations.service';
 import { PatientsService } from '../../patients/services/patients.service';
 import { Patient } from '../../patients/models/patient.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-consultation-form',
@@ -34,6 +35,7 @@ export class ConsultationFormComponent implements OnInit {
     private fb: FormBuilder,
     private consultationsService: ConsultationsService,
     private patientsService: PatientsService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -50,8 +52,8 @@ export class ConsultationFormComponent implements OnInit {
       consultationDate: ['', Validators.required],
       type: ['', Validators.required],
       status: [ConsultationStatus.SCHEDULED],
-      chiefComplaint: ['', [Validators.required, Validators.minLength(5)]],
-      historyOfPresentIllness: [''],
+      reason: ['', [Validators.required, Validators.minLength(5)]],  // Changed from chiefComplaint
+      symptoms: [''],  // Changed from historyOfPresentIllness
       physicalExamination: [''],
       diagnosis: this.fb.array([]),
       treatmentPlan: [''],
@@ -153,8 +155,8 @@ export class ConsultationFormComponent implements OnInit {
       consultationDate: localISOTime,
       type: consultation.type || '',
       status: consultation.status || ConsultationStatus.COMPLETED,
-      chiefComplaint: consultation.chiefComplaint,
-      historyOfPresentIllness: consultation.historyOfPresentIllness || '',
+      reason: consultation.reason || consultation.chiefComplaint,  // Support both field names for backward compatibility
+      symptoms: consultation.symptoms || consultation.historyOfPresentIllness || '',  // Support both field names
       physicalExamination: typeof consultation.physicalExamination === 'string' 
         ? consultation.physicalExamination 
         : consultation.physicalExamination?.general || '',
@@ -206,6 +208,7 @@ export class ConsultationFormComponent implements OnInit {
 
   prepareFormData(): any {
     const formValue = this.consultationForm.value;
+    const currentUser = this.authService.currentUser;
     
     // Parse blood pressure text back to object if provided
     let bloodPressure = undefined;
@@ -221,10 +224,11 @@ export class ConsultationFormComponent implements OnInit {
 
     const baseData = {
       patientId: formValue.patientId,
+      doctorId: currentUser?.id || '',  // Add doctorId from current user
       consultationDate: new Date(formValue.consultationDate).toISOString(),
       type: formValue.type,
-      chiefComplaint: formValue.chiefComplaint,
-      historyOfPresentIllness: formValue.historyOfPresentIllness,
+      reason: formValue.reason,  // Use reason instead of chiefComplaint
+      symptoms: formValue.symptoms,  // Use symptoms instead of historyOfPresentIllness
       physicalExamination: formValue.physicalExamination, // Send as string
       diagnosis: formValue.diagnosis || '', // Send as string
       treatmentPlan: formValue.treatmentPlan,
