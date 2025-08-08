@@ -41,8 +41,8 @@ export class ConsultationDetailComponent implements OnInit {
     return this.consultation.diagnosis.toString();
   }
 
-  getChiefComplaint(): string {
-    // Backend uses 'reason' field
+  getReason(): string {
+    // Backend uses 'reason' field, fallback to chiefComplaint for backward compatibility
     return this.consultation?.reason || this.consultation?.chiefComplaint || '';
   }
 

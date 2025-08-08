@@ -92,16 +92,16 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Chief Complaint & History Card -->
+    <!-- Reason & History Card -->
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>Complaint & History</mat-card-title>
+        <mat-card-title>Reason & History</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
         <div class="content-section">
-          <h4>Chief Complaint</h4>
-          <p class="complaint-text">{{ getChiefComplaint() }}</p>
+          <h4>Reason for Visit</h4>
+          <p class="complaint-text">{{ getReason() }}</p>
         </div>
 
         <div class="content-section" *ngIf="consultation.symptoms">
