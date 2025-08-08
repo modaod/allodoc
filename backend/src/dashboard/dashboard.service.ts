@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThan } from 'typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
@@ -40,18 +40,13 @@ export class DashboardService {
             this.consultationRepository.count({
                 where: {
                     organizationId,
-                    consultationDate: {
-                        gte: today,
-                        lt: tomorrow,
-                    } as any,
+                    consultationDate: MoreThanOrEqual(today),
                 },
             }),
             this.consultationRepository.count({
                 where: {
                     organizationId,
-                    consultationDate: {
-                        gte: startOfWeek,
-                    } as any,
+                    consultationDate: MoreThanOrEqual(startOfWeek),
                 },
             }),
             this.consultationRepository.count({
