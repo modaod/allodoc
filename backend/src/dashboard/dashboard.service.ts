@@ -86,7 +86,7 @@ export class DashboardService {
             activities.push({
                 type: 'consultation',
                 title: `Consultation with ${consultation.patient?.firstName} ${consultation.patient?.lastName}`,
-                description: consultation.reason || 'Medical consultation',
+                description: consultation.reason || (consultation as any).chiefComplaint || 'Medical consultation',
                 timestamp: consultation.consultationDate,
                 icon: 'medical_services',
             });
