@@ -55,7 +55,7 @@ export class ConsultationFormComponent implements OnInit {
       reason: ['', [Validators.required, Validators.minLength(5)]],  // Changed from chiefComplaint
       symptoms: [''],  // Changed from historyOfPresentIllness
       physicalExamination: [''],
-      diagnosis: this.fb.array([]),
+      diagnosis: [''],  // Changed from FormArray to simple string
       treatmentPlan: [''],
 
       // Simplified vital signs - only key ones
