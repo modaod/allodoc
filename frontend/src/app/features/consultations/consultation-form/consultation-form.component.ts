@@ -242,10 +242,15 @@ export class ConsultationFormComponent implements OnInit {
     };
 
     if (this.isEditMode) {
+      // For updates, only send fields that are allowed by UpdateConsultationDto
       return {
-        id: this.consultationId,
-        status: formValue.status,
-        ...baseData
+        notes: formValue.notes,
+        vitalSigns: {
+          temperature: formValue.vitalSigns.temperature ? parseFloat(formValue.vitalSigns.temperature) : undefined,
+          heartRate: formValue.vitalSigns.heartRate ? parseInt(formValue.vitalSigns.heartRate) : undefined,
+          bloodPressure: bloodPressure,
+          weight: formValue.vitalSigns.weight ? parseFloat(formValue.vitalSigns.weight) : undefined
+        }
       };
     }
 
