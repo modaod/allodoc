@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual, LessThan } from 'typeorm';
 import { Patient } from '../patients/entities/patient.entity';
@@ -9,6 +9,8 @@ import { RecentActivityDto, ActivityItemDto } from './dto/recent-activity.dto';
 
 @Injectable()
 export class DashboardService {
+    private readonly logger = new Logger(DashboardService.name);
+
     constructor(
         @InjectRepository(Patient)
         private readonly patientRepository: Repository<Patient>,
@@ -19,95 +21,147 @@ export class DashboardService {
     ) {}
 
     async getDashboardStats(userId: string, organizationId: string): Promise<DashboardStatsDto> {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        try {
+            this.logger.log(`Getting dashboard stats for userId: ${userId}, organizationId: ${organizationId}`);
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
 
-        // Get statistics in parallel
-        const [
-            totalPatients,
-            todayConsultations,
-            thisWeekConsultations,
-            totalConsultations,
-        ] = await Promise.all([
-            this.patientRepository.count({
-                where: { organizationId },
-            }),
-            this.consultationRepository.count({
-                where: {
-                    organizationId,
-                    consultationDate: MoreThanOrEqual(today),
-                },
-            }),
-            this.consultationRepository.count({
-                where: {
-                    organizationId,
-                    consultationDate: MoreThanOrEqual(startOfWeek),
-                },
-            }),
-            this.consultationRepository.count({
-                where: { organizationId },
-            }),
-        ]);
+            this.logger.debug(`Date ranges - today: ${today.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}`);
 
-        return {
-            totalPatients,
-            todayConsultations,
-            thisWeekConsultations,
-            totalConsultations,
-        };
+            // Get statistics in parallel
+            const [
+                totalPatients,
+                todayConsultations,
+                thisWeekConsultations,
+                totalConsultations,
+            ] = await Promise.all([
+                this.patientRepository.count({
+                    where: { organizationId },
+                }).catch(err => {
+                    this.logger.error('Error counting patients:', err);
+                    throw err;
+                }),
+                this.consultationRepository.count({
+                    where: {
+                        organizationId,
+                        consultationDate: MoreThanOrEqual(today),
+                    },
+                }).catch(err => {
+                    this.logger.error('Error counting today consultations:', err);
+                    throw err;
+                }),
+                this.consultationRepository.count({
+                    where: {
+                        organizationId,
+                        consultationDate: MoreThanOrEqual(startOfWeek),
+                    },
+                }).catch(err => {
+                    this.logger.error('Error counting week consultations:', err);
+                    throw err;
+                }),
+                this.consultationRepository.count({
+                    where: { organizationId },
+                }).catch(err => {
+                    this.logger.error('Error counting total consultations:', err);
+                    throw err;
+                }),
+            ]);
+
+            const stats = {
+                totalPatients,
+                todayConsultations,
+                thisWeekConsultations,
+                totalConsultations,
+            };
+
+            this.logger.log(`Dashboard stats retrieved successfully: ${JSON.stringify(stats)}`);
+            return stats;
+        } catch (error) {
+            this.logger.error(`Error getting dashboard stats: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     async getRecentActivity(userId: string, organizationId: string): Promise<RecentActivityDto> {
-        // Get recent consultations (last 10)
-        const recentConsultations = await this.consultationRepository.find({
-            where: { organizationId },
-            relations: ['patient'],
-            order: { consultationDate: 'DESC' },
-            take: 5,
-        });
-
-        // Get recent patients (last 5)
-        const recentPatients = await this.patientRepository.find({
-            where: { organizationId },
-            order: { createdAt: 'DESC' },
-            take: 5,
-        });
-
-        // Convert to activity items
-        const activities: ActivityItemDto[] = [];
-
-        // Add consultations
-        recentConsultations.forEach(consultation => {
-            activities.push({
-                type: 'consultation',
-                title: `Consultation with ${consultation.patient?.firstName} ${consultation.patient?.lastName}`,
-                description: consultation.reason || (consultation as any).chiefComplaint || 'Medical consultation',
-                timestamp: consultation.consultationDate,
-                icon: 'medical_services',
+        try {
+            this.logger.log(`Getting recent activity for userId: ${userId}, organizationId: ${organizationId}`);
+            
+            // Get recent consultations (last 5)
+            const recentConsultations = await this.consultationRepository.find({
+                where: { organizationId },
+                relations: ['patient'],
+                order: { consultationDate: 'DESC' },
+                take: 5,
+            }).catch(err => {
+                this.logger.error('Error fetching recent consultations:', err);
+                throw err;
             });
-        });
 
-        // Add recent patients
-        recentPatients.forEach(patient => {
-            activities.push({
-                type: 'patient',
-                title: `New patient: ${patient.firstName} ${patient.lastName}`,
-                description: 'Patient registered',
-                timestamp: patient.createdAt,
-                icon: 'person_add',
+            this.logger.debug(`Found ${recentConsultations.length} recent consultations`);
+
+            // Get recent patients (last 5)
+            const recentPatients = await this.patientRepository.find({
+                where: { organizationId },
+                order: { createdAt: 'DESC' },
+                take: 5,
+            }).catch(err => {
+                this.logger.error('Error fetching recent patients:', err);
+                throw err;
             });
-        });
 
-        // Sort by timestamp and take latest 10
-        activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            this.logger.debug(`Found ${recentPatients.length} recent patients`);
 
-        return {
-            activities: activities.slice(0, 10),
-        };
+            // Convert to activity items
+            const activities: ActivityItemDto[] = [];
+
+            // Add consultations
+            recentConsultations.forEach(consultation => {
+                try {
+                    activities.push({
+                        type: 'consultation',
+                        title: `Consultation with ${consultation.patient?.firstName || 'Unknown'} ${consultation.patient?.lastName || 'Patient'}`,
+                        description: consultation.reason || (consultation as any).chiefComplaint || 'Medical consultation',
+                        timestamp: consultation.consultationDate,
+                        icon: 'medical_services',
+                    });
+                } catch (err) {
+                    this.logger.warn(`Error processing consultation ${consultation.id}:`, err);
+                }
+            });
+
+            // Add recent patients
+            recentPatients.forEach(patient => {
+                try {
+                    activities.push({
+                        type: 'patient',
+                        title: `New patient: ${patient.firstName || 'Unknown'} ${patient.lastName || 'Patient'}`,
+                        description: 'Patient registered',
+                        timestamp: patient.createdAt,
+                        icon: 'person_add',
+                    });
+                } catch (err) {
+                    this.logger.warn(`Error processing patient ${patient.id}:`, err);
+                }
+            });
+
+            // Sort by timestamp and take latest 10
+            activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+            const result = {
+                activities: activities.slice(0, 10),
+            };
+
+            this.logger.log(`Recent activity retrieved successfully: ${activities.length} activities`);
+            return result;
+        } catch (error) {
+            this.logger.error(`Error getting recent activity: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 }

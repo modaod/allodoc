@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Logger } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { OrganizationAccessGuard } from '../common/guards/organization.guard';
@@ -13,6 +13,8 @@ import { RecentActivityDto } from './dto/recent-activity.dto';
 @UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @ApiBearerAuth('JWT-auth')
 export class DashboardController {
+    private readonly logger = new Logger(DashboardController.name);
+    
     constructor(private readonly dashboardService: DashboardService) {}
 
     @Get('stats')
@@ -23,10 +25,18 @@ export class DashboardController {
         type: DashboardStatsDto,
     })
     async getStats(
-        @CurrentUser('id') userId: string,
+        @CurrentUser() user: any,
         @CurrentOrganization() organizationId: string,
     ): Promise<DashboardStatsDto> {
-        return this.dashboardService.getDashboardStats(userId, organizationId);
+        try {
+            this.logger.log(`Controller: getStats called with user: ${JSON.stringify(user)} and orgId: ${organizationId}`);
+            const result = await this.dashboardService.getDashboardStats(user.id, organizationId);
+            this.logger.log(`Controller: getStats completed successfully`);
+            return result;
+        } catch (error) {
+            this.logger.error(`Controller: getStats error: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     @Get('recent-activity')
@@ -37,9 +47,9 @@ export class DashboardController {
         type: RecentActivityDto,
     })
     async getRecentActivity(
-        @CurrentUser('id') userId: string,
+        @CurrentUser() user: any,
         @CurrentOrganization() organizationId: string,
     ): Promise<RecentActivityDto> {
-        return this.dashboardService.getRecentActivity(userId, organizationId);
+        return this.dashboardService.getRecentActivity(user.id, organizationId);
     }
 }
