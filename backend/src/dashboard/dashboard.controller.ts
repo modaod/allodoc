@@ -10,7 +10,7 @@ import { RecentActivityDto } from './dto/recent-activity.dto';
 
 @ApiTags('dashboard')
 @Controller({ path: 'dashboard', version: '1' })
-@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class DashboardController {
     private readonly logger = new Logger(DashboardController.name);
@@ -26,11 +26,10 @@ export class DashboardController {
     })
     async getStats(
         @CurrentUser() user: any,
-        @CurrentOrganization() organizationId: string,
     ): Promise<DashboardStatsDto> {
         try {
-            this.logger.log(`Controller: getStats called with user: ${JSON.stringify(user)} and orgId: ${organizationId}`);
-            const result = await this.dashboardService.getDashboardStats(user.id, organizationId);
+            this.logger.log(`Controller: getStats called with user: ${user?.id} and orgId: ${user?.organizationId}`);
+            const result = await this.dashboardService.getDashboardStats(user.id, user.organizationId);
             this.logger.log(`Controller: getStats completed successfully`);
             return result;
         } catch (error) {
@@ -48,8 +47,7 @@ export class DashboardController {
     })
     async getRecentActivity(
         @CurrentUser() user: any,
-        @CurrentOrganization() organizationId: string,
     ): Promise<RecentActivityDto> {
-        return this.dashboardService.getRecentActivity(user.id, organizationId);
+        return this.dashboardService.getRecentActivity(user.id, user.organizationId);
     }
 }
