@@ -1,0 +1,248 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Fix Navbar Visibility - White text on primary background */
+.mat-toolbar, mat-toolbar {
+  background-color: #3f51b5 !important;
+  color: white !important;
+}
+
+/* Fix Login Page Background */
+.login-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  min-height: 100vh;
+}
+
+/* Fix Cards for better visibility */
+.mat-mdc-card, mat-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  background: white !important;
+}
+
+/* Snackbar notification styles */
+.success-snackbar {
+  --mdc-snackbar-container-color: #4caf50;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: #ff9800;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: #2196f3;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+/* Loading states */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Error states */
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+  color: #666;
+}
+
+.error-container mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #f44336;
+}
+
+.retry-button {
+  margin-top: 16px;
+}
+
+/* NO CDK overlay overrides - let Angular handle positioning naturally */
+
+/* Fix Form Field Label/Placeholder Overlap */
+.mat-mdc-form-field {
+  margin-bottom: 1.34375em;
+  
+  /* Force label to stay above when empty */
+  .mat-mdc-floating-label {
+    transform: translateY(-1.28125em) scale(0.75) !important;
+    transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  }
+  
+  /* Ensure focused state maintains position */
+  &.mat-focused .mat-mdc-floating-label {
+    transform: translateY(-1.28125em) scale(0.75) !important;
+    color: #3f51b5 !important;
+  }
+  
+  /* Fix for edit forms with pre-filled values */
+  &.mat-form-field-should-float .mat-mdc-floating-label {
+    transform: translateY(-1.28125em) scale(0.75) !important;
+  }
+  
+  /* Fix for disabled fields in edit forms */
+  &.mat-form-field-disabled {
+    .mat-mdc-floating-label {
+      transform: translateY(-1.28125em) scale(0.75) !important;
+      color: rgba(0, 0, 0, 0.38) !important;
+    }
+    
+    .mat-mdc-input-element {
+      color: rgba(0, 0, 0, 0.6) !important;
+    }
+  }
+}
+
+/* Fix Input Field Padding for better spacing */
+.mat-mdc-form-field-infix {
+  padding-top: 1em !important;
+  padding-bottom: 0.5em !important;
+}
+
+/* Ensure placeholders don't overlap with labels */
+.mat-mdc-input-element {
+  &::placeholder {
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+  
+  &:focus::placeholder {
+    opacity: 0.6;
+  }
+}
+
+/* When field has value, show placeholder */
+.mat-mdc-form-field.mat-form-field-should-float .mat-mdc-input-element::placeholder {
+  opacity: 0.6;
+}
+
+/* Sleek Design Enhancements */
+
+/* Buttons */
+.mat-mdc-raised-button, .mat-mdc-button {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.25px !important;
+  transition: all 0.3s ease !important;
+}
+
+.mat-mdc-raised-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Form Fields - Sleek appearance */
+.mat-mdc-form-field-outline {
+  border-radius: 6px !important;
+}
+
+/* Select and Menu Items */
+.mat-mdc-select-panel, .mat-mdc-menu-panel {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.mat-mdc-option:hover, .mat-mdc-menu-item:hover {
+  background-color: rgba(63, 81, 181, 0.08) !important;
+}
+
+/* Tables */
+.mat-mdc-table {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* App background */
+body {
+  background-color: #f5f5f5 !important;
+}
+
+/* Fix CDK Overlay Positioning for Dropdowns */
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+
+.cdk-overlay-backdrop {
+  pointer-events: auto !important;
+}
+
+.cdk-overlay-pane {
+  position: absolute !important;
+  pointer-events: auto !important;
+  z-index: 1001 !important;
+}
+
+/* Ensure overlay connected position strategy works */
+.cdk-overlay-connected-position-bounding-box {
+  position: absolute !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 1px !important;
+  min-height: 1px !important;
+}
+
+/* Fix for mat-select panel positioning */
+.mat-mdc-select-panel {
+  position: relative !important;
+  max-height: 256px !important;
+  overflow: auto !important;
+}
+
+/* Fix for mat-menu panel positioning */
+.mat-mdc-menu-panel {
+  position: relative !important;
+}
+
+/* Fix for mat-autocomplete panel positioning */
+.mat-mdc-autocomplete-panel {
+  position: relative !important;
+  max-height: 256px !important;
+  overflow: auto !important;
+}

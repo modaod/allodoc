@@ -1,48 +1,264 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================
+   AlloDoc - Beautiful & Clean Medical System UI
+   Design: Modern, Rounded, Subtle Colors
+   Font: Inter (like Claude)
+   ============================================ */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-/* Fix Navbar Visibility - White text on primary background */
-.mat-toolbar, mat-toolbar {
-  background-color: #3f51b5 !important;
-  color: white !important;
+/* Base Typography - Plus Jakarta Sans Font (Beautiful & Modern) */
+html, body { 
+  height: 100%; 
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fix Login Page Background */
-.login-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+/* Subtle Background - More contrast for cards */
+body {
+  background: #f1f5f9 !important;
   min-height: 100vh;
 }
 
-/* Fix Cards for better visibility */
-.mat-mdc-card, mat-card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-  border-radius: 8px !important;
-  background: white !important;
+/* ============================================
+   COLOR PALETTE
+   Primary: Soft Blue #4A90E2
+   Secondary: Light Grey #6c757d
+   Success: Green #28a745
+   Warning: Orange #ffc107
+   Danger: Red #dc3545
+   Background: #fafbff
+   Card: Pure White
+   Text: #2c3e50
+   Subtle: #8492a6
+   ============================================ */
+
+/* Navbar - Beautiful Gradient with White Text */
+.mat-toolbar, mat-toolbar {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+  border: none !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* Snackbar notification styles */
+.mat-toolbar .app-title {
+  font-weight: 700 !important;
+  font-size: 20px !important;
+  letter-spacing: -0.5px !important;
+}
+
+.mat-toolbar button {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.mat-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Beautiful Cards - More Visible with Better Shadows */
+.mat-mdc-card, mat-card {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+  border: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden !important;
+}
+
+.mat-mdc-card:hover, mat-card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-3px);
+}
+
+/* Card Headers */
+.mat-mdc-card-header, mat-card-header {
+  background: linear-gradient(135deg, #fafbff 0%, #f6f8fc 100%) !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.mat-mdc-card-title, mat-card-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  letter-spacing: -0.25px !important;
+}
+
+.mat-mdc-card-subtitle, mat-card-subtitle {
+  color: #64748b !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+/* Beautiful Buttons - Rounded & Modern */
+.mat-mdc-raised-button, .mat-mdc-button, 
+button.mat-mdc-raised-button, button.mat-mdc-button {
+  border-radius: 10px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+  padding: 10px 24px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-raised-button[color="primary"] {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+.mat-mdc-raised-button[color="primary"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4) !important;
+}
+
+.mat-mdc-button:hover {
+  background: rgba(74, 144, 226, 0.08) !important;
+}
+
+/* Form Fields - Clean & Modern */
+.mat-mdc-form-field {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.mat-mdc-form-field-outline {
+  border-radius: 8px !important;
+}
+
+/* Remove any default focus outlines on inputs */
+.mat-mdc-input-element:focus,
+.mat-mdc-select-trigger:focus,
+.mat-mdc-form-field:focus-within {
+  outline: none !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline-thick {
+  border-color: #3b82f6 !important;
+  border-width: 1.5px !important;
+}
+
+.mat-mdc-floating-label {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: #3b82f6 !important;
+}
+
+/* Select and Menu - Clean Dropdowns */
+.mat-mdc-select-panel, .mat-mdc-menu-panel {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  margin-top: 8px !important;
+}
+
+.mat-mdc-option, .mat-mdc-menu-item {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+}
+
+.mat-mdc-option:hover, .mat-mdc-menu-item:hover {
+  background: rgba(74, 144, 226, 0.08) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active,
+.mat-mdc-option.mdc-list-item--selected {
+  background: rgba(74, 144, 226, 0.12) !important;
+}
+
+/* Tables - Clean & Professional */
+.mat-mdc-table {
+  background: white !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Table Headers - Clean Grey (NO GRADIENT) */
+.mat-mdc-header-row, .mat-mdc-header-cell {
+  background: #f8f9fa !important;
+  color: #6c757d !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border-bottom: 2px solid #e9ecef !important;
+}
+
+.mat-mdc-row {
+  border-bottom: 1px solid #f1f3f5 !important;
+  transition: background 0.2s ease !important;
+}
+
+.mat-mdc-row:hover {
+  background: #fafbfc !important;
+}
+
+.mat-mdc-cell {
+  color: #2c3e50 !important;
+  font-size: 14px !important;
+}
+
+/* Login Page - Clean Professional Background */
+.login-container {
+  background: linear-gradient(135deg, #e0e7ff 0%, #cfd9ff 100%) !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Snackbar notifications */
 .success-snackbar {
-  --mdc-snackbar-container-color: #4caf50;
+  --mdc-snackbar-container-color: #28a745;
   --mdc-snackbar-supporting-text-color: #ffffff;
   --mat-snack-bar-button-color: #ffffff;
 }
 
 .error-snackbar {
-  --mdc-snackbar-container-color: #f44336;
+  --mdc-snackbar-container-color: #dc3545;
   --mdc-snackbar-supporting-text-color: #ffffff;
   --mat-snack-bar-button-color: #ffffff;
 }
 
 .warning-snackbar {
-  --mdc-snackbar-container-color: #ff9800;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mat-snack-bar-button-color: #ffffff;
+  --mdc-snackbar-container-color: #ffc107;
+  --mdc-snackbar-supporting-text-color: #212529;
+  --mat-snack-bar-button-color: #212529;
 }
 
 .info-snackbar {
-  --mdc-snackbar-container-color: #2196f3;
+  --mdc-snackbar-container-color: #4A90E2;
   --mdc-snackbar-supporting-text-color: #ffffff;
   --mat-snack-bar-button-color: #ffffff;
 }
@@ -52,9 +268,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 60px;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .loading-overlay {
@@ -63,7 +279,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,48 +292,108 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 60px;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   text-align: center;
-  color: #666;
+  color: #6c757d;
 }
 
 .error-container mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  color: #f44336;
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #dc3545;
+  opacity: 0.8;
 }
 
-.retry-button {
-  margin-top: 16px;
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-/* NO CDK overlay overrides - let Angular handle positioning naturally */
+::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+}
 
-/* Fix Form Field Label/Placeholder Overlap */
+::-webkit-scrollbar-thumb {
+  background: #adb5bd;
+  border-radius: 10px;
+  border: 2px solid #f1f3f5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #868e96;
+}
+
+/* ============================================
+   CRITICAL FIX: CDK Overlay Positioning
+   DO NOT MODIFY - Required for dropdowns
+   ============================================ */
+
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+
+.cdk-overlay-backdrop {
+  pointer-events: auto !important;
+}
+
+.cdk-overlay-pane {
+  position: absolute !important;
+  pointer-events: auto !important;
+  z-index: 1001 !important;
+}
+
+.cdk-overlay-connected-position-bounding-box {
+  position: absolute !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 1px !important;
+  min-height: 1px !important;
+}
+
+.mat-mdc-select-panel {
+  position: relative !important;
+  max-height: 256px !important;
+  overflow: auto !important;
+}
+
+.mat-mdc-menu-panel {
+  position: relative !important;
+}
+
+.mat-mdc-autocomplete-panel {
+  position: relative !important;
+  max-height: 256px !important;
+  overflow: auto !important;
+}
+
+/* ============================================
+   FORM FIELD LABEL FIXES
+   ============================================ */
+
 .mat-mdc-form-field {
   margin-bottom: 1.34375em;
   
-  /* Force label to stay above when empty */
   .mat-mdc-floating-label {
     transform: translateY(-1.28125em) scale(0.75) !important;
     transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
   }
   
-  /* Ensure focused state maintains position */
   &.mat-focused .mat-mdc-floating-label {
     transform: translateY(-1.28125em) scale(0.75) !important;
-    color: #3f51b5 !important;
   }
   
-  /* Fix for edit forms with pre-filled values */
   &.mat-form-field-should-float .mat-mdc-floating-label {
     transform: translateY(-1.28125em) scale(0.75) !important;
   }
   
-  /* Fix for disabled fields in edit forms */
   &.mat-form-field-disabled {
     .mat-mdc-floating-label {
       transform: translateY(-1.28125em) scale(0.75) !important;
@@ -129,14 +406,15 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-/* Fix Input Field Padding for better spacing */
 .mat-mdc-form-field-infix {
   padding-top: 1em !important;
   padding-bottom: 0.5em !important;
 }
 
-/* Ensure placeholders don't overlap with labels */
 .mat-mdc-input-element {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 500 !important;
+  
   &::placeholder {
     opacity: 0;
     transition: opacity 200ms;
@@ -147,56 +425,35 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-/* When field has value, show placeholder */
 .mat-mdc-form-field.mat-form-field-should-float .mat-mdc-input-element::placeholder {
   opacity: 0.6;
 }
 
-/* Sleek Design Enhancements */
-
-/* Buttons */
-.mat-mdc-raised-button, .mat-mdc-button {
-  border-radius: 6px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.25px !important;
-  transition: all 0.3s ease !important;
+/* Additional Typography Improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.5px;
 }
 
-.mat-mdc-raised-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+p {
+  font-family: 'DM Sans', sans-serif !important;
+  line-height: 1.7;
+  color: #475569;
+  font-size: 15px;
 }
 
-/* Form Fields - Sleek appearance */
-.mat-mdc-form-field-outline {
-  border-radius: 6px !important;
-}
-
-/* Select and Menu Items */
-.mat-mdc-select-panel, .mat-mdc-menu-panel {
-  border-radius: 8px !important;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
-  background: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.mat-mdc-option:hover, .mat-mdc-menu-item:hover {
-  background-color: rgba(63, 81, 181, 0.08) !important;
-}
-
-/* Tables */
-.mat-mdc-table {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-}
-
-/* Smooth transitions */
+/* Subtle animations */
 * {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* App background */
-body {
-  background-color: #f5f5f5 !important;
+/* Focus states - Removed unwanted blue borders */
+*:focus {
+  outline: none;
+}
+
+button:focus {
+  outline: none;
 }
