@@ -10,17 +10,19 @@
   .actions-bar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 20px;
     gap: 16px;
+    flex-wrap: wrap;
 
     .search-field {
       flex: 1;
-      max-width: 400px;
+      max-width: 500px;
     }
 
     button {
       white-space: nowrap;
+      margin-top: 8px; // Align with input field, not the label
       
       mat-icon {
         margin-right: 8px;
@@ -36,9 +38,12 @@
   }
 
   .table-container {
+    position: relative;
+    
     .patients-table {
       width: 100%;
       background-color: white;
+      margin-bottom: 0;
 
       .mat-column-patientNumber {
         max-width: 100px;
@@ -97,6 +102,12 @@
           color: #c2185b;
         }
       }
+    }
+    
+    // Ensure paginator doesn't overlap
+    mat-paginator {
+      position: relative;
+      z-index: 1;
     }
 
     .no-data {

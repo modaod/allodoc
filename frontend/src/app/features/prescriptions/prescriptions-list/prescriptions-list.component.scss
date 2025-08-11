@@ -1,0 +1,222 @@
+.prescriptions-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  mat-card {
+    margin-bottom: 20px;
+  }
+
+  .filters-panel {
+    margin-bottom: 20px;
+    
+    .filters-form {
+      padding: 16px 0;
+      
+      .filter-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+      
+      .filter-field {
+        flex: 1;
+        min-width: 200px;
+        max-width: 500px;
+      }
+      
+      .filter-actions {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+      }
+    }
+  }
+
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .results-info {
+      color: #666;
+      font-size: 14px;
+      margin-top: 12px; // Align with button text
+    }
+
+    button {
+      white-space: nowrap;
+      margin-top: 8px; // Align with form fields if any
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+
+  .table-container {
+    position: relative;
+    
+    .prescriptions-table {
+      width: 100%;
+      background-color: white;
+      margin-bottom: 0;
+
+      .prescription-number {
+        .prescription-date {
+          font-size: 12px;
+          color: #666;
+          margin-top: 4px;
+        }
+      }
+
+      .patient-info {
+        .patient-name {
+          font-weight: 500;
+        }
+        
+        .doctor-name {
+          font-size: 12px;
+          color: #666;
+          margin-top: 4px;
+        }
+      }
+
+      .medications-info {
+        .medication-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: #666;
+          }
+        }
+      }
+
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        display: inline-block;
+        min-width: 80px;
+
+        &.status-active {
+          background-color: #e8f5e8;
+          color: #2e7d32;
+        }
+
+        &.status-completed {
+          background-color: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &.status-expired {
+          background-color: #ffebee;
+          color: #d32f2f;
+        }
+
+        &.status-cancelled {
+          background-color: #f5f5f5;
+          color: #666;
+        }
+      }
+
+      .prescription-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+    
+    // Ensure paginator doesn't overlap
+    mat-paginator {
+      position: relative;
+      z-index: 1;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        margin: 16px 0 8px 0;
+        font-weight: 400;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #888;
+      }
+
+      button mat-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .prescriptions-container {
+    padding: 10px;
+
+    .filters-form {
+      .filter-row {
+        flex-direction: column;
+        
+        .filter-field {
+          width: 100%;
+        }
+      }
+    }
+
+    .actions-bar {
+      flex-direction: column;
+      align-items: stretch;
+      
+      .results-info {
+        margin-bottom: 8px;
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+  }
+}
