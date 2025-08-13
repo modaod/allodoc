@@ -24,12 +24,16 @@ import { PatientsRoutingModule } from './patients-routing.module';
 import { PatientsListComponent } from './patients-list/patients-list.component';
 import { PatientFormComponent } from './patient-form/patient-form.component';
 import { PatientDetailComponent } from './patient-detail/patient-detail.component';
+import { PatientConsultationsListComponent } from './patient-consultations-list/patient-consultations-list.component';
+import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/patient-prescriptions-list.component';
 
 @NgModule({
   declarations: [
     PatientsListComponent,
     PatientFormComponent,
-    PatientDetailComponent
+    PatientDetailComponent,
+    PatientConsultationsListComponent,
+    PatientPrescriptionsListComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,106 @@
+<div class="patient-consultations-container">
+  <!-- Header with breadcrumb -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <button mat-button (click)="goBackToPatient()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to {{ patient?.firstName }} {{ patient?.lastName }}
+      </button>
+    </div>
+    
+    <div class="header-content">
+      <h1>
+        <mat-icon>medical_services</mat-icon>
+        Consultations for {{ patient?.firstName }} {{ patient?.lastName }}
+      </h1>
+      <button mat-raised-button color="primary" (click)="newConsultation()">
+        <mat-icon>add</mat-icon>
+        New Consultation
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Loading consultations...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && consultations.length === 0" class="empty-state">
+    <mat-icon>medical_services</mat-icon>
+    <h3>No Consultations Found</h3>
+    <p>This patient has no consultation records yet.</p>
+    <button mat-raised-button color="primary" (click)="newConsultation()">
+      <mat-icon>add</mat-icon>
+      Schedule First Consultation
+    </button>
+  </div>
+
+  <!-- Consultations Cards -->
+  <div *ngIf="!loading && consultations.length > 0" class="consultations-grid">
+    <mat-card 
+      *ngFor="let consultation of consultations" 
+      class="consultation-card"
+      (click)="viewConsultationDetail(consultation.id!)"
+    >
+      <!-- Card Header -->
+      <mat-card-header>
+        <div mat-card-avatar class="consultation-avatar">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <mat-card-title>
+          Consultation {{ consultation.consultationNumber || '#' + consultation.id?.substring(0, 8) }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ formatDate(consultation.consultationDate) }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <!-- Card Content -->
+      <mat-card-content>
+        <!-- Type and Status -->
+        <div class="consultation-badges">
+          <span class="type-badge" [ngClass]="getTypeClass(consultation.type)">
+            {{ formatEnumValue(consultation.type) }}
+          </span>
+          <span class="status-badge" [ngClass]="getStatusClass(consultation.status)">
+            {{ formatEnumValue(consultation.status) }}
+          </span>
+        </div>
+
+        <!-- Chief Complaint / Reason -->
+        <div class="consultation-reason" *ngIf="consultation.reason">
+          <strong>Reason:</strong>
+          <p>{{ consultation.reason }}</p>
+        </div>
+
+        <!-- Diagnosis -->
+        <div class="consultation-diagnosis" *ngIf="consultation.diagnosis">
+          <strong>Diagnosis:</strong>
+          <p>{{ consultation.diagnosis }}</p>
+        </div>
+
+        <!-- Doctor Info -->
+        <div class="consultation-doctor" *ngIf="consultation.doctor">
+          <mat-icon>person</mat-icon>
+          <span>Dr. {{ consultation.doctor.firstName }} {{ consultation.doctor.lastName }}</span>
+        </div>
+
+        <!-- Prescription Indicator -->
+        <div class="prescription-indicator" *ngIf="hasPrescriptions(consultation)">
+          <mat-icon>medication</mat-icon>
+          <span>{{ getPrescriptionCount(consultation) }} medication(s) prescribed</span>
+        </div>
+      </mat-card-content>
+
+      <!-- Card Actions -->
+      <mat-card-actions>
+        <button mat-button color="primary">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

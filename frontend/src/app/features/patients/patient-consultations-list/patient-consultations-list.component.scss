@@ -1,0 +1,294 @@
+.patient-consultations-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+
+  .breadcrumb {
+    margin-bottom: 16px;
+
+    button {
+      color: #64748b;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+      }
+    }
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 1.8rem;
+      color: #1e293b;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #3b82f6;
+      }
+    }
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  p {
+    margin-top: 20px;
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #475569;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: #64748b;
+    margin-bottom: 24px;
+  }
+}
+
+.consultations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+}
+
+.consultation-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 16px;
+
+    .consultation-avatar {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      
+      mat-icon {
+        color: white;
+      }
+    }
+
+    mat-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    mat-card-subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+  }
+
+  mat-card-content {
+    padding: 20px;
+
+    .consultation-badges {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      .type-badge,
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .type-badge {
+        &.type-emergency {
+          background-color: #fee2e2;
+          color: #dc2626;
+        }
+
+        &.type-initial {
+          background-color: #dbeafe;
+          color: #2563eb;
+        }
+
+        &.type-follow-up {
+          background-color: #f3e8ff;
+          color: #9333ea;
+        }
+
+        &.type-routine {
+          background-color: #e0f2fe;
+          color: #0284c7;
+        }
+
+        &.type-specialist {
+          background-color: #fef3c7;
+          color: #d97706;
+        }
+
+        &.type-telemedicine {
+          background-color: #d1fae5;
+          color: #059669;
+        }
+      }
+
+      .status-badge {
+        &.status-completed {
+          background-color: #d1fae5;
+          color: #059669;
+        }
+
+        &.status-in-progress {
+          background-color: #fed7aa;
+          color: #ea580c;
+        }
+
+        &.status-scheduled {
+          background-color: #dbeafe;
+          color: #2563eb;
+        }
+
+        &.status-cancelled {
+          background-color: #e5e7eb;
+          color: #6b7280;
+        }
+
+        &.status-no-show {
+          background-color: #fee2e2;
+          color: #dc2626;
+        }
+      }
+    }
+
+    .consultation-reason,
+    .consultation-diagnosis {
+      margin-bottom: 12px;
+
+      strong {
+        color: #475569;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      p {
+        color: #64748b;
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+    }
+
+    .consultation-doctor {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .prescription-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background-color: #f0fdf4;
+      border-left: 3px solid #10b981;
+      border-radius: 4px;
+      color: #059669;
+      font-size: 0.9rem;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  mat-card-actions {
+    padding: 8px 16px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+
+    button {
+      mat-icon {
+        margin-right: 4px;
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .consultations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+}

@@ -266,6 +266,14 @@
           <!-- Consultations Tab -->
           <mat-tab label="Consultations">
             <div class="consultations-list">
+              <!-- View All Button -->
+              <div class="tab-actions" *ngIf="consultations.length > 0">
+                <button mat-raised-button color="primary" (click)="viewAllConsultations()">
+                  <mat-icon>list</mat-icon>
+                  View All Consultations
+                </button>
+              </div>
+              
               <div *ngIf="consultations.length === 0" class="no-data">
                 <mat-icon>medical_services</mat-icon>
                 <p>No consultations recorded</p>
@@ -300,6 +308,14 @@
           <!-- Prescriptions Tab -->
           <mat-tab label="Prescriptions">
             <div class="prescriptions-list">
+              <!-- View All Button -->
+              <div class="tab-actions" *ngIf="prescriptions.length > 0">
+                <button mat-raised-button color="primary" (click)="viewAllPrescriptions()">
+                  <mat-icon>list</mat-icon>
+                  View All Prescriptions
+                </button>
+              </div>
+              
               <div *ngIf="prescriptions.length === 0" class="no-data">
                 <mat-icon>medication</mat-icon>
                 <p>No prescriptions issued</p>

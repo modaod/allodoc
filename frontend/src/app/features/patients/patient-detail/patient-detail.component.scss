@@ -266,6 +266,20 @@
   padding: 16px 0;
 }
 
+.tab-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
 .consultation-card, .prescription-card {
   background-color: #fafafa;
   border: 1px solid #e0e0e0;

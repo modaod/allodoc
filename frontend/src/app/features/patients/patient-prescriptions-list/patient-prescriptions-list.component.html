@@ -1,0 +1,111 @@
+<div class="patient-prescriptions-container">
+  <!-- Header with breadcrumb -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <button mat-button (click)="goBackToPatient()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to {{ patient?.firstName }} {{ patient?.lastName }}
+      </button>
+    </div>
+    
+    <div class="header-content">
+      <h1>
+        <mat-icon>medication</mat-icon>
+        Prescriptions for {{ patient?.firstName }} {{ patient?.lastName }}
+      </h1>
+      <button mat-raised-button color="primary" (click)="newPrescription()">
+        <mat-icon>add</mat-icon>
+        New Prescription
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Loading prescriptions...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && prescriptions.length === 0" class="empty-state">
+    <mat-icon>medication</mat-icon>
+    <h3>No Prescriptions Found</h3>
+    <p>This patient has no prescription records yet.</p>
+    <button mat-raised-button color="primary" (click)="newPrescription()">
+      <mat-icon>add</mat-icon>
+      Create First Prescription
+    </button>
+  </div>
+
+  <!-- Prescriptions Cards -->
+  <div *ngIf="!loading && prescriptions.length > 0" class="prescriptions-grid">
+    <mat-card 
+      *ngFor="let prescription of prescriptions" 
+      class="prescription-card"
+      (click)="viewPrescriptionDetail(prescription.id!)"
+    >
+      <!-- Card Header -->
+      <mat-card-header>
+        <div mat-card-avatar class="prescription-avatar">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <mat-card-title>
+          Prescription {{ prescription.prescriptionNumber || '#' + prescription.id?.substring(0, 8) }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ formatDate((prescription as any).prescriptionDate || (prescription as any).prescribedDate || prescription.createdAt) }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <!-- Card Content -->
+      <mat-card-content>
+        <!-- Status Badge -->
+        <div class="prescription-badges">
+          <span class="status-badge" [ngClass]="getStatusClass(prescription.status!)">
+            {{ formatEnumValue(prescription.status || 'ACTIVE') }}
+          </span>
+          <span class="consultation-link-badge" *ngIf="isLinkedToConsultation(prescription)">
+            <mat-icon>link</mat-icon>
+            Consultation {{ getConsultationNumber(prescription) }}
+          </span>
+        </div>
+
+        <!-- Medications List -->
+        <div class="prescription-medications">
+          <strong>Medications:</strong>
+          <p>{{ getMedicationNames(prescription) }}</p>
+          <div class="medication-count">
+            <mat-icon>pills</mat-icon>
+            <span>{{ getMedicationCount(prescription) }} medication(s)</span>
+          </div>
+        </div>
+
+        <!-- Doctor Info -->
+        <div class="prescription-doctor" *ngIf="(prescription as any).doctor">
+          <mat-icon>person</mat-icon>
+          <span>Dr. {{ (prescription as any).doctor?.firstName }} {{ (prescription as any).doctor?.lastName }}</span>
+        </div>
+
+        <!-- Valid Until -->
+        <div class="prescription-validity" *ngIf="prescription.validUntil">
+          <mat-icon>event</mat-icon>
+          <span>Valid until: {{ formatDate(prescription.validUntil) }}</span>
+        </div>
+
+        <!-- Consultation Indicator for linked prescriptions -->
+        <div class="consultation-indicator" *ngIf="isLinkedToConsultation(prescription)">
+          <mat-icon>medical_services</mat-icon>
+          <span>Prescribed during consultation</span>
+        </div>
+      </mat-card-content>
+
+      <!-- Card Actions -->
+      <mat-card-actions>
+        <button mat-button color="primary">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

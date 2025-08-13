@@ -235,11 +235,13 @@ export class PatientDetailComponent implements OnInit {
   }
 
   viewConsultation(consultationId: string): void {
-    this.router.navigate(['/consultations', consultationId]);
+    // Navigate with patient context
+    this.router.navigate(['/patients', this.patientId, 'consultations', consultationId]);
   }
 
   viewPrescription(prescriptionId: string): void {
-    this.router.navigate(['/prescriptions', prescriptionId]);
+    // Navigate with patient context
+    this.router.navigate(['/patients', this.patientId, 'prescriptions', prescriptionId]);
   }
 
   newPrescription(): void {
@@ -281,5 +283,15 @@ export class PatientDetailComponent implements OnInit {
 
   onTabChange(event: any): void {
     this.activeTab = event.index;
+  }
+
+  viewAllConsultations(): void {
+    // Navigate to patient-specific consultations list
+    this.router.navigate(['/patients', this.patientId, 'consultations']);
+  }
+
+  viewAllPrescriptions(): void {
+    // Navigate to patient-specific prescriptions list
+    this.router.navigate(['/patients', this.patientId, 'prescriptions']);
   }
 }
