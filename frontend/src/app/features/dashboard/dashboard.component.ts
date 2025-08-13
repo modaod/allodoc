@@ -84,6 +84,23 @@ export class DashboardComponent implements OnInit {
   navigateToConsultations(): void {
     this.router.navigate(['/consultations']);
   }
+  
+  navigateToTodayConsultations(): void {
+    this.router.navigate(['/consultations'], {
+      queryParams: { filter: 'today' }
+    });
+  }
+  
+  navigateToWeekConsultations(): void {
+    this.router.navigate(['/consultations'], {
+      queryParams: { filter: 'week' }
+    });
+  }
+  
+  navigateToAllConsultations(): void {
+    // Navigate without any filters for total consultations
+    this.router.navigate(['/consultations']);
+  }
 
   navigateToPrescriptions(): void {
     this.router.navigate(['/prescriptions']);
