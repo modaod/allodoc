@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -49,11 +49,32 @@ export class ConsultationsListComponent implements OnInit {
 
   constructor(
     private consultationsService: ConsultationsService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadConsultations();
+    // Check for query parameters to determine which endpoint to use
+    this.route.queryParams.subscribe(params => {
+      const filter = params['filter'];
+      
+      if (filter === 'today') {
+        this.loadTodayConsultations();
+      } else if (filter === 'week') {
+        this.loadThisWeekConsultations();
+      } else if (params['dateFrom'] || params['dateTo']) {
+        // Apply the date filters from query parameters
+        this.filterForm.patchValue({
+          dateFrom: params['dateFrom'] || '',
+          dateTo: params['dateTo'] || ''
+        }, { emitEvent: false });
+        this.applyFilters();
+      } else {
+        // No query params, load all consultations
+        this.loadConsultations();
+      }
+    });
+    
     this.setupSearch();
     this.setupFilters();
   }
@@ -74,6 +95,42 @@ export class ConsultationsListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading consultations:', error);
+        this.dataSource.data = [];
+        this.totalConsultations = 0;
+        this.loading = false;
+      }
+    });
+  }
+
+  loadTodayConsultations(): void {
+    this.loading = true;
+    this.consultationsService.getTodayConsultations().subscribe({
+      next: (consultations) => {
+        console.log('Today consultations received:', consultations);
+        this.dataSource.data = consultations || [];
+        this.totalConsultations = consultations?.length || 0;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading today consultations:', error);
+        this.dataSource.data = [];
+        this.totalConsultations = 0;
+        this.loading = false;
+      }
+    });
+  }
+
+  loadThisWeekConsultations(): void {
+    this.loading = true;
+    this.consultationsService.getThisWeekConsultations().subscribe({
+      next: (consultations) => {
+        console.log('This week consultations received:', consultations);
+        this.dataSource.data = consultations || [];
+        this.totalConsultations = consultations?.length || 0;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading week consultations:', error);
         this.dataSource.data = [];
         this.totalConsultations = 0;
         this.loading = false;

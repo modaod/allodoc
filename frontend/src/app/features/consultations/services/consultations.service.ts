@@ -54,6 +54,20 @@ export class ConsultationsService {
       );
   }
 
+  getTodayConsultations(): Observable<Consultation[]> {
+    return this.http.get<Consultation[]>(`${this.apiUrl}/today`)
+      .pipe(
+        catchError(this.errorHandler.handleError.bind(this.errorHandler))
+      );
+  }
+
+  getThisWeekConsultations(): Observable<Consultation[]> {
+    return this.http.get<Consultation[]>(`${this.apiUrl}/this-week`)
+      .pipe(
+        catchError(this.errorHandler.handleError.bind(this.errorHandler))
+      );
+  }
+
   getConsultationById(id: string): Observable<Consultation> {
     const url = `${this.apiUrl}/${id}`;
     
