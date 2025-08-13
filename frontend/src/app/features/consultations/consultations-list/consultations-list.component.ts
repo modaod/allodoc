@@ -59,32 +59,48 @@ export class ConsultationsListComponent implements OnInit {
       const filter = params['filter'];
       
       if (filter === 'today') {
-        // Set today's date in both from and to fields
+        // Set today's date in both from and to fields for visual feedback
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
         
         this.filterForm.patchValue({
           dateFrom: todayStr,
           dateTo: todayStr
         }, { emitEvent: false });
-        this.applyFilters();
-      } else if (filter === 'week') {
-        // Set this week's date range (Sunday to Saturday)
-        const today = new Date();
-        const sunday = new Date(today);
-        sunday.setDate(today.getDate() - today.getDay());
-        sunday.setHours(0, 0, 0, 0);
         
+        // Use the special endpoint for today's consultations
+        this.loadTodayConsultations();
+      } else if (filter === 'week') {
+        // Calculate this week's date range (Sunday to Saturday) for visual feedback
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        
+        // Calculate Sunday
+        const sunday = new Date(today);
+        sunday.setDate(today.getDate() - dayOfWeek);
+        const sundayYear = sunday.getFullYear();
+        const sundayMonth = String(sunday.getMonth() + 1).padStart(2, '0');
+        const sundayDay = String(sunday.getDate()).padStart(2, '0');
+        const sundayStr = `${sundayYear}-${sundayMonth}-${sundayDay}`;
+        
+        // Calculate Saturday
         const saturday = new Date(sunday);
         saturday.setDate(sunday.getDate() + 6);
-        saturday.setHours(23, 59, 59, 999);
+        const saturdayYear = saturday.getFullYear();
+        const saturdayMonth = String(saturday.getMonth() + 1).padStart(2, '0');
+        const saturdayDay = String(saturday.getDate()).padStart(2, '0');
+        const saturdayStr = `${saturdayYear}-${saturdayMonth}-${saturdayDay}`;
         
         this.filterForm.patchValue({
-          dateFrom: sunday.toISOString().split('T')[0],
-          dateTo: saturday.toISOString().split('T')[0]
+          dateFrom: sundayStr,
+          dateTo: saturdayStr
         }, { emitEvent: false });
-        this.applyFilters();
+        
+        // Use the special endpoint for this week's consultations
+        this.loadThisWeekConsultations();
       } else if (params['dateFrom'] || params['dateTo']) {
         // Apply the date filters from query parameters
         this.filterForm.patchValue({
@@ -187,8 +203,8 @@ export class ConsultationsListComponent implements OnInit {
     const filters = this.filterForm.value;
     const params: ConsultationSearchParams = {
       search: this.searchControl.value || undefined,
-      startDate: filters.dateFrom ? new Date(filters.dateFrom) : undefined,
-      endDate: filters.dateTo ? new Date(filters.dateTo) : undefined,
+      startDate: filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00') : undefined,
+      endDate: filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : undefined,
       status: filters.status as ConsultationStatus || undefined,
       type: filters.type as ConsultationType || undefined,
       sortBy: filters.sortBy || 'consultationDate',
