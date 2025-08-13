@@ -66,6 +66,14 @@ export class ConsultationsListComponent implements OnInit {
         const day = String(today.getDate()).padStart(2, '0');
         const todayStr = `${year}-${month}-${day}`;
         
+        console.log('Today filter - Date calculation:', {
+          raw: today,
+          year,
+          month,
+          day,
+          todayStr
+        });
+        
         this.filterForm.patchValue({
           dateFrom: todayStr,
           dateTo: todayStr
@@ -93,6 +101,15 @@ export class ConsultationsListComponent implements OnInit {
         const saturdayMonth = String(saturday.getMonth() + 1).padStart(2, '0');
         const saturdayDay = String(saturday.getDate()).padStart(2, '0');
         const saturdayStr = `${saturdayYear}-${saturdayMonth}-${saturdayDay}`;
+        
+        console.log('Week filter - Date calculation:', {
+          today,
+          dayOfWeek,
+          sunday,
+          sundayStr,
+          saturday,
+          saturdayStr
+        });
         
         this.filterForm.patchValue({
           dateFrom: sundayStr,
