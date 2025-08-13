@@ -62,6 +62,19 @@
             </mat-error>
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Organization</mat-label>
+            <mat-select formControlName="organizationId" placeholder="Select your organization">
+              <mat-option *ngFor="let org of organizations" [value]="org.id">
+                {{ org.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>business</mat-icon>
+            <mat-error *ngIf="registerForm.get('organizationId')?.touched && registerForm.get('organizationId')?.invalid">
+              {{ getErrorMessage('organizationId') }}
+            </mat-error>
+          </mat-form-field>
+
           <button mat-raised-button 
                   color="primary" 
                   type="submit"
