@@ -129,4 +129,23 @@ export class PatientPrescriptionsListComponent implements OnInit {
     }
     return null;
   }
+
+  getPrescriptionDate(prescription: Prescription): Date | string {
+    return (prescription as any).prescriptionDate || 
+           (prescription as any).prescribedDate || 
+           prescription.createdAt || 
+           new Date();
+  }
+
+  getDoctorName(prescription: Prescription): string | null {
+    const doctor = (prescription as any).doctor;
+    if (doctor) {
+      return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    }
+    return null;
+  }
+
+  hasDoctor(prescription: Prescription): boolean {
+    return !!(prescription as any).doctor;
+  }
 }
