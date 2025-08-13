@@ -12,6 +12,8 @@ export class PrescriptionDetailComponent implements OnInit {
   prescription: Prescription | null = null;
   loading = false;
   prescriptionId: string | null = null;
+  patientId: string | null = null;
+  isPatientContext = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -20,7 +22,14 @@ export class PrescriptionDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.prescriptionId = this.route.snapshot.paramMap.get('id');
+    // Check if we're in patient context
+    this.patientId = this.route.snapshot.paramMap.get('patientId');
+    this.isPatientContext = !!this.patientId;
+    
+    // Get prescription ID from either regular route or patient context route
+    this.prescriptionId = this.route.snapshot.paramMap.get('id') || 
+                          this.route.snapshot.paramMap.get('prescriptionId');
+    
     if (this.prescriptionId) {
       this.loadPrescription(this.prescriptionId);
     }
@@ -99,7 +108,13 @@ export class PrescriptionDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/prescriptions']);
+    if (this.isPatientContext && this.patientId) {
+      // If in patient context, go back to patient prescriptions
+      this.router.navigate(['/patients', this.patientId, 'prescriptions']);
+    } else {
+      // Otherwise, go to general prescriptions list
+      this.router.navigate(['/prescriptions']);
+    }
   }
 
   formatDate(date: Date | undefined): string {

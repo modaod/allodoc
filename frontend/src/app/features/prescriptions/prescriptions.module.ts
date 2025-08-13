@@ -60,6 +60,9 @@ import { PrescriptionDetailComponent } from './prescription-detail/prescription-
     MatDividerModule,
     MatBadgeModule,
     MatAutocompleteModule
+  ],
+  exports: [
+    PrescriptionDetailComponent
   ]
 })
 export class PrescriptionsModule { }

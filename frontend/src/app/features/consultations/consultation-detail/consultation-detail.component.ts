@@ -12,6 +12,8 @@ export class ConsultationDetailComponent implements OnInit {
   consultation: Consultation | null = null;
   loading = false;
   consultationId: string | null = null;
+  patientId: string | null = null;
+  isPatientContext = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -20,7 +22,14 @@ export class ConsultationDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.consultationId = this.route.snapshot.paramMap.get('id');
+    // Check if we're in patient context
+    this.patientId = this.route.snapshot.paramMap.get('patientId');
+    this.isPatientContext = !!this.patientId;
+    
+    // Get consultation ID from either regular route or patient context route
+    this.consultationId = this.route.snapshot.paramMap.get('id') || 
+                          this.route.snapshot.paramMap.get('consultationId');
+    
     if (this.consultationId) {
       this.loadConsultation(this.consultationId);
     }
@@ -98,7 +107,13 @@ export class ConsultationDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/consultations']);
+    if (this.isPatientContext && this.patientId) {
+      // If in patient context, go back to patient consultations
+      this.router.navigate(['/patients', this.patientId, 'consultations']);
+    } else {
+      // Otherwise, go to general consultations list
+      this.router.navigate(['/consultations']);
+    }
   }
 
   formatDate(date: Date | undefined): string {

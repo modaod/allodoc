@@ -58,6 +58,9 @@ import { ConsultationDetailComponent } from './consultation-detail/consultation-
     MatExpansionModule,
     MatDividerModule,
     MatBadgeModule
+  ],
+  exports: [
+    ConsultationDetailComponent
   ]
 })
 export class ConsultationsModule { }

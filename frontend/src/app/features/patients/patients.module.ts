@@ -21,11 +21,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { PatientsRoutingModule } from './patients-routing.module';
+import { ConsultationsModule } from '../consultations/consultations.module';
+import { PrescriptionsModule } from '../prescriptions/prescriptions.module';
 import { PatientsListComponent } from './patients-list/patients-list.component';
 import { PatientFormComponent } from './patient-form/patient-form.component';
 import { PatientDetailComponent } from './patient-detail/patient-detail.component';
 import { PatientConsultationsListComponent } from './patient-consultations-list/patient-consultations-list.component';
 import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/patient-prescriptions-list.component';
+import { PatientConsultationDetailComponent } from './patient-consultation-detail/patient-consultation-detail.component';
+import { PatientPrescriptionDetailComponent } from './patient-prescription-detail/patient-prescription-detail.component';
 
 @NgModule({
   declarations: [
@@ -33,13 +37,17 @@ import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/
     PatientFormComponent,
     PatientDetailComponent,
     PatientConsultationsListComponent,
-    PatientPrescriptionsListComponent
+    PatientPrescriptionsListComponent,
+    PatientConsultationDetailComponent,
+    PatientPrescriptionDetailComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
     PatientsRoutingModule,
+    ConsultationsModule,
+    PrescriptionsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,

@@ -5,6 +5,8 @@ import { PatientFormComponent } from './patient-form/patient-form.component';
 import { PatientDetailComponent } from './patient-detail/patient-detail.component';
 import { PatientConsultationsListComponent } from './patient-consultations-list/patient-consultations-list.component';
 import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/patient-prescriptions-list.component';
+import { PatientConsultationDetailComponent } from './patient-consultation-detail/patient-consultation-detail.component';
+import { PatientPrescriptionDetailComponent } from './patient-prescription-detail/patient-prescription-detail.component';
 
 const routes: Routes = [
   {
@@ -29,7 +31,7 @@ const routes: Routes = [
   },
   {
     path: ':patientId/consultations/:consultationId',
-    loadChildren: () => import('../consultations/consultations.module').then(m => m.ConsultationsModule)
+    component: PatientConsultationDetailComponent
   },
   {
     path: ':patientId/prescriptions',
@@ -37,7 +39,7 @@ const routes: Routes = [
   },
   {
     path: ':patientId/prescriptions/:prescriptionId',
-    loadChildren: () => import('../prescriptions/prescriptions.module').then(m => m.PrescriptionsModule)
+    component: PatientPrescriptionDetailComponent
   }
 ];
 
