@@ -214,8 +214,9 @@ button.mat-mdc-raised-button, button.mat-mdc-button {
   font-size: 14px !important;
 }
 
-/* Login Page - Clean Professional Background */
-.login-container {
+/* Auth Pages - Clean Professional Background */
+.login-container,
+.register-container {
   background: linear-gradient(135deg, #e0e7ff 0%, #cfd9ff 100%) !important;
   min-height: 100vh;
   display: flex;
@@ -223,7 +224,8 @@ button.mat-mdc-raised-button, button.mat-mdc-button {
   justify-content: center;
 }
 
-.login-card {
+.login-card,
+.register-card {
   animation: slideUp 0.5s ease-out;
 }
 
