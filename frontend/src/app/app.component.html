@@ -29,22 +29,23 @@
     </button>
   </mat-menu>
 
-  <mat-icon class="app-logo">local_hospital</mat-icon>
-  <span class="app-title">AlloDoc</span>
+  <!-- Clickable Logo -->
+  <a routerLink="/dashboard" class="app-logo-link">
+    <div class="app-logo">
+      <span class="logo-text">AD</span>
+    </div>
+    <span class="app-title">AlloDoc</span>
+  </a>
   
-  <!-- Main Navigation Menu (Desktop) -->
-  <div class="nav-menu">
-    <button mat-button routerLink="/dashboard" routerLinkActive="active">
-      <mat-icon>dashboard</mat-icon>
-      Dashboard
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button mat-stroked-button routerLink="/patients/new" class="quick-action-btn">
+      <mat-icon>person_add</mat-icon>
+      <span>New Patient</span>
     </button>
-    <button mat-button routerLink="/patients" routerLinkActive="active">
-      <mat-icon>people</mat-icon>
-      Patients
-    </button>
-    <button mat-button routerLink="/consultations" routerLinkActive="active">
-      <mat-icon>medical_services</mat-icon>
-      Consultations
+    <button mat-stroked-button routerLink="/consultations/new" class="quick-action-btn">
+      <mat-icon>add_circle_outline</mat-icon>
+      <span>New Consultation</span>
     </button>
   </div>
   
