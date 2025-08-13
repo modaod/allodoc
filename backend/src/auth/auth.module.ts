@@ -10,6 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { UsersModule } from '../users/users.module';
+import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Module({
     imports: [
@@ -33,6 +34,9 @@ import { UsersModule } from '../users/users.module';
 
         // Forward reference to avoid circular dependency
         forwardRef(() => UsersModule),
+        
+        // Organizations module for fetching organizations list
+        OrganizationsModule,
     ],
     controllers: [AuthController],
     providers: [AuthService, TokenService, JwtStrategy, LocalStrategy],

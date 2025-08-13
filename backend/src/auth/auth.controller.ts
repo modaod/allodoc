@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { User } from '../users/entities/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -56,6 +57,18 @@ export class AuthController {
     })
     async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
         return await this.authService.register(registerDto);
+    }
+
+    @Public()
+    @Get('organizations')
+    @ApiOperation({ summary: 'Get list of organizations for registration' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'List of organizations',
+        type: [Organization],
+    })
+    async getOrganizations(): Promise<Partial<Organization>[]> {
+        return await this.authService.getPublicOrganizations();
     }
 
     @Public()

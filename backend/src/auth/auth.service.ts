@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './services/token.service';
+import { OrganizationsService } from '../organizations/organizations.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponse } from './interfaces/auth-response.interface';
 import { User } from '../users/entities/user.entity';
 import { RoleName } from '../users/entities/role.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -18,6 +20,7 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private tokenService: TokenService,
+        private organizationsService: OrganizationsService,
     ) {}
 
     // Validate user credentials (used by LocalStrategy)
@@ -216,5 +219,15 @@ export class AuthService {
             organizationId: user.organizationId,
             lastLogin: user.lastLogin,
         };
+    }
+
+    // Get public list of organizations for registration
+    async getPublicOrganizations(): Promise<Partial<Organization>[]> {
+        const organizations = await this.organizationsService.findAll();
+        // Return only public information
+        return organizations.map(org => ({
+            id: org.id,
+            name: org.name,
+        }));
     }
 }
