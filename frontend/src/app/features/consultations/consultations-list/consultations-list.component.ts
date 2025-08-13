@@ -24,7 +24,6 @@ export class ConsultationsListComponent implements OnInit {
   searchControl = new FormControl('');
   loading = false;
   totalConsultations = 0;
-  activeFilter: 'today' | 'week' | 'all' = 'all';
 
   // Enum values for template
   consultationStatuses = Object.values(ConsultationStatus);
@@ -60,14 +59,34 @@ export class ConsultationsListComponent implements OnInit {
       const filter = params['filter'];
       
       if (filter === 'today') {
-        this.activeFilter = 'today';
-        this.loadTodayConsultations();
+        // Set today's date in both from and to fields
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+        
+        this.filterForm.patchValue({
+          dateFrom: todayStr,
+          dateTo: todayStr
+        }, { emitEvent: false });
+        this.applyFilters();
       } else if (filter === 'week') {
-        this.activeFilter = 'week';
-        this.loadThisWeekConsultations();
+        // Set this week's date range (Sunday to Saturday)
+        const today = new Date();
+        const sunday = new Date(today);
+        sunday.setDate(today.getDate() - today.getDay());
+        sunday.setHours(0, 0, 0, 0);
+        
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 6);
+        saturday.setHours(23, 59, 59, 999);
+        
+        this.filterForm.patchValue({
+          dateFrom: sunday.toISOString().split('T')[0],
+          dateTo: saturday.toISOString().split('T')[0]
+        }, { emitEvent: false });
+        this.applyFilters();
       } else if (params['dateFrom'] || params['dateTo']) {
         // Apply the date filters from query parameters
-        this.activeFilter = 'all';
         this.filterForm.patchValue({
           dateFrom: params['dateFrom'] || '',
           dateTo: params['dateTo'] || ''
@@ -75,7 +94,6 @@ export class ConsultationsListComponent implements OnInit {
         this.applyFilters();
       } else {
         // No query params, load all consultations
-        this.activeFilter = 'all';
         this.loadConsultations();
       }
     });
@@ -169,8 +187,8 @@ export class ConsultationsListComponent implements OnInit {
     const filters = this.filterForm.value;
     const params: ConsultationSearchParams = {
       search: this.searchControl.value || undefined,
-      dateFrom: filters.dateFrom ? new Date(filters.dateFrom) : undefined,
-      dateTo: filters.dateTo ? new Date(filters.dateTo) : undefined,
+      startDate: filters.dateFrom ? new Date(filters.dateFrom) : undefined,
+      endDate: filters.dateTo ? new Date(filters.dateTo) : undefined,
       status: filters.status as ConsultationStatus || undefined,
       type: filters.type as ConsultationType || undefined,
       sortBy: filters.sortBy || 'consultationDate',
@@ -182,19 +200,21 @@ export class ConsultationsListComponent implements OnInit {
   }
   
   clearFilters(): void {
-    this.searchControl.setValue('');
+    this.searchControl.setValue('', { emitEvent: false });
     this.filterForm.reset({
+      dateFrom: '',
+      dateTo: '',
+      status: '',
+      type: '',
       sortBy: 'consultationDate',
       sortOrder: 'DESC'
-    });
-    this.activeFilter = 'all';
+    }, { emitEvent: false });
+    
+    // Clear query parameters and reload
+    this.router.navigate(['/consultations']);
     this.loadConsultations();
   }
 
-  clearSpecialFilter(): void {
-    this.activeFilter = 'all';
-    this.router.navigate(['/consultations']);
-  }
 
   viewConsultation(consultation: Consultation): void {
     this.router.navigate(['/consultations', consultation.id]);

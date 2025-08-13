@@ -139,6 +139,16 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
             'consultation.consultationDate',
         );
 
+        // Filtrage par statut
+        if (searchDto.status) {
+            qb.andWhere('consultation.status = :status', { status: searchDto.status });
+        }
+
+        // Filtrage par type (using category field from SearchDto for type)
+        if (searchDto.category) {
+            qb.andWhere('consultation.type = :type', { type: searchDto.category });
+        }
+
         // Tri
         const sortBy = searchDto.sortBy || 'consultationDate';
         const sortOrder = searchDto.sortOrder || 'DESC';

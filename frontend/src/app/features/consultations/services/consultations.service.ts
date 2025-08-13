@@ -30,7 +30,12 @@ export class ConsultationsService {
       Object.keys(params).forEach(key => {
         const value = params[key as keyof ConsultationSearchParams];
         if (value !== undefined && value !== null) {
-          httpParams = httpParams.set(key, value.toString());
+          // Map 'type' to 'category' for backend compatibility
+          if (key === 'type') {
+            httpParams = httpParams.set('category', value.toString());
+          } else {
+            httpParams = httpParams.set(key, value.toString());
+          }
         }
       });
     }
