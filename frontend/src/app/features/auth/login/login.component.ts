@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -12,16 +14,14 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   hidePassword = true;
-  organizations = [
-    { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Saint Mary Medical Center' },
-    { id: '550e8400-e29b-41d4-a716-446655440002', name: 'Downtown Family Clinic' },
-    { id: '550e8400-e29b-41d4-a716-446655440003', name: 'Pediatric Care Center' }
-  ];
+  organizations: any[] = [];
+  loadingOrganizations = true;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -35,6 +35,29 @@ export class LoginComponent implements OnInit {
     if (this.authService.isAuthenticated) {
       this.router.navigate(['/dashboard']);
     }
+    
+    // Fetch organizations from backend
+    this.fetchOrganizations();
+  }
+
+  private fetchOrganizations(): void {
+    const apiUrl = environment.apiUrl || '/api/v1';
+    this.http.get<any[]>(`${apiUrl}/auth/organizations`).subscribe({
+      next: (orgs) => {
+        this.organizations = orgs;
+        this.loadingOrganizations = false;
+      },
+      error: (error) => {
+        console.error('Failed to fetch organizations:', error);
+        // Fallback to hardcoded organizations if API fails
+        this.organizations = [
+          { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Saint Mary Medical Center' },
+          { id: '550e8400-e29b-41d4-a716-446655440002', name: 'Downtown Family Clinic' },
+          { id: '550e8400-e29b-41d4-a716-446655440003', name: 'Pediatric Care Center' }
+        ];
+        this.loadingOrganizations = false;
+      }
+    });
   }
 
   onSubmit(): void {
