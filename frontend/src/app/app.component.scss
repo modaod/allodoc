@@ -52,36 +52,57 @@ mat-toolbar {
     color: white;
   }
 
-  // Quick Actions
-  .quick-actions {
-    display: flex;
-    gap: 12px;
-    margin-left: auto;
-    margin-right: auto;
-
-    .quick-action-btn {
-      color: rgba(255, 255, 255, 0.95);
-      border-color: rgba(255, 255, 255, 0.3);
-      transition: all 0.2s ease;
-      border-radius: 8px;
+  // Centered Organization Context
+  .organization-context-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    .org-switcher-button-center {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 8px 20px;
+      min-width: 200px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
       
-      mat-icon {
-        margin-right: 6px;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      mat-icon:first-child {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        color: rgba(255, 255, 255, 0.95);
+      }
+      
+      .org-name {
+        font-weight: 500;
+        flex: 1;
+        text-align: center;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .dropdown-icon {
         font-size: 20px;
         width: 20px;
         height: 20px;
-      }
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        opacity: 0.8;
       }
     }
   }
 
-  // Organization Context
+  // Legacy Organization Context (remove old styles)
   .organization-context {
     margin: 0 16px;
     
@@ -221,15 +242,34 @@ mat-toolbar {
 .org-menu {
   margin-top: 8px;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  min-width: 280px;
   
   .org-menu-header {
-    padding: 12px 16px 8px;
+    padding: 16px 20px 12px;
     font-weight: 600;
-    color: #374151;
-    font-size: 0.85em;
+    color: #1f2937;
+    font-size: 0.9em;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    background: linear-gradient(to bottom, #f9fafb, #ffffff);
+  }
+  
+  .single-org-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    font-size: 0.85em;
+    margin-top: 8px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
   }
   
   .mat-mdc-menu-content {
@@ -297,10 +337,6 @@ mat-toolbar {
 
 @media (max-width: 768px) {
   mat-toolbar {
-    .quick-actions {
-      display: none; // Hide quick actions on mobile - they're in the menu
-    }
-    
     .app-title {
       font-size: 1.1rem;
     }
@@ -313,14 +349,18 @@ mat-toolbar {
       display: none;
     }
     
-    .organization-switcher {
-      margin: 0 8px;
+    .organization-context-center {
+      position: static;
+      transform: none;
+      margin: 0 auto;
       
-      .org-switcher-button {
-        padding: 6px 8px;
+      .org-switcher-button-center {
+        min-width: 150px;
+        padding: 6px 12px;
         
         .org-name {
-          max-width: 100px;
+          max-width: 120px;
+          font-size: 0.9rem;
         }
       }
     }
@@ -337,9 +377,18 @@ mat-toolbar {
       margin-right: 8px;
     }
     
-    .organization-switcher {
-      .org-name {
-        display: none;
+    .organization-context-center {
+      .org-switcher-button-center {
+        min-width: auto;
+        padding: 6px 8px;
+        
+        .org-name {
+          display: none;
+        }
+        
+        mat-icon:first-child {
+          margin-right: 0;
+        }
       }
     }
   }

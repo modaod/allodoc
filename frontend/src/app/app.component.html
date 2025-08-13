@@ -37,52 +37,38 @@
     <span class="app-title">AlloDoc</span>
   </a>
   
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <button mat-stroked-button routerLink="/patients/new" class="quick-action-btn">
-      <mat-icon>person_add</mat-icon>
-      <span>New Patient</span>
-    </button>
-    <button mat-stroked-button routerLink="/consultations/new" class="quick-action-btn">
-      <mat-icon>add_circle_outline</mat-icon>
-      <span>New Consultation</span>
-    </button>
-  </div>
+  <span class="spacer"></span>
   
-  <!-- Organization Context -->
-  <div class="organization-context" *ngIf="getCurrentOrganization()">
-    <div class="current-org-display" *ngIf="!hasMultipleOrganizations()">
+  <!-- Centered Organization Context -->
+  <div class="organization-context-center" *ngIf="getCurrentOrganization()">
+    <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button-center">
       <mat-icon>business</mat-icon>
       <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
-    </div>
-    
-    <!-- Organization Switcher (only if multiple orgs) -->
-    <div class="organization-switcher" *ngIf="hasMultipleOrganizations()">
-      <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button">
-        <mat-icon>business</mat-icon>
-        <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
-        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
-      </button>
-      <mat-menu #orgMenu="matMenu" class="org-menu">
-        <div class="org-menu-header">
-          <span>Switch Organization</span>
-        </div>
-        <mat-divider></mat-divider>
-        <button 
-          mat-menu-item 
-          *ngFor="let org of getUserOrganizations()" 
-          (click)="switchOrganization(org.id)"
-          [class.current]="org.id === getCurrentOrganization()?.id">
-          <div class="org-menu-item">
-            <div class="org-info">
-              <span class="org-name">{{ org.name }}</span>
-              <span class="org-role">{{ org.role }}</span>
-            </div>
-            <mat-icon *ngIf="org.id === getCurrentOrganization()?.id" class="check-icon">check</mat-icon>
+      <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #orgMenu="matMenu" class="org-menu">
+      <div class="org-menu-header">
+        <span>Organization</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button 
+        mat-menu-item 
+        *ngFor="let org of getUserOrganizations()" 
+        (click)="switchOrganization(org.id)"
+        [class.current]="org.id === getCurrentOrganization()?.id">
+        <div class="org-menu-item">
+          <div class="org-info">
+            <span class="org-name">{{ org.name }}</span>
+            <span class="org-role">{{ getUserRole(org) }}</span>
           </div>
-        </button>
-      </mat-menu>
-    </div>
+          <mat-icon *ngIf="org.id === getCurrentOrganization()?.id" class="check-icon">check</mat-icon>
+        </div>
+      </button>
+      <div *ngIf="getUserOrganizations().length === 1" class="single-org-info">
+        <mat-icon>info</mat-icon>
+        <span>You belong to this organization only</span>
+      </div>
+    </mat-menu>
   </div>
   
   <span class="spacer"></span>

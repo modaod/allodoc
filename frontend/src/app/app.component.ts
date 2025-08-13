@@ -58,6 +58,12 @@ export class AppComponent implements OnInit {
     return this.currentUser?.organizations || [];
   }
 
+  getUserRole(org: Organization): string {
+    // Find the user's role in the specific organization
+    const userOrg = this.currentUser?.organizations?.find(o => o.id === org.id);
+    return userOrg?.role || 'Member';
+  }
+
   switchOrganization(organizationId: string): void {
     if (organizationId === this.getCurrentOrganization()?.id) {
       return; // Already selected
