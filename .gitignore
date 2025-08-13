@@ -1,7 +1,7 @@
-# Markdown files (except README.md and docs folder)
+# Markdown files (except README.md files)
 *.md
 !README.md
-!docs/*.md
+!**/README.md
 
 # IDE files
 .vscode/
