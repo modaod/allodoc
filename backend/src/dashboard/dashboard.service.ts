@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThan } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThan, Between } from 'typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
@@ -29,10 +29,16 @@ export class DashboardService {
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
 
+            // Week starts on Sunday, ends on Saturday
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() - today.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
 
-            this.logger.debug(`Date ranges - today: ${today.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}`);
+            this.logger.debug(`Date ranges - today: ${today.toISOString()}, tomorrow: ${tomorrow.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}, endOfWeek: ${endOfWeek.toISOString()}`);
 
             // Get statistics in parallel
             const [
@@ -50,7 +56,7 @@ export class DashboardService {
                 this.consultationRepository.count({
                     where: {
                         organizationId,
-                        consultationDate: MoreThanOrEqual(today),
+                        consultationDate: Between(today, tomorrow),
                     },
                 }).catch(err => {
                     this.logger.error('Error counting today consultations:', err);
@@ -59,7 +65,7 @@ export class DashboardService {
                 this.consultationRepository.count({
                     where: {
                         organizationId,
-                        consultationDate: MoreThanOrEqual(startOfWeek),
+                        consultationDate: Between(startOfWeek, endOfWeek),
                     },
                 }).catch(err => {
                     this.logger.error('Error counting week consultations:', err);
