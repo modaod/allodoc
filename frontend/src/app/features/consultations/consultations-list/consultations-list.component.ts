@@ -220,8 +220,8 @@ export class ConsultationsListComponent implements OnInit {
     const filters = this.filterForm.value;
     const params: ConsultationSearchParams = {
       search: this.searchControl.value || undefined,
-      startDate: filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00') : undefined,
-      endDate: filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : undefined,
+      startDate: filters.dateFrom || undefined,
+      endDate: filters.dateTo || undefined,
       status: filters.status as ConsultationStatus || undefined,
       type: filters.type as ConsultationType || undefined,
       sortBy: filters.sortBy || 'consultationDate',

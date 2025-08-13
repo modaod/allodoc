@@ -29,16 +29,24 @@ export class ConsultationsService {
     if (params) {
       Object.keys(params).forEach(key => {
         const value = params[key as keyof ConsultationSearchParams];
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           // Map 'type' to 'category' for backend compatibility
           if (key === 'type') {
             httpParams = httpParams.set('category', value.toString());
           } else if (key === 'startDate' || key === 'endDate') {
-            // Convert Date objects to ISO strings for date fields
+            // Handle date fields - can be string or Date
             if (value instanceof Date) {
-              httpParams = httpParams.set(key, value.toISOString());
-            } else {
-              httpParams = httpParams.set(key, value.toString());
+              // Only convert if it's a valid date
+              if (!isNaN(value.getTime())) {
+                httpParams = httpParams.set(key, value.toISOString());
+              }
+            } else if (typeof value === 'string' && value.length > 0) {
+              // If it's a string, append time to ensure full day coverage
+              if (key === 'startDate') {
+                httpParams = httpParams.set(key, value + 'T00:00:00.000Z');
+              } else if (key === 'endDate') {
+                httpParams = httpParams.set(key, value + 'T23:59:59.999Z');
+              }
             }
           } else {
             httpParams = httpParams.set(key, value.toString());

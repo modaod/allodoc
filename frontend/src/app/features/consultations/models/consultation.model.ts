@@ -151,8 +151,8 @@ export interface ConsultationSearchParams {
   doctorId?: string;
   status?: ConsultationStatus;
   type?: ConsultationType;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: string | Date;
+  endDate?: string | Date;
   search?: string;
   page?: number;
   limit?: number;
