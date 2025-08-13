@@ -42,9 +42,7 @@
   <!-- Centered Organization Context -->
   <div class="organization-context-center" *ngIf="getCurrentOrganization()">
     <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button-center">
-      <mat-icon>business</mat-icon>
       <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
-      <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
     </button>
     <mat-menu #orgMenu="matMenu" class="org-menu">
       <div class="org-menu-header">
