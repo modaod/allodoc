@@ -86,6 +86,18 @@ export class AuthService {
   register(registerData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, registerData)
       .pipe(
+        map(response => {
+          // Create organizations array from user data for consistency
+          if (response.user.organizationId) {
+            response.organizations = [{
+              id: response.user.organizationId,
+              name: this.getOrganizationName(response.user.organizationId),
+              role: response.user.roles?.[0] || 'USER',
+              lastAccessed: new Date()
+            }];
+          }
+          return response;
+        }),
         tap(response => this.handleAuthSuccess(response)),
         catchError(error => this.handleAuthError(error))
       );
@@ -227,7 +239,11 @@ export class AuthService {
         roles: [user.organizations[0].role]
       };
       localStorage.setItem('selectedOrganizationId', user.organizations[0].id);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       this.currentUserSubject.next(updatedUser);
+      
+      // Set token expiry timer
+      this.setTokenExpiryTimer(response.expiresIn);
       return;
     }
     
