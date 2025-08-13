@@ -33,6 +33,13 @@ export class ConsultationsService {
           // Map 'type' to 'category' for backend compatibility
           if (key === 'type') {
             httpParams = httpParams.set('category', value.toString());
+          } else if (key === 'startDate' || key === 'endDate') {
+            // Convert Date objects to ISO strings for date fields
+            if (value instanceof Date) {
+              httpParams = httpParams.set(key, value.toISOString());
+            } else {
+              httpParams = httpParams.set(key, value.toString());
+            }
           } else {
             httpParams = httpParams.set(key, value.toString());
           }
