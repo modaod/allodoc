@@ -69,6 +69,9 @@ export interface PatientSearchParams {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
+  startDate?: string;
+  endDate?: string;
+  status?: string;
 }
 
 export interface PatientsResponse {

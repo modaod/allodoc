@@ -28,6 +28,26 @@
   }
 }
 
+// Filters Bar
+.filters-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  
+  .filter-field {
+    flex: 0 1 180px;
+  }
+  
+  button {
+    margin-top: 8px;
+  }
+}
+
 // Loading Container
 .loading-container {
   display: flex;

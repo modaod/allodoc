@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { Consultation, ConsultationSearchParams, ConsultationStatus, ConsultationType } from '../models/consultation.model';
@@ -28,6 +28,24 @@ export class ConsultationsListComponent implements OnInit {
   // Enum values for template
   consultationStatuses = Object.values(ConsultationStatus);
   consultationTypes = Object.values(ConsultationType);
+  
+  // Advanced search controls
+  filterForm = new FormGroup({
+    dateFrom: new FormControl(''),
+    dateTo: new FormControl(''),
+    status: new FormControl(''),
+    type: new FormControl(''),
+    sortBy: new FormControl('consultationDate'),
+    sortOrder: new FormControl<'ASC' | 'DESC'>('DESC')
+  });
+  
+  sortOptions = [
+    { value: 'consultationDate', label: 'Consultation Date' },
+    { value: 'consultationNumber', label: 'Consultation Number' },
+    { value: 'createdAt', label: 'Created Date' },
+    { value: 'status', label: 'Status' },
+    { value: 'type', label: 'Type' }
+  ];
 
   constructor(
     private consultationsService: ConsultationsService,
@@ -37,6 +55,7 @@ export class ConsultationsListComponent implements OnInit {
   ngOnInit(): void {
     this.loadConsultations();
     this.setupSearch();
+    this.setupFilters();
   }
 
   ngAfterViewInit(): void {
@@ -69,8 +88,44 @@ export class ConsultationsListComponent implements OnInit {
         distinctUntilChanged()
       )
       .subscribe(searchTerm => {
-        this.loadConsultations({ search: searchTerm || undefined });
+        this.applyFilters();
       });
+  }
+  
+  setupFilters(): void {
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.applyFilters();
+      });
+  }
+  
+  applyFilters(): void {
+    const filters = this.filterForm.value;
+    const params: ConsultationSearchParams = {
+      search: this.searchControl.value || undefined,
+      dateFrom: filters.dateFrom ? new Date(filters.dateFrom) : undefined,
+      dateTo: filters.dateTo ? new Date(filters.dateTo) : undefined,
+      status: filters.status as ConsultationStatus || undefined,
+      type: filters.type as ConsultationType || undefined,
+      sortBy: filters.sortBy || 'consultationDate',
+      sortOrder: filters.sortOrder || 'DESC',
+      page: 1,
+      limit: 10
+    };
+    this.loadConsultations(params);
+  }
+  
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.filterForm.reset({
+      sortBy: 'consultationDate',
+      sortOrder: 'DESC'
+    });
+    this.loadConsultations();
   }
 
   viewConsultation(consultation: Consultation): void {
@@ -124,5 +179,9 @@ export class ConsultationsListComponent implements OnInit {
       default:
         return '';
     }
+  }
+  
+  formatEnumValue(value: string): string {
+    return value.replace(/_/g, ' ');
   }
 }

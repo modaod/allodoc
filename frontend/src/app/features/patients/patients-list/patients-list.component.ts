@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { Patient, PatientSearchParams } from '../models/patient.model';
@@ -26,6 +26,22 @@ export class PatientsListComponent implements OnInit {
   searchControl = new FormControl('');
   loading = false;
   totalPatients = 0;
+  
+  // Advanced search controls
+  filterForm = new FormGroup({
+    startDate: new FormControl(''),
+    endDate: new FormControl(''),
+    sortBy: new FormControl('lastName'),
+    sortOrder: new FormControl<'ASC' | 'DESC'>('ASC')
+  });
+  
+  sortOptions = [
+    { value: 'lastName', label: 'Last Name' },
+    { value: 'firstName', label: 'First Name' },
+    { value: 'createdAt', label: 'Registration Date' },
+    { value: 'lastVisit', label: 'Last Visit' },
+    { value: 'patientNumber', label: 'Patient Number' }
+  ];
 
   constructor(
     private patientsService: PatientsService,
@@ -37,6 +53,7 @@ export class PatientsListComponent implements OnInit {
   ngOnInit(): void {
     this.loadPatients();
     this.setupSearch();
+    this.setupFilters();
   }
 
   ngAfterViewInit(): void {
@@ -79,8 +96,42 @@ export class PatientsListComponent implements OnInit {
         distinctUntilChanged()
       )
       .subscribe(searchTerm => {
-        this.loadPatients({ search: searchTerm || undefined });
+        this.applyFilters();
       });
+  }
+  
+  setupFilters(): void {
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.applyFilters();
+      });
+  }
+  
+  applyFilters(): void {
+    const filters = this.filterForm.value;
+    const params: PatientSearchParams = {
+      search: this.searchControl.value || undefined,
+      startDate: filters.startDate || undefined,
+      endDate: filters.endDate || undefined,
+      sortBy: filters.sortBy || 'lastName',
+      sortOrder: filters.sortOrder || 'ASC',
+      page: 1,
+      limit: 10
+    };
+    this.loadPatients(params);
+  }
+  
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.filterForm.reset({
+      sortBy: 'lastName',
+      sortOrder: 'ASC'
+    });
+    this.loadPatients();
   }
 
   viewPatient(patient: Patient): void {

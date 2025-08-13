@@ -29,6 +29,25 @@
       }
     }
   }
+  
+  .filters-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    
+    .filter-field {
+      flex: 0 1 200px;
+    }
+    
+    button {
+      margin-top: 8px;
+    }
+  }
 
   .loading-container {
     display: flex;

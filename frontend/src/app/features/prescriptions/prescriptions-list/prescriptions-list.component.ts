@@ -30,8 +30,18 @@ export class PrescriptionsListComponent implements OnInit {
     search: new FormControl(''),
     status: new FormControl(''),
     dateFrom: new FormControl(''),
-    dateTo: new FormControl('')
+    dateTo: new FormControl(''),
+    sortBy: new FormControl('prescribedDate'),
+    sortOrder: new FormControl<'ASC' | 'DESC'>('DESC')
   });
+  
+  sortOptions = [
+    { value: 'prescribedDate', label: 'Prescription Date' },
+    { value: 'prescriptionNumber', label: 'Prescription Number' },
+    { value: 'status', label: 'Status' },
+    { value: 'validUntil', label: 'Valid Until' },
+    { value: 'createdAt', label: 'Created Date' }
+  ];
   
   loading = false;
   totalPrescriptions = 0;
@@ -73,18 +83,13 @@ export class PrescriptionsListComponent implements OnInit {
   }
 
   setupFilters(): void {
-    // Search filter
-    this.filterForm.get('search')?.valueChanges
+    // All filters with debounce
+    this.filterForm.valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged()
       )
       .subscribe(() => this.applyFilters());
-
-    // Other filters
-    this.filterForm.get('status')?.valueChanges.subscribe(() => this.applyFilters());
-    this.filterForm.get('dateFrom')?.valueChanges.subscribe(() => this.applyFilters());
-    this.filterForm.get('dateTo')?.valueChanges.subscribe(() => this.applyFilters());
   }
 
   applyFilters(): void {
@@ -93,14 +98,25 @@ export class PrescriptionsListComponent implements OnInit {
       search: formValue.search || undefined,
       status: formValue.status as PrescriptionStatus || undefined,
       dateFrom: formValue.dateFrom ? new Date(formValue.dateFrom) : undefined,
-      dateTo: formValue.dateTo ? new Date(formValue.dateTo) : undefined
+      dateTo: formValue.dateTo ? new Date(formValue.dateTo) : undefined,
+      sortBy: formValue.sortBy || 'prescribedDate',
+      sortOrder: formValue.sortOrder || 'DESC',
+      page: 1,
+      limit: 10
     };
     
     this.loadPrescriptions(params);
   }
 
   clearFilters(): void {
-    this.filterForm.reset();
+    this.filterForm.reset({
+      search: '',
+      status: '',
+      dateFrom: '',
+      dateTo: '',
+      sortBy: 'prescribedDate',
+      sortOrder: 'DESC'
+    });
     this.loadPrescriptions();
   }
 

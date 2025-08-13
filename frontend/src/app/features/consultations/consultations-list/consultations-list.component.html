@@ -19,6 +19,65 @@
           New Consultation
         </button>
       </div>
+      
+      <!-- Advanced Filters Bar -->
+      <div class="filters-bar" [formGroup]="filterForm">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>From Date</mat-label>
+          <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom">
+          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>To Date</mat-label>
+          <input matInput [matDatepicker]="toPicker" formControlName="dateTo">
+          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">All Statuses</mat-option>
+            <mat-option *ngFor="let status of consultationStatuses" [value]="status">
+              {{ status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="">All Types</mat-option>
+            <mat-option *ngFor="let type of consultationTypes" [value]="type">
+              {{ formatEnumValue(type) | titlecase }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sort By</mat-label>
+          <mat-select formControlName="sortBy">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sort Order</mat-label>
+          <mat-select formControlName="sortOrder">
+            <mat-option value="ASC">Ascending</mat-option>
+            <mat-option value="DESC">Descending</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <button mat-button color="accent" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
 
       <!-- Loading State -->
       <div *ngIf="loading" class="loading-container">
