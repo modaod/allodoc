@@ -62,13 +62,17 @@ This document tracks the overall progress of both frontend and backend developme
 - [x] **Consultation Creation** - Fixed missing doctorId and field mismatches
 - [x] **Consultation Editing** - Fixed HTTP methods and validation errors
 - [x] **Field Standardization** - Aligned frontend/backend field names
+- [x] **Advanced Search & Filtering** - Implemented for patients, consultations, and prescriptions lists
+- [x] **Date Range Filters** - Added to all list pages with Material date pickers
+- [x] **Sorting Options** - Customizable sort field and order across all lists
+- [x] **Performance Optimization** - Debounced search with 300ms delay
 
 ---
 
 ## 🚧 In Progress
 
 ### High Priority (Next Sprint)
-- [ ] **Advanced Search & Filtering** - Add search bars, filters, and sorting to all list pages
+- [x] **Advanced Search & Filtering** - ✅ COMPLETED - Search bars, filters, and sorting on all list pages
 - [ ] **File Upload System** - Upload and attach medical documents to consultations
 - [ ] **Password Reset** - Forgot password functionality via email
 - [ ] **PDF Generation** - Generate printable prescriptions with clinic details
@@ -95,12 +99,13 @@ This document tracks the overall progress of both frontend and backend developme
 ## 📋 Next Sprint Tasks (Prioritized)
 
 ### Week 1 - Core Features
-1. **Advanced Search & Filtering**
-   - [ ] Add search bar to patients list
-   - [ ] Add search bar to consultations list
-   - [ ] Add date range filters
-   - [ ] Add sorting options (date, name, status)
-   - [ ] Implement backend search endpoints with pagination
+1. **Advanced Search & Filtering** ✅ COMPLETED
+   - [x] Add search bar to patients list
+   - [x] Add search bar to consultations list
+   - [x] Add search bar to prescriptions list
+   - [x] Add date range filters
+   - [x] Add sorting options (date, name, status)
+   - [x] Backend search endpoints already supported pagination
 
 2. **File Upload System**
    - [ ] Setup file upload endpoint (multer)
