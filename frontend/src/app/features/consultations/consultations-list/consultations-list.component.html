@@ -6,6 +6,25 @@
     </mat-card-header>
     
     <mat-card-content>
+      <!-- Active Filter Indicator -->
+      <div class="active-filter-container" *ngIf="activeFilter !== 'all'">
+        <mat-chip-listbox>
+          <mat-chip-option selected color="primary" *ngIf="activeFilter === 'today'">
+            <mat-icon>today</mat-icon>
+            Showing: Today's Consultations
+            <button matChipRemove (click)="clearSpecialFilter()">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-option>
+          <mat-chip-option selected color="primary" *ngIf="activeFilter === 'week'">
+            <mat-icon>date_range</mat-icon>
+            Showing: This Week's Consultations
+            <button matChipRemove (click)="clearSpecialFilter()">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
       <!-- Search and Actions Bar -->
       <div class="actions-bar">
         <mat-form-field appearance="outline" class="search-field">
@@ -79,10 +98,28 @@
         </button>
       </div>
 
-      <!-- Loading State -->
+      <!-- Enhanced Loading State -->
       <div *ngIf="loading" class="loading-container">
-        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-        <p>Loading consultations...</p>
+        <div class="skeleton-table">
+          <div class="skeleton-row">
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+          </div>
+          <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Consultations Table -->

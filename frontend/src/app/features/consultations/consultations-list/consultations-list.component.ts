@@ -24,6 +24,7 @@ export class ConsultationsListComponent implements OnInit {
   searchControl = new FormControl('');
   loading = false;
   totalConsultations = 0;
+  activeFilter: 'today' | 'week' | 'all' = 'all';
 
   // Enum values for template
   consultationStatuses = Object.values(ConsultationStatus);
@@ -59,11 +60,14 @@ export class ConsultationsListComponent implements OnInit {
       const filter = params['filter'];
       
       if (filter === 'today') {
+        this.activeFilter = 'today';
         this.loadTodayConsultations();
       } else if (filter === 'week') {
+        this.activeFilter = 'week';
         this.loadThisWeekConsultations();
       } else if (params['dateFrom'] || params['dateTo']) {
         // Apply the date filters from query parameters
+        this.activeFilter = 'all';
         this.filterForm.patchValue({
           dateFrom: params['dateFrom'] || '',
           dateTo: params['dateTo'] || ''
@@ -71,6 +75,7 @@ export class ConsultationsListComponent implements OnInit {
         this.applyFilters();
       } else {
         // No query params, load all consultations
+        this.activeFilter = 'all';
         this.loadConsultations();
       }
     });
@@ -182,7 +187,13 @@ export class ConsultationsListComponent implements OnInit {
       sortBy: 'consultationDate',
       sortOrder: 'DESC'
     });
+    this.activeFilter = 'all';
     this.loadConsultations();
+  }
+
+  clearSpecialFilter(): void {
+    this.activeFilter = 'all';
+    this.router.navigate(['/consultations']);
   }
 
   viewConsultation(consultation: Consultation): void {
