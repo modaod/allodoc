@@ -50,6 +50,22 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
         return await query.orderBy('consultation.consultationDate', 'DESC').getMany();
     }
 
+    async findByDateRange(
+        organizationId: string,
+        startDate: Date,
+        endDate: Date,
+    ): Promise<Consultation[]> {
+        return await this.consultationRepository
+            .createQueryBuilder('consultation')
+            .leftJoinAndSelect('consultation.patient', 'patient')
+            .leftJoinAndSelect('consultation.doctor', 'doctor')
+            .where('consultation.organizationId = :organizationId', { organizationId })
+            .andWhere('consultation.consultationDate >= :startDate', { startDate })
+            .andWhere('consultation.consultationDate < :endDate', { endDate })
+            .orderBy('consultation.consultationDate', 'DESC')
+            .getMany();
+    }
+
     async findRecentConsultations(
         organizationId: string,
         limit: number = 10,

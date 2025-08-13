@@ -32,6 +32,18 @@ export class ConsultationsController {
         return this.consultationsService.search(searchDto, organizationId);
     }
 
+    @Get('today')
+    @Roles(RoleName.ADMIN, RoleName.DOCTOR)
+    async getTodayConsultations(@CurrentOrganization() organizationId: string) {
+        return this.consultationsService.getTodayConsultations(organizationId);
+    }
+
+    @Get('this-week')
+    @Roles(RoleName.ADMIN, RoleName.DOCTOR)
+    async getThisWeekConsultations(@CurrentOrganization() organizationId: string) {
+        return this.consultationsService.getThisWeekConsultations(organizationId);
+    }
+
     @Get('recent')
     @Roles(RoleName.ADMIN, RoleName.DOCTOR)
     async getRecent(@CurrentOrganization() organizationId: string, @Query('limit') limit?: number) {

@@ -124,6 +124,38 @@ export class ConsultationsService {
         return await this.consultationsRepository.findByDoctor(doctorId, startDate, endDate);
     }
 
+    async getTodayConsultations(organizationId: string): Promise<Consultation[]> {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        return await this.consultationsRepository.findByDateRange(
+            organizationId,
+            today,
+            tomorrow
+        );
+    }
+
+    async getThisWeekConsultations(organizationId: string): Promise<Consultation[]> {
+        const today = new Date();
+        // Week starts on Sunday (day 0)
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        // Week ends on Saturday (day 6)
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        return await this.consultationsRepository.findByDateRange(
+            organizationId,
+            startOfWeek,
+            endOfWeek
+        );
+    }
+
     async findRecentConsultations(
         organizationId: string,
         limit: number = 10,
