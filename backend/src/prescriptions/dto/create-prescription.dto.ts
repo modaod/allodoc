@@ -54,6 +54,17 @@ class WarningDto {
 }
 
 export class CreatePrescriptionDto {
+    @IsUUID()
+    patientId: string;
+
+    @IsOptional()
+    @IsUUID()
+    doctorId?: string; // Optional - will use current user if not provided
+
+    @IsOptional()
+    @IsUUID()
+    consultationId?: string; // Now optional for standalone prescriptions
+
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => MedicationDto)
@@ -75,7 +86,4 @@ export class CreatePrescriptionDto {
     @ValidateNested({ each: true })
     @Type(() => WarningDto)
     warnings?: WarningDto[];
-
-    @IsUUID()
-    consultationId: string;
 }

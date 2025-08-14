@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Between } from 'typeorm';
 import { PrescriptionsRepository } from './prescriptions.repository';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
@@ -19,11 +20,22 @@ export class PrescriptionsService {
         // Data validation
         this.validatePrescriptionData(createPrescriptionDto);
 
+        // Generate prescription number
+        const prescriptionNumber = await this.generatePrescriptionNumber(organizationId);
+
+        // Use current user as doctor if not provided
+        const doctorId = createPrescriptionDto.doctorId || currentUser?.id;
+        if (!doctorId) {
+            throw new BadRequestException('Doctor ID is required');
+        }
+
         // Analyze medications to detect interactions
         const warnings = await this.analyzeInteractions(createPrescriptionDto.medications);
 
         const prescriptionData = {
             ...createPrescriptionDto,
+            prescriptionNumber,
+            doctorId,
             prescribedDate: new Date(createPrescriptionDto.prescribedDate),
             organizationId,
             warnings,
@@ -34,6 +46,8 @@ export class PrescriptionsService {
 
     async findById(id: string): Promise<Prescription> {
         return await this.prescriptionsRepository.findById(id, [
+            'patient',
+            'doctor',
             'consultation',
             'consultation.patient',
             'consultation.doctor',
@@ -155,5 +169,23 @@ export class PrescriptionsService {
         if (prescribedDate > today) {
             throw new BadRequestException('The prescribed date must be in the past or today');
         }
+    }
+
+    private async generatePrescriptionNumber(organizationId: string): Promise<string> {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        
+        // Get the count of prescriptions for this organization this month
+        const startOfMonth = new Date(year, date.getMonth(), 1);
+        const endOfMonth = new Date(year, date.getMonth() + 1, 0);
+        
+        const count = await this.prescriptionsRepository.count({
+            organizationId,
+            prescribedDate: Between(startOfMonth, endOfMonth) as any,
+        });
+        
+        const sequence = String(count + 1).padStart(4, '0');
+        return `RX-${year}${month}-${sequence}`;
     }
 }

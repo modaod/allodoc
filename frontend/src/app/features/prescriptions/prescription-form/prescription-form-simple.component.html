@@ -35,7 +35,7 @@
               <mat-select formControlName="patientId" required>
                 <mat-option *ngFor="let patient of patients" [value]="patient.id">
                   {{ patient.firstName }} {{ patient.lastName }}
-                  <span *ngIf="patient.dateOfBirth"> ({{ calculateAge(patient.dateOfBirth) }} years)</span>
+                  <span *ngIf="patient.age"> ({{ patient.age }} years)</span>
                 </mat-option>
               </mat-select>
               <mat-error *ngIf="isFieldInvalid('patientId')">

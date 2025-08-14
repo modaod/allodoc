@@ -12,6 +12,9 @@ import {
 } from '../models/prescription.model';
 import { PrescriptionsService } from '../services/prescriptions.service';
 import { ConsultationsService } from '../../consultations/services/consultations.service';
+import { PatientsService } from '../../patients/services/patients.service';
+import { UsersService, User } from '../../../core/services/users.service';
+import { Patient } from '../../patients/models/patient.model';
 
 @Component({
   selector: 'app-prescription-form',
@@ -32,30 +35,24 @@ export class PrescriptionFormComponent implements OnInit {
   frequencyTypes = Object.values(FrequencyType);
   durationUnits = Object.values(DurationUnit);
 
-  // Mock data for dropdowns
+  // Data for dropdowns
   availableMedications = [
     'Amoxicillin', 'Ibuprofen', 'Acetaminophen', 'Lisinopril', 'Metformin',
-    'Atorvastatin', 'Omeprazole', 'Aspirin', 'Hydrochlorothiazide', 'Gabapentin'
+    'Atorvastatin', 'Omeprazole', 'Aspirin', 'Hydrochlorothiazide', 'Gabapentin',
+    'Amlodipine', 'Simvastatin', 'Losartan', 'Levothyroxine', 'Azithromycin'
   ];
 
-  availablePatients = [
-    { id: '1', name: 'John Smith', age: 35 },
-    { id: '2', name: 'Sarah Johnson', age: 28 },
-    { id: '3', name: 'Michael Brown', age: 42 }
-  ];
-
-  availableDoctors = [
-    { id: '1', name: 'Dr. Wilson' },
-    { id: '2', name: 'Dr. Martinez' },
-    { id: '3', name: 'Dr. Chen' }
-  ];
+  patients: Patient[] = [];
+  doctors: User[] = [];
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private prescriptionsService: PrescriptionsService,
-    private consultationsService: ConsultationsService
+    private consultationsService: ConsultationsService,
+    private patientsService: PatientsService,
+    private usersService: UsersService
   ) {
     this.prescriptionForm = this.createForm();
   }
@@ -65,28 +62,40 @@ export class PrescriptionFormComponent implements OnInit {
     this.consultationId = this.route.snapshot.queryParamMap.get('consultationId');
     this.isEditMode = this.prescriptionId !== null && this.prescriptionId !== 'new';
 
+    // Load patients and doctors
+    this.loadPatients();
+    this.loadDoctors();
+
     if (this.isEditMode && this.prescriptionId) {
       this.loadPrescription(this.prescriptionId);
     } else if (this.consultationId) {
       // Pre-populate from consultation if coming from consultation detail
       this.loadConsultationData(this.consultationId);
+    } else {
+      // Add at least one medication by default for new prescriptions
+      this.addMedication();
+      // Generate prescription number for new prescriptions
+      this.generatePrescriptionNumber();
+      // Set default date to today
+      this.prescriptionForm.patchValue({
+        prescriptionDate: new Date().toISOString().split('T')[0]
+      });
+      this.calculateValidUntil();
     }
   }
 
   createForm(): FormGroup {
     return this.fb.group({
-      prescriptionNumber: ['', Validators.required],
+      prescriptionNumber: [''],
       patientId: ['', Validators.required],
-      patientName: ['', Validators.required],
-      doctorId: ['', Validators.required],
-      doctorName: ['', Validators.required],
+      doctorId: [''],
       prescriptionDate: [new Date().toISOString().split('T')[0], Validators.required],
-      validUntil: ['', Validators.required],
-      status: [PrescriptionStatus.DRAFT, Validators.required],
+      validUntil: [''],
+      status: [PrescriptionStatus.ACTIVE, Validators.required],
       medications: this.fb.array([]),
-      instructions: [''],
+      generalInstructions: [''],
       notes: [''],
-      consultationId: [this.consultationId || '']
+      consultationId: ['']
     });
   }
 
@@ -96,16 +105,12 @@ export class PrescriptionFormComponent implements OnInit {
 
   createMedicationFormGroup(): FormGroup {
     return this.fb.group({
-      medicationName: ['', Validators.required],
+      name: ['', Validators.required],
       dosage: ['', Validators.required],
-      dosageForm: [DosageForm.TABLET, Validators.required],
       frequency: ['', Validators.required],
-      frequencyType: [FrequencyType.DAILY, Validators.required],
       duration: ['', Validators.required],
-      durationUnit: [DurationUnit.DAYS, Validators.required],
-      quantity: ['', [Validators.required, Validators.min(1)]],
       instructions: [''],
-      refills: [0, [Validators.min(0), Validators.max(12)]]
+      quantity: [30, [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -193,24 +198,34 @@ export class PrescriptionFormComponent implements OnInit {
     });
   }
 
+  loadPatients(): void {
+    this.patientsService.getAllPatients().subscribe({
+      next: (response) => {
+        this.patients = response.data || [];
+      },
+      error: (error) => {
+        console.error('Error loading patients:', error);
+      }
+    });
+  }
+
+  loadDoctors(): void {
+    this.usersService.getDoctors().subscribe({
+      next: (doctors) => {
+        this.doctors = doctors;
+      },
+      error: (error) => {
+        console.error('Error loading doctors:', error);
+      }
+    });
+  }
+
   onPatientChange(): void {
-    const patientId = this.prescriptionForm.get('patientId')?.value;
-    const selectedPatient = this.availablePatients.find(p => p.id === patientId);
-    if (selectedPatient) {
-      this.prescriptionForm.patchValue({
-        patientName: selectedPatient.name
-      });
-    }
+    // No need to set patient name separately
   }
 
   onDoctorChange(): void {
-    const doctorId = this.prescriptionForm.get('doctorId')?.value;
-    const selectedDoctor = this.availableDoctors.find(d => d.id === doctorId);
-    if (selectedDoctor) {
-      this.prescriptionForm.patchValue({
-        doctorName: selectedDoctor.name
-      });
-    }
+    // No need to set doctor name separately
   }
 
   calculateValidUntil(): void {
@@ -229,64 +244,32 @@ export class PrescriptionFormComponent implements OnInit {
       this.saving = true;
       const formValue = this.prescriptionForm.value;
       
-      const prescription: Prescription = {
-        ...formValue,
-        prescriptionDate: new Date(formValue.prescriptionDate),
-        validUntil: new Date(formValue.validUntil),
+      // Prepare the data for backend
+      const prescriptionData: any = {
+        patientId: formValue.patientId,
+        doctorId: formValue.doctorId || undefined,
+        consultationId: formValue.consultationId || undefined,
+        prescribedDate: formValue.prescriptionDate,
         medications: formValue.medications,
-        id: this.isEditMode ? this.prescriptionId : undefined
+        generalInstructions: formValue.generalInstructions || '',
+        notes: formValue.notes || ''
       };
 
-      // Map simple medication structure to backend expected format
-      const mappedMedications = prescription.medications.map(med => ({
-        medicationName: (med as any).name || (med as any).medicationName || 'Unknown',
-        genericName: '',
-        strength: med.dosage || '',
-        dosageForm: 'TABLET' as any,
-        quantity: med.quantity || 1,
-        dosage: med.dosage || '',
-        frequency: med.frequency || '',
-        frequencyType: 'DAILY' as any,
-        duration: med.duration || '',
-        durationUnit: 'DAYS' as any,
-        route: 'ORAL' as any,
-        instructions: med.instructions || ''
-      }));
-
       const saveOperation = this.isEditMode
-        ? this.prescriptionsService.updatePrescription(prescription.id!, {
-            id: prescription.id!,
-            patientId: prescription.patientId,
-            consultationId: prescription.consultationId,
-            prescriptionDate: prescription.prescriptionDate,
-            status: prescription.status,
-            medications: mappedMedications,
-            instructions: prescription.instructions,
-            notes: prescription.notes,
-            refillsAllowed: prescription.refillsAllowed,
-            validUntil: prescription.validUntil,
-            pharmacyInstructions: prescription.pharmacyInstructions
-          })
-        : this.prescriptionsService.createPrescription({
-            patientId: prescription.patientId!,
-            consultationId: prescription.consultationId,
-            prescriptionDate: prescription.prescriptionDate || new Date(),
-            medications: mappedMedications,
-            instructions: prescription.instructions,
-            notes: prescription.notes,
-            refillsAllowed: prescription.refillsAllowed,
-            validUntil: prescription.validUntil,
-            pharmacyInstructions: prescription.pharmacyInstructions
-          });
+        ? this.prescriptionsService.updatePrescription(this.prescriptionId!, prescriptionData)
+        : this.prescriptionsService.createPrescription(prescriptionData);
 
       saveOperation.subscribe({
         next: (savedPrescription) => {
           this.saving = false;
+          // Navigate to prescription detail
           this.router.navigate(['/prescriptions', savedPrescription.id]);
         },
         error: (error) => {
           console.error('Error saving prescription:', error);
           this.saving = false;
+          // Show error message
+          alert(`Error saving prescription: ${error?.error?.message?.message || error?.message || 'Unknown error'}`);
         }
       });
     } else {
@@ -351,5 +334,16 @@ export class PrescriptionFormComponent implements OnInit {
       if (field.errors['max']) return `${fieldName} must be at most ${field.errors['max'].max}`;
     }
     return '';
+  }
+
+  calculateAge(dateOfBirth: Date | string): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   }
 }
