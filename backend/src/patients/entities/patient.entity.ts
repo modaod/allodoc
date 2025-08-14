@@ -43,13 +43,13 @@ export class Patient extends AuditableEntity {
     @Column({ length: 100, nullable: true })
     email: string;
 
-    @Column({ length: 20 })
+    @Column({ length: 20, nullable: true })
     phone: string;
 
     @Column({ length: 20, nullable: true })
     alternatePhone: string;
 
-    @Column({ type: 'text' })
+    @Column({ type: 'text', nullable: true })
     address: string;
 
     @Column({ type: 'json', nullable: true })

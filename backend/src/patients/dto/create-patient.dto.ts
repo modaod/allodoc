@@ -31,18 +31,20 @@ export class CreatePatientDto {
     @IsEmail()
     email?: string;
 
+    @IsOptional()
     @IsString()
     @Length(8, 20)
-    phone: string;
+    phone?: string;
 
     @IsOptional()
     @IsString()
     @Length(8, 20)
     alternatePhone?: string;
 
+    @IsOptional()
     @IsString()
     @Length(10, 200)
-    address: string;
+    address?: string;
 
     @IsOptional()
     @IsObject()

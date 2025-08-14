@@ -266,16 +266,18 @@ export class PatientsService {
             }
         }
 
-        // Check for unique phone number
-        const phoneExists = await this.patientsRepository.findByPhone(
-            createPatientDto.phone,
-            organizationId,
-        );
-
-        if (phoneExists) {
-            throw new ConflictException(
-                'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+        // Check for unique phone number if provided
+        if (createPatientDto.phone) {
+            const phoneExists = await this.patientsRepository.findByPhone(
+                createPatientDto.phone,
+                organizationId,
             );
+
+            if (phoneExists) {
+                throw new ConflictException(
+                    'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+                );
+            }
         }
     }
 
