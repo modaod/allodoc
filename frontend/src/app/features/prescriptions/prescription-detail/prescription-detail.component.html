@@ -10,7 +10,7 @@
     <div class="header-actions">
       <button mat-button (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
-        {{ isPatientContext ? 'Back to Patient Prescriptions' : 'Back to Prescriptions' }}
+        {{ getBackButtonText() }}
       </button>
       
       <div class="action-buttons">

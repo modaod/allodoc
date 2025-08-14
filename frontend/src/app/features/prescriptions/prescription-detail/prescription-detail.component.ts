@@ -14,6 +14,7 @@ export class PrescriptionDetailComponent implements OnInit {
   prescriptionId: string | null = null;
   patientId: string | null = null;
   isPatientContext = false;
+  fromConsultationId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,6 +26,9 @@ export class PrescriptionDetailComponent implements OnInit {
     // Check if we're in patient context
     this.patientId = this.route.snapshot.paramMap.get('patientId');
     this.isPatientContext = !!this.patientId;
+    
+    // Check if we came from a consultation
+    this.fromConsultationId = this.route.snapshot.queryParamMap.get('from-consultation');
     
     // Get prescription ID from either regular route or patient context route
     this.prescriptionId = this.route.snapshot.paramMap.get('id') || 
@@ -108,12 +112,25 @@ export class PrescriptionDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    if (this.isPatientContext && this.patientId) {
+    if (this.fromConsultationId) {
+      // If we came from a consultation, go back to it
+      this.router.navigate(['/consultations', this.fromConsultationId]);
+    } else if (this.isPatientContext && this.patientId) {
       // If in patient context, go back to patient prescriptions
       this.router.navigate(['/patients', this.patientId, 'prescriptions']);
     } else {
-      // Otherwise, go to general prescriptions list
-      this.router.navigate(['/prescriptions']);
+      // Otherwise, go to dashboard (no general prescriptions list)
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
+  getBackButtonText(): string {
+    if (this.fromConsultationId) {
+      return 'Back to Consultation';
+    } else if (this.isPatientContext) {
+      return 'Back to Patient Prescriptions';
+    } else {
+      return 'Back to Dashboard';
     }
   }
 
