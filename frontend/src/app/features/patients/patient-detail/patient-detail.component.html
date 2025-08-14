@@ -218,6 +218,7 @@
                   *ngFor="let event of medicalTimeline; let isLast = last" 
                   class="timeline-item" 
                   [class.last]="isLast"
+                  (click)="event.type === 'consultation' ? viewConsultation(event.id) : viewPrescription(event.id)"
                 >
                   <div class="timeline-marker" [class]="getTimelineColor(event.type)">
                     <mat-icon>{{ getTimelineIcon(event.type) }}</mat-icon>
@@ -241,17 +242,6 @@
                     </div>
                     
                     <p class="timeline-description">{{ event.description }}</p>
-                    
-                    <div class="timeline-actions">
-                      <button 
-                        mat-button 
-                        color="primary" 
-                        (click)="event.type === 'consultation' ? viewConsultation(event.id) : viewPrescription(event.id)"
-                      >
-                        <mat-icon>visibility</mat-icon>
-                        View Details
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -282,7 +272,7 @@
                 </button>
               </div>
               
-              <div *ngFor="let consultation of consultations" class="consultation-card">
+              <div *ngFor="let consultation of consultations" class="consultation-card" (click)="viewConsultation(consultation.id!)">
                 <div class="consultation-header">
                   <h4>{{ consultation.consultationNumber }}</h4>
                   <mat-chip [class]="getStatusColor('consultation', consultation.status)">
@@ -294,12 +284,6 @@
                   <p><strong>Type:</strong> {{ consultation.type }}</p>
                   <p><strong>Reason:</strong> {{ consultation.reason }}</p>
                   <p *ngIf="consultation.treatmentPlan"><strong>Treatment:</strong> {{ consultation.treatmentPlan }}</p>
-                </div>
-                <div class="consultation-actions">
-                  <button mat-button color="primary" (click)="viewConsultation(consultation.id!)">
-                    <mat-icon>visibility</mat-icon>
-                    View Details
-                  </button>
                 </div>
               </div>
             </div>
@@ -324,7 +308,7 @@
                 </button>
               </div>
               
-              <div *ngFor="let prescription of prescriptions" class="prescription-card">
+              <div *ngFor="let prescription of prescriptions" class="prescription-card" (click)="viewPrescription(prescription.id!)">
                 <div class="prescription-header">
                   <h4>{{ prescription.prescriptionNumber }}</h4>
                   <mat-chip [class]="getStatusColor('prescription', prescription.status || '')">
@@ -341,12 +325,6 @@
                     </li>
                   </ul>
                   <p *ngIf="prescription.instructions"><strong>Instructions:</strong> {{ prescription.instructions }}</p>
-                </div>
-                <div class="prescription-actions">
-                  <button mat-button color="primary" (click)="viewPrescription(prescription.id!)">
-                    <mat-icon>visibility</mat-icon>
-                    View Details
-                  </button>
                 </div>
               </div>
             </div>

@@ -186,6 +186,14 @@
 .timeline-item {
   position: relative;
   margin-bottom: 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover .timeline-content {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
   &.last { margin-bottom: 0; }
 }
 
@@ -247,11 +255,6 @@
 .timeline-subtitle { font-size: 14px; color: #666; }
 .timeline-description { margin: 0 0 16px 0; color: #555; line-height: 1.5; }
 
-.timeline-actions {
-  display: flex;
-  gap: 8px;
-  button mat-icon { margin-right: 4px; }
-}
 
 .loading-timeline {
   display: flex;
@@ -286,6 +289,14 @@
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
   &:last-child { margin-bottom: 0; }
 }
 
@@ -315,11 +326,6 @@
   }
 }
 
-.consultation-actions, .prescription-actions {
-  display: flex;
-  gap: 8px;
-  button mat-icon { margin-right: 4px; }
-}
 
 .status-chip {
   font-size: 11px;
