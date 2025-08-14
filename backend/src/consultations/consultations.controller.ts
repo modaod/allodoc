@@ -27,7 +27,7 @@ export class ConsultationsController {
     }
 
     @Get()
-    @Roles(RoleName.ADMIN, RoleName.DOCTOR)
+    @Roles(RoleName.ADMIN, RoleName.DOCTOR, RoleName.SECRETARY)
     async search(@Query() searchDto: SearchDto, @CurrentOrganization() organizationId: string) {
         return this.consultationsService.search(searchDto, organizationId);
     }
@@ -51,7 +51,7 @@ export class ConsultationsController {
     }
 
     @Get('patient/:patientId/history')
-    @Roles(RoleName.DOCTOR, RoleName.ADMIN)
+    @Roles(RoleName.DOCTOR, RoleName.ADMIN, RoleName.SECRETARY)
     async getPatientHistory(@Param('patientId', ParseUUIDPipe) patientId: string) {
         return this.consultationsService.getPatientMedicalHistory(patientId);
     }
@@ -63,7 +63,7 @@ export class ConsultationsController {
     }
 
     @Get(':id')
-    @Roles(RoleName.DOCTOR, RoleName.ADMIN)
+    @Roles(RoleName.DOCTOR, RoleName.ADMIN, RoleName.SECRETARY)
     async findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.consultationsService.findById(id);
     }
