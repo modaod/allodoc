@@ -17,7 +17,7 @@ export class PrescriptionsService {
         organizationId: string,
         currentUser?: User,
     ): Promise<Prescription> {
-        // Data validation
+        // Data validation (prescribedDate validation removed as it's system-generated)
         this.validatePrescriptionData(createPrescriptionDto);
 
         // Generate prescription number
@@ -32,10 +32,8 @@ export class PrescriptionsService {
         // Analyze medications to detect interactions
         const warnings = await this.analyzeInteractions(createPrescriptionDto.medications);
 
-        // Use current date if prescribedDate not provided
-        const prescribedDate = createPrescriptionDto.prescribedDate 
-            ? new Date(createPrescriptionDto.prescribedDate)
-            : new Date();
+        // Always use current system timestamp for prescribedDate
+        const prescribedDate = new Date();
 
         const prescriptionData = {
             ...createPrescriptionDto,
@@ -166,16 +164,9 @@ export class PrescriptionsService {
     // PRIVATE VALIDATION METHODS
     // =============================
     private validatePrescriptionData(createPrescriptionDto: CreatePrescriptionDto): void {
-        // Validate dates only if prescribedDate is provided
-        if (createPrescriptionDto.prescribedDate) {
-            const prescribedDate = new Date(createPrescriptionDto.prescribedDate);
-            const today = new Date();
-            today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
-
-            if (prescribedDate > today) {
-                throw new BadRequestException('The prescribed date must be in the past or today');
-            }
-        }
+        // Currently no additional validation needed
+        // prescribedDate is now system-generated
+        // Future validations can be added here
     }
 
     private async generatePrescriptionNumber(organizationId: string): Promise<string> {

@@ -233,7 +233,7 @@ export class ConsultationsService {
             patientId,
             organizationId,
             medications: medicationsArray,
-            prescribedDate: new Date().toISOString(),
+            // prescribedDate is now system-generated in PrescriptionsService
             generalInstructions: 'Follow prescription instructions carefully',
             notes: 'Created during consultation',
         };
