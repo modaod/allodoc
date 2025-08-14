@@ -8,6 +8,7 @@ import {
     ValidateNested,
     IsNumber,
     Min,
+    Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -34,11 +35,13 @@ class MedicationDto {
     @IsOptional()
     @IsNumber()
     @Min(1)
+    @Max(999, { message: 'Quantity cannot exceed 999' })
     quantity?: number;
 
     @IsOptional()
     @IsNumber()
     @Min(0)
+    @Max(12, { message: 'Refills cannot exceed 12' })
     refills?: number;
 }
 

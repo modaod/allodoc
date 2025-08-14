@@ -23,8 +23,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     handleRequest(err: any, user: any, info: any) {
+        // Handle specific JWT errors with clear messages
         if (err || !user) {
-            throw err || new UnauthorizedException('Missing or invalid token');
+            if (info) {
+                if (info.name === 'JsonWebTokenError') {
+                    throw new UnauthorizedException('Invalid token format');
+                }
+                if (info.name === 'TokenExpiredError') {
+                    throw new UnauthorizedException('Token has expired');
+                }
+                if (info.name === 'NotBeforeError') {
+                    throw new UnauthorizedException('Token not yet active');
+                }
+            }
+            
+            // Default error
+            throw err || new UnauthorizedException('Authentication required');
         }
         return user;
     }

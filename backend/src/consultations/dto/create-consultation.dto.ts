@@ -8,6 +8,8 @@ import {
     IsArray,
     ValidateNested,
     IsEnum,
+    Min,
+    Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VitalSignsDto } from './vital-signs.dto';
@@ -32,6 +34,8 @@ export class EmbeddedPrescriptionDto {
 
     @IsOptional()
     @IsNumber()
+    @Min(1)
+    @Max(999, { message: 'Quantity cannot exceed 999' })
     quantity?: number;
 }
 
@@ -47,7 +51,7 @@ export enum ConsultationType {
 
 export class CreateConsultationDto {
     @IsDateString()
-    consultationDate: string;
+    consultationDate: string; // Will be validated in service to prevent future dates
 
     @IsEnum(ConsultationType)
     type: ConsultationType;

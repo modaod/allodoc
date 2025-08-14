@@ -264,6 +264,22 @@ export class ConsultationsService {
         organizationId: string,
         currentUser?: User,
     ): Promise<void> {
+        // Validate consultation date (no future dates allowed)
+        const consultationDate = new Date(createConsultationDto.consultationDate);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
+        
+        if (consultationDate > today) {
+            throw new BadRequestException('Consultation date cannot be in the future');
+        }
+        
+        // Optionally validate not too far in the past (e.g., max 1 year)
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        if (consultationDate < oneYearAgo) {
+            throw new BadRequestException('Consultation date cannot be more than 1 year in the past');
+        }
+
         // Vérifier que le patient existe et appartient à l'organisation
         const patient = await this.patientsService.findById(createConsultationDto.patientId);
         if (patient.organizationId !== organizationId) {
