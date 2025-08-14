@@ -43,15 +43,10 @@
               </mat-error>
             </mat-form-field>
 
-            <!-- Doctor Selection -->
+            <!-- Prescriber (Current User) -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Doctor (Optional)</mat-label>
-              <mat-select formControlName="doctorId">
-                <mat-option value="">Current User</mat-option>
-                <mat-option *ngFor="let doctor of doctors" [value]="doctor.id">
-                  Dr. {{ doctor.firstName }} {{ doctor.lastName }}
-                </mat-option>
-              </mat-select>
+              <mat-label>Prescriber</mat-label>
+              <input matInput [value]="currentUserName" disabled>
             </mat-form-field>
 
             <!-- Prescription Date -->
@@ -82,8 +77,8 @@
             Medications ({{ medicationsArray.length }})
           </h3>
 
-          <!-- Add First Medication Button -->
-          <div *ngIf="medicationsArray.length === 0" class="no-medications">
+          <!-- Check if medications array is empty -->
+          <div *ngIf="medicationsArray && medicationsArray.length === 0" class="no-medications">
             <mat-icon>medication</mat-icon>
             <p>No medications added yet</p>
             <button mat-raised-button color="primary" type="button" (click)="addMedication()">
@@ -93,7 +88,7 @@
           </div>
 
           <!-- Medications List -->
-          <div *ngIf="medicationsArray.length > 0" class="medications-list">
+          <div *ngIf="medicationsArray.length > 0" class="medications-list" formArrayName="medications">
             <div *ngFor="let medication of medicationsArray.controls; let i = index" 
                  class="medication-card" [formGroupName]="i">
               

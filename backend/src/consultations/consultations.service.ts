@@ -59,6 +59,7 @@ export class ConsultationsService {
         if (prescriptions && prescriptions.length > 0) {
             await this.createIntegratedPrescriptions(
                 consultation.id,
+                createConsultationDto.patientId,
                 prescriptions,
                 organizationId,
                 currentUser,
@@ -204,6 +205,7 @@ export class ConsultationsService {
 
     private async createIntegratedPrescriptions(
         consultationId: string,
+        patientId: string,
         prescriptions: EmbeddedPrescriptionDto[],
         organizationId: string,
         currentUser?: User,
@@ -221,6 +223,7 @@ export class ConsultationsService {
         // Create prescription entity
         const prescriptionData = {
             consultationId,
+            patientId,
             organizationId,
             medications: medicationsArray,
             prescribedDate: new Date().toISOString(),

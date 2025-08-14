@@ -13,8 +13,9 @@ import {
 import { PrescriptionsService } from '../services/prescriptions.service';
 import { ConsultationsService } from '../../consultations/services/consultations.service';
 import { PatientsService } from '../../patients/services/patients.service';
-import { UsersService, User } from '../../../core/services/users.service';
 import { Patient } from '../../patients/models/patient.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-prescription-form',
@@ -43,7 +44,7 @@ export class PrescriptionFormComponent implements OnInit {
   ];
 
   patients: Patient[] = [];
-  doctors: User[] = [];
+  currentUserName: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -52,9 +53,12 @@ export class PrescriptionFormComponent implements OnInit {
     private prescriptionsService: PrescriptionsService,
     private consultationsService: ConsultationsService,
     private patientsService: PatientsService,
-    private usersService: UsersService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     this.prescriptionForm = this.createForm();
+    // Add at least one medication by default to avoid form control errors
+    this.addMedication();
   }
 
   ngOnInit(): void {
@@ -62,9 +66,14 @@ export class PrescriptionFormComponent implements OnInit {
     this.consultationId = this.route.snapshot.queryParamMap.get('consultationId');
     this.isEditMode = this.prescriptionId !== null && this.prescriptionId !== 'new';
 
-    // Load patients and doctors
+    // Get current user name
+    const currentUser = this.authService.currentUser;
+    if (currentUser) {
+      this.currentUserName = `Dr. ${currentUser.firstName} ${currentUser.lastName}`;
+    }
+
+    // Load patients
     this.loadPatients();
-    this.loadDoctors();
 
     if (this.isEditMode && this.prescriptionId) {
       this.loadPrescription(this.prescriptionId);
@@ -72,15 +81,18 @@ export class PrescriptionFormComponent implements OnInit {
       // Pre-populate from consultation if coming from consultation detail
       this.loadConsultationData(this.consultationId);
     } else {
-      // Add at least one medication by default for new prescriptions
-      this.addMedication();
-      // Generate prescription number for new prescriptions
-      this.generatePrescriptionNumber();
+      // Ensure at least one medication exists (already added in constructor)
+      if (this.medicationsArray.length === 0) {
+        this.addMedication();
+      }
+      // Don't generate prescription number - let backend handle it
       // Set default date to today
       this.prescriptionForm.patchValue({
         prescriptionDate: new Date().toISOString().split('T')[0]
       });
       this.calculateValidUntil();
+      // Force change detection to ensure form displays properly
+      this.cdr.detectChanges();
     }
   }
 
@@ -110,7 +122,7 @@ export class PrescriptionFormComponent implements OnInit {
       frequency: ['', Validators.required],
       duration: ['', Validators.required],
       instructions: [''],
-      quantity: [30, [Validators.required, Validators.min(1)]]
+      quantity: ['', [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -151,8 +163,7 @@ export class PrescriptionFormComponent implements OnInit {
           doctorName: consultation.doctorName
         });
         
-        // Generate prescription number
-        this.generatePrescriptionNumber();
+        // Don't generate prescription number - let backend handle it
         
         // Auto-calculate valid until date (6 months from today)
         this.calculateValidUntil();
@@ -202,20 +213,11 @@ export class PrescriptionFormComponent implements OnInit {
     this.patientsService.getAllPatients().subscribe({
       next: (response) => {
         this.patients = response.data || [];
+        // Force change detection after loading data
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading patients:', error);
-      }
-    });
-  }
-
-  loadDoctors(): void {
-    this.usersService.getDoctors().subscribe({
-      next: (doctors) => {
-        this.doctors = doctors;
-      },
-      error: (error) => {
-        console.error('Error loading doctors:', error);
       }
     });
   }
@@ -247,7 +249,8 @@ export class PrescriptionFormComponent implements OnInit {
       // Prepare the data for backend
       const prescriptionData: any = {
         patientId: formValue.patientId,
-        doctorId: formValue.doctorId || undefined,
+        // Always use current user's ID as doctor ID
+        doctorId: this.authService.currentUser?.id || undefined,
         consultationId: formValue.consultationId || undefined,
         prescribedDate: formValue.prescriptionDate,
         medications: formValue.medications,
@@ -282,11 +285,8 @@ export class PrescriptionFormComponent implements OnInit {
   }
 
   generatePrescriptionNumber(): void {
-    const timestamp = Date.now();
-    const prescriptionNumber = `RX${timestamp.toString().slice(-8)}`;
-    this.prescriptionForm.patchValue({
-      prescriptionNumber: prescriptionNumber
-    });
+    // Deprecated - prescription number is now generated by backend
+    // Keeping method to avoid breaking references
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

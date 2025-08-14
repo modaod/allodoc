@@ -54,8 +54,9 @@ export class PatientsRepository extends BaseRepository<Patient> {
         }
 
         // Generate organization code (first 3 letters)
+        const orgName = organization.org_name || organization.name || 'Medical';
         const orgCode =
-            organization.name
+            orgName
                 .replace(/[^A-Za-z]/g, '')
                 .substring(0, 3)
                 .toUpperCase() || 'MED';
