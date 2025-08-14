@@ -30,7 +30,7 @@
 
           <div class="form-grid">
             <!-- Patient Selection -->
-            <mat-form-field appearance="fill" class="form-field">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Patient</mat-label>
               <mat-select formControlName="patientId" required>
                 <mat-option *ngFor="let patient of patients" [value]="patient.id">
@@ -44,7 +44,7 @@
             </mat-form-field>
 
             <!-- Doctor Selection -->
-            <mat-form-field appearance="fill" class="form-field">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Doctor (Optional)</mat-label>
               <mat-select formControlName="doctorId">
                 <mat-option value="">Current User</mat-option>
@@ -55,7 +55,7 @@
             </mat-form-field>
 
             <!-- Prescription Date -->
-            <mat-form-field appearance="fill" class="form-field">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Prescription Date</mat-label>
               <input matInput type="date" formControlName="prescriptionDate" required>
               <mat-error *ngIf="isFieldInvalid('prescriptionDate')">
@@ -64,7 +64,7 @@
             </mat-form-field>
 
             <!-- Status -->
-            <mat-form-field appearance="fill" class="form-field">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Status</mat-label>
               <mat-select formControlName="status">
                 <mat-option *ngFor="let status of prescriptionStatuses" [value]="status">
@@ -108,7 +108,7 @@
 
               <div class="medication-form-grid">
                 <!-- Medication Name -->
-                <mat-form-field appearance="fill" class="medication-field full-width">
+                <mat-form-field appearance="outline" class="medication-field full-width">
                   <mat-label>Medication Name</mat-label>
                   <input matInput formControlName="name" placeholder="Enter medication name" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'name')">
@@ -117,7 +117,7 @@
                 </mat-form-field>
 
                 <!-- Dosage -->
-                <mat-form-field appearance="fill" class="medication-field">
+                <mat-form-field appearance="outline" class="medication-field">
                   <mat-label>Dosage</mat-label>
                   <input matInput formControlName="dosage" placeholder="e.g., 500mg" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'dosage')">
@@ -126,7 +126,7 @@
                 </mat-form-field>
 
                 <!-- Frequency -->
-                <mat-form-field appearance="fill" class="medication-field">
+                <mat-form-field appearance="outline" class="medication-field">
                   <mat-label>Frequency</mat-label>
                   <input matInput formControlName="frequency" placeholder="e.g., Twice daily" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'frequency')">
@@ -135,7 +135,7 @@
                 </mat-form-field>
 
                 <!-- Duration -->
-                <mat-form-field appearance="fill" class="medication-field">
+                <mat-form-field appearance="outline" class="medication-field">
                   <mat-label>Duration</mat-label>
                   <input matInput formControlName="duration" placeholder="e.g., 7 days" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'duration')">
@@ -144,7 +144,7 @@
                 </mat-form-field>
 
                 <!-- Quantity -->
-                <mat-form-field appearance="fill" class="medication-field">
+                <mat-form-field appearance="outline" class="medication-field">
                   <mat-label>Quantity</mat-label>
                   <input matInput type="number" formControlName="quantity" placeholder="e.g., 30" min="1">
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'quantity')">
@@ -153,7 +153,7 @@
                 </mat-form-field>
 
                 <!-- Instructions -->
-                <mat-form-field appearance="fill" class="medication-field full-width">
+                <mat-form-field appearance="outline" class="medication-field full-width">
                   <mat-label>Instructions</mat-label>
                   <textarea matInput formControlName="instructions" rows="2" 
                             placeholder="e.g., Take with food"></textarea>
@@ -180,14 +180,14 @@
 
           <div class="form-grid">
             <!-- General Instructions -->
-            <mat-form-field appearance="fill" class="form-field full-width">
+            <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>General Instructions</mat-label>
               <textarea matInput formControlName="generalInstructions" rows="3" 
                         placeholder="General instructions for the patient..."></textarea>
             </mat-form-field>
 
             <!-- Notes -->
-            <mat-form-field appearance="fill" class="form-field full-width">
+            <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>Internal Notes</mat-label>
               <textarea matInput formControlName="notes" rows="2" 
                         placeholder="Internal notes..."></textarea>
