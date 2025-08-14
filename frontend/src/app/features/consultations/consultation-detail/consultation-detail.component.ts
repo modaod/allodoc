@@ -193,8 +193,10 @@ export class ConsultationDetailComponent implements OnInit {
       // Navigate with patient context
       this.router.navigate(['/patients', this.patientId, 'prescriptions', prescriptionId]);
     } else {
-      // Navigate to general prescription detail
-      this.router.navigate(['/prescriptions', prescriptionId]);
+      // Navigate to prescription detail with consultation context
+      this.router.navigate(['/prescriptions', prescriptionId], {
+        queryParams: { 'from-consultation': this.consultationId }
+      });
     }
   }
 
