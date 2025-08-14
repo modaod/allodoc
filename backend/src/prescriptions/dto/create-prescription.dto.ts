@@ -74,8 +74,9 @@ export class CreatePrescriptionDto {
     @IsString()
     generalInstructions?: string;
 
+    @IsOptional()
     @IsDateString()
-    prescribedDate: string;
+    prescribedDate?: string; // Optional - will default to current date if not provided
 
     @IsOptional()
     @IsString()

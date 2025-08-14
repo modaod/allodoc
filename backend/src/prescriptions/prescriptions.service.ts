@@ -32,11 +32,16 @@ export class PrescriptionsService {
         // Analyze medications to detect interactions
         const warnings = await this.analyzeInteractions(createPrescriptionDto.medications);
 
+        // Use current date if prescribedDate not provided
+        const prescribedDate = createPrescriptionDto.prescribedDate 
+            ? new Date(createPrescriptionDto.prescribedDate)
+            : new Date();
+
         const prescriptionData = {
             ...createPrescriptionDto,
             prescriptionNumber,
             doctorId,
-            prescribedDate: new Date(createPrescriptionDto.prescribedDate),
+            prescribedDate,
             organizationId,
             warnings,
         };
@@ -161,13 +166,15 @@ export class PrescriptionsService {
     // PRIVATE VALIDATION METHODS
     // =============================
     private validatePrescriptionData(createPrescriptionDto: CreatePrescriptionDto): void {
-        // Validate dates
-        const prescribedDate = new Date(createPrescriptionDto.prescribedDate);
-        const today = new Date();
-        today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
+        // Validate dates only if prescribedDate is provided
+        if (createPrescriptionDto.prescribedDate) {
+            const prescribedDate = new Date(createPrescriptionDto.prescribedDate);
+            const today = new Date();
+            today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
 
-        if (prescribedDate > today) {
-            throw new BadRequestException('The prescribed date must be in the past or today');
+            if (prescribedDate > today) {
+                throw new BadRequestException('The prescribed date must be in the past or today');
+            }
         }
     }
 
