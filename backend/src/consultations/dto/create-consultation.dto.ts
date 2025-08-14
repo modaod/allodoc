@@ -10,6 +10,7 @@ import {
     IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { VitalSignsDto } from './vital-signs.dto';
 
 // Embedded prescription DTO for integrated prescription creation
 export class EmbeddedPrescriptionDto {
@@ -63,20 +64,9 @@ export class CreateConsultationDto {
     physicalExamination?: string;
 
     @IsOptional()
-    @IsObject()
-    vitalSigns?: {
-        bloodPressure?: {
-            systolic: number;
-            diastolic: number;
-        };
-        heartRate?: number;
-        temperature?: number;
-        respiratoryRate?: number;
-        oxygenSaturation?: number;
-        weight?: number;
-        height?: number;
-        bmi: number;
-    };
+    @ValidateNested()
+    @Type(() => VitalSignsDto)
+    vitalSigns?: VitalSignsDto;
 
     @IsOptional()
     @IsString()

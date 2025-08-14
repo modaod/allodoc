@@ -1,4 +1,6 @@
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { VitalSignsDto } from './vital-signs.dto';
 
 export class UpdateConsultationDto {
     @IsOptional()
@@ -7,18 +9,7 @@ export class UpdateConsultationDto {
 
     // Allow vital signs updates for administrative corrections
     @IsOptional()
-    @IsObject()
-    vitalSigns?: {
-        bloodPressure?: {
-            systolic: number;
-            diastolic: number;
-        };
-        heartRate?: number;
-        temperature?: number;
-        respiratoryRate?: number;
-        oxygenSaturation?: number;
-        weight?: number;
-        height?: number;
-        bmi?: number;
-    };
+    @ValidateNested()
+    @Type(() => VitalSignsDto)
+    vitalSigns?: VitalSignsDto;
 }
