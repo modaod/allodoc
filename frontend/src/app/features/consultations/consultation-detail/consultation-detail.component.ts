@@ -187,4 +187,76 @@ export class ConsultationDetailComponent implements OnInit {
     if (bmi < 30) return 'bmi-overweight';
     return 'bmi-obese';
   }
+
+  viewPrescriptionDetail(prescriptionId: string): void {
+    if (this.isPatientContext && this.patientId) {
+      // Navigate with patient context
+      this.router.navigate(['/patients', this.patientId, 'prescriptions', prescriptionId]);
+    } else {
+      // Navigate to general prescription detail
+      this.router.navigate(['/prescriptions', prescriptionId]);
+    }
+  }
+
+  hasPrescriptions(): boolean {
+    return !!(this.consultation?.prescriptions && this.consultation.prescriptions.length > 0);
+  }
+
+  getPrescriptionCount(): number {
+    return this.consultation?.prescriptions?.length || 0;
+  }
+
+  // Helper methods for handling both full and embedded prescriptions
+  isFullPrescription(prescription: any): boolean {
+    return !!(prescription.medications || prescription.id);
+  }
+
+  getPrescriptionNumber(prescription: any, index: number): string {
+    return prescription.prescriptionNumber || `${index + 1}`;
+  }
+
+  getPrescriptionDate(prescription: any): Date | undefined {
+    return prescription.prescribedDate || prescription.prescriptionDate || prescription.createdAt;
+  }
+
+  getPrescriptionMedications(prescription: any): any[] {
+    return prescription.medications || [];
+  }
+
+  getMedicationName(medication: any): string {
+    return medication.name || medication.medicationName || '';
+  }
+
+  getPrescriptionNotes(prescription: any): string {
+    return prescription.generalInstructions || prescription.notes || '';
+  }
+
+  getPrescriptionId(prescription: any): string | null {
+    return prescription.id || null;
+  }
+
+  // Methods for embedded prescriptions
+  getEmbeddedMedicationName(prescription: any): string {
+    return prescription.medicationName || '';
+  }
+
+  getEmbeddedDosage(prescription: any): string {
+    return prescription.dosage || '';
+  }
+
+  getEmbeddedFrequency(prescription: any): string {
+    return prescription.frequency || '';
+  }
+
+  getEmbeddedDuration(prescription: any): string {
+    return prescription.duration || '';
+  }
+
+  getEmbeddedInstructions(prescription: any): string | null {
+    return prescription.instructions || null;
+  }
+
+  getEmbeddedQuantity(prescription: any): number | null {
+    return prescription.quantity || null;
+  }
 }

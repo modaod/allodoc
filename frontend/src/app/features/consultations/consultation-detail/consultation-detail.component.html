@@ -223,6 +223,66 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Prescriptions Card -->
+    <mat-card class="info-card" *ngIf="hasPrescriptions()">
+      <mat-card-header>
+        <mat-card-title>Prescriptions</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="prescriptions-section">
+          <div *ngFor="let prescription of consultation.prescriptions; let i = index" class="prescription-item">
+            <div class="prescription-header">
+              <h5>Prescription #{{ getPrescriptionNumber(prescription, i) }}</h5>
+              <span class="prescription-date" *ngIf="getPrescriptionDate(prescription)">
+                {{ formatDate(getPrescriptionDate(prescription)) }}
+              </span>
+            </div>
+            <div class="medications-list">
+              <!-- Handle full prescription with medications array -->
+              <div *ngIf="isFullPrescription(prescription)">
+                <div *ngFor="let medication of getPrescriptionMedications(prescription)" class="medication-item">
+                  <strong>{{ getMedicationName(medication) }}</strong>
+                  <span class="medication-details">
+                    {{ medication.dosage }} - {{ medication.frequency }} for {{ medication.duration }}
+                  </span>
+                  <span class="medication-instructions" *ngIf="medication.instructions">
+                    Instructions: {{ medication.instructions }}
+                  </span>
+                  <span class="medication-quantity" *ngIf="medication.quantity">
+                    Quantity: {{ medication.quantity }}
+                  </span>
+                </div>
+              </div>
+              <!-- Handle embedded prescription (single medication) -->
+              <div *ngIf="!isFullPrescription(prescription)" class="medication-item">
+                <strong>{{ getEmbeddedMedicationName(prescription) }}</strong>
+                <span class="medication-details">
+                  {{ getEmbeddedDosage(prescription) }} - {{ getEmbeddedFrequency(prescription) }} for {{ getEmbeddedDuration(prescription) }}
+                </span>
+                <span class="medication-instructions" *ngIf="getEmbeddedInstructions(prescription)">
+                  Instructions: {{ getEmbeddedInstructions(prescription) }}
+                </span>
+                <span class="medication-quantity" *ngIf="getEmbeddedQuantity(prescription)">
+                  Quantity: {{ getEmbeddedQuantity(prescription) }}
+                </span>
+              </div>
+            </div>
+            <div class="prescription-notes" *ngIf="getPrescriptionNotes(prescription)">
+              <strong>General Instructions:</strong>
+              <p>{{ getPrescriptionNotes(prescription) }}</p>
+            </div>
+            <div class="prescription-actions" *ngIf="getPrescriptionId(prescription)">
+              <button mat-button color="primary" (click)="viewPrescriptionDetail(getPrescriptionId(prescription)!)">
+                <mat-icon>visibility</mat-icon>
+                View Full Prescription
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Follow-up Instructions Card -->
     <mat-card class="info-card" *ngIf="consultation.followUpInstructions">
       <mat-card-header>
