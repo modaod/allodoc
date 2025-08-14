@@ -7,7 +7,8 @@ import { PrescriptionDetailComponent } from './prescription-detail/prescription-
 const routes: Routes = [
   {
     path: '',
-    component: PrescriptionsListComponent
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
   },
   {
     path: 'new',
