@@ -28,6 +28,12 @@ export class ConsultationsService {
         // Validation des données
         await this.validateConsultationCreation(createConsultationDto, organizationId);
 
+        // Use current user as doctor if not provided
+        const doctorId = createConsultationDto.doctorId || currentUser?.id;
+        if (!doctorId) {
+            throw new BadRequestException('Doctor ID is required');
+        }
+
         // Calcul automatique de l'IMC si height et weight fournis
         if (createConsultationDto.vitalSigns?.height && createConsultationDto.vitalSigns?.weight) {
             const height = createConsultationDto.vitalSigns.height / 100; // en mètres
@@ -42,6 +48,7 @@ export class ConsultationsService {
 
         const consultationData = {
             ...createConsultationDto,
+            doctorId,
             consultationDate: new Date(createConsultationDto.consultationDate),
             organizationId,
             consultationNumber: await this.generateConsultationNumber(organizationId),
