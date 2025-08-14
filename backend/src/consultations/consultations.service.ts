@@ -26,13 +26,13 @@ export class ConsultationsService {
         currentUser?: User,
     ): Promise<Consultation> {
         // Validation des données
-        await this.validateConsultationCreation(createConsultationDto, organizationId);
+        await this.validateConsultationCreation(createConsultationDto, organizationId, currentUser);
 
-        // Use current user as doctor if not provided
-        const doctorId = createConsultationDto.doctorId || currentUser?.id;
-        if (!doctorId) {
-            throw new BadRequestException('Doctor ID is required');
+        // Always use authenticated user as doctor for security
+        if (!currentUser || !currentUser.id) {
+            throw new BadRequestException('Authentication required to create consultation');
         }
+        const doctorId = currentUser.id;
 
         // Calcul automatique de l'IMC si height et weight fournis
         if (createConsultationDto.vitalSigns?.height && createConsultationDto.vitalSigns?.weight) {
@@ -262,6 +262,7 @@ export class ConsultationsService {
     private async validateConsultationCreation(
         createConsultationDto: CreateConsultationDto,
         organizationId: string,
+        currentUser?: User,
     ): Promise<void> {
         // Vérifier que le patient existe et appartient à l'organisation
         const patient = await this.patientsService.findById(createConsultationDto.patientId);
@@ -280,8 +281,9 @@ export class ConsultationsService {
             if (appointment.patientId !== createConsultationDto.patientId) {
                 throw new BadRequestException('Le rendez-vous ne correspond pas au patient');
             }
-            if (appointment.doctorId !== createConsultationDto.doctorId) {
-                throw new BadRequestException('Le rendez-vous ne correspond pas au médecin');
+            // Check appointment doctor matches current authenticated user
+            if (appointment.doctorId !== currentUser?.id) {
+                throw new BadRequestException('Le rendez-vous ne correspond pas au médecin authentifié');
             }
         }
 

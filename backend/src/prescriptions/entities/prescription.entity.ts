@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { AuditableEntity } from '../../common/entities/auditable.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -55,6 +56,7 @@ export class Prescription extends AuditableEntity {
     doctor: User;
 
     @Column()
+    @Exclude() // Hide doctorId from API responses for security
     doctorId: string;
 
     // Consultation relation (optional - for consultation-linked prescriptions)

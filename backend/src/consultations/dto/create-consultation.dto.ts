@@ -96,9 +96,7 @@ export class CreateConsultationDto {
     @IsUUID()
     patientId: string;
 
-    @IsOptional()
-    @IsUUID()
-    doctorId?: string; // Optional - will use current user if not provided
+    // doctorId removed - always set from authenticated user context for security
 
     @IsOptional()
     @IsUUID()

@@ -23,11 +23,11 @@ export class PrescriptionsService {
         // Generate prescription number
         const prescriptionNumber = await this.generatePrescriptionNumber(organizationId);
 
-        // Use current user as doctor if not provided
-        const doctorId = createPrescriptionDto.doctorId || currentUser?.id;
-        if (!doctorId) {
-            throw new BadRequestException('Doctor ID is required');
+        // Always use authenticated user as doctor for security
+        if (!currentUser || !currentUser.id) {
+            throw new BadRequestException('Authentication required to create prescription');
         }
+        const doctorId = currentUser.id;
 
         // Analyze medications to detect interactions
         const warnings = await this.analyzeInteractions(createPrescriptionDto.medications);

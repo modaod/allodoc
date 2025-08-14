@@ -1,7 +1,7 @@
 // src/main.ts
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as compression from 'compression';
@@ -52,6 +52,9 @@ async function bootstrap() {
             disableErrorMessages: configService.get('app.nodeEnv') === 'production',
         }),
     );
+
+    // Global serialization interceptor to enforce @Exclude decorators
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     // Swagger documentation (development only)
     if (configService.get('app.nodeEnv') === 'development') {

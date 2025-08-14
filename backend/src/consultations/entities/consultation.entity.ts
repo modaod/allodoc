@@ -8,6 +8,7 @@ import {
     JoinColumn,
     Index,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { AuditableEntity } from '../../common/entities/auditable.entity';
 import { Patient } from '../../patients/entities/patient.entity';
 import { User } from '../../users/entities/user.entity';
@@ -113,6 +114,7 @@ export class Consultation extends AuditableEntity {
     doctor: User;
 
     @Column()
+    @Exclude() // Hide doctorId from API responses for security
     doctorId: string;
 
     @ManyToOne(() => Organization)
