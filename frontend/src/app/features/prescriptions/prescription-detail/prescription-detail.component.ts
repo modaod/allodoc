@@ -148,6 +148,8 @@ export class PrescriptionDetailComponent implements OnInit {
     switch (status) {
       case PrescriptionStatus.ACTIVE:
         return 'status-active';
+      case PrescriptionStatus.EXPIRING_SOON:
+        return 'status-expiring-soon';
       case PrescriptionStatus.DISPENSED:
         return 'status-dispensed';
       case PrescriptionStatus.COMPLETED:

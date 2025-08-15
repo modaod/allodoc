@@ -81,15 +81,26 @@ export class PatientPrescriptionsListComponent implements OnInit {
     return new Date(date).toLocaleDateString();
   }
 
-  getStatusClass(status: PrescriptionStatus | undefined): string {
+  getStatusClass(status: any): string {
     if (!status) return 'status-active';
-    switch (status) {
+    
+    // Handle both enum and string values from backend
+    const statusStr = String(status);
+    
+    switch (statusStr) {
+      case 'ACTIVE':
       case PrescriptionStatus.ACTIVE:
         return 'status-active';
+      case 'EXPIRING_SOON':
+      case PrescriptionStatus.EXPIRING_SOON:
+        return 'status-expiring-soon';
+      case 'EXPIRED':
       case PrescriptionStatus.EXPIRED:
         return 'status-expired';
+      case 'CANCELLED':
       case PrescriptionStatus.CANCELLED:
         return 'status-cancelled';
+      case 'COMPLETED':
       case PrescriptionStatus.COMPLETED:
         return 'status-completed';
       default:

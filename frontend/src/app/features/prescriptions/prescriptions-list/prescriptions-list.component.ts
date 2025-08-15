@@ -69,6 +69,15 @@ export class PrescriptionsListComponent implements OnInit {
     this.prescriptionsService.getAllPrescriptions(params).subscribe({
       next: (response) => {
         console.log('Prescriptions list received:', response);
+        // Debug: Check statuses
+        if (response.data) {
+          console.log('All prescription statuses:', response.data.map((p: any) => ({
+            number: p.prescriptionNumber,
+            status: p.status,
+            statusType: typeof p.status,
+            class: this.getStatusClass(p.status)
+          })));
+        }
         this.dataSource.data = response.data || [];
         this.totalPrescriptions = response.total || 0;
         this.loading = false;
@@ -150,22 +159,137 @@ export class PrescriptionsListComponent implements OnInit {
     return new Date(date).toLocaleDateString();
   }
 
-  getStatusClass(status: PrescriptionStatus): string {
-    switch (status) {
-      case PrescriptionStatus.ACTIVE:
+  getStatusClass(status: any): string {
+    if (!status) return '';
+    
+    // Convert to string and handle both enum and string values
+    const statusStr = String(status).toUpperCase().trim();
+    
+    switch (statusStr) {
+      case 'ACTIVE':
         return 'status-active';
-      case PrescriptionStatus.DISPENSED:
+      case 'EXPIRING_SOON':
+        return 'status-expiring-soon';
+      case 'DISPENSED':
         return 'status-dispensed';
-      case PrescriptionStatus.COMPLETED:
+      case 'COMPLETED':
         return 'status-completed';
-      case PrescriptionStatus.CANCELLED:
+      case 'CANCELLED':
         return 'status-cancelled';
-      case PrescriptionStatus.EXPIRED:
+      case 'EXPIRED':
         return 'status-expired';
-      case PrescriptionStatus.DRAFT:
+      case 'DRAFT':
         return 'status-draft';
       default:
         return '';
+    }
+  }
+
+  getStatusStyle(status: any): any {
+    if (!status) return {};
+    
+    const statusStr = String(status).toUpperCase().trim();
+    
+    // Debug log for EXPIRING_SOON
+    if (statusStr === 'EXPIRING_SOON') {
+      console.log('Applying EXPIRING_SOON style for status:', status);
+    }
+    
+    switch (statusStr) {
+      case 'ACTIVE':
+        return {
+          'background-color': '#e8f5e8',
+          'color': '#2e7d32',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'EXPIRING_SOON':
+        return {
+          'background-color': '#fff3e0',
+          'color': '#ff6f00',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'DISPENSED':
+        return {
+          'background-color': '#e3f2fd',
+          'color': '#1976d2',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'COMPLETED':
+        return {
+          'background-color': '#f3e5f5',
+          'color': '#7b1fa2',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'EXPIRED':
+        return {
+          'background-color': '#f5f5f5',
+          'color': '#666',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'CANCELLED':
+        return {
+          'background-color': '#ffebee',
+          'color': '#d32f2f',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      case 'DRAFT':
+        return {
+          'background-color': '#fff3e0',
+          'color': '#f57c00',
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
+      default:
+        return {
+          'padding': '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+          'font-weight': '500',
+          'text-align': 'center',
+          'display': 'inline-block',
+          'min-width': '80px'
+        };
     }
   }
 

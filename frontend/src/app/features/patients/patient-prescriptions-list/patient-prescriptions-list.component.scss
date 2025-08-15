@@ -154,6 +154,11 @@
           color: #059669;
         }
 
+        &.status-expiring-soon {
+          background-color: #fff3e0;
+          color: #ff6f00;
+        }
+
         &.status-expired {
           background-color: #fee2e2;
           color: #dc2626;
