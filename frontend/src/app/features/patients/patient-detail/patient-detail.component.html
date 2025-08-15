@@ -316,8 +316,8 @@
                   </mat-chip>
                 </div>
                 <div class="prescription-details">
-                  <p><strong>Date:</strong> {{ formatDate(prescription.prescriptionDate) }}</p>
-                  <p><strong>Valid Until:</strong> {{ formatDate(prescription.validUntil) }}</p>
+                  <p><strong>Date:</strong> {{ formatDate(prescription.prescribedDate || prescription.prescriptionDate) }}</p>
+                  <p *ngIf="prescription.validUntil"><strong>Valid Until:</strong> {{ formatDate(prescription.validUntil) }}</p>
                   <p><strong>Medications:</strong></p>
                   <ul class="medication-list">
                     <li *ngFor="let med of prescription.medications">

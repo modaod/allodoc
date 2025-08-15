@@ -209,7 +209,7 @@ export class PatientDetailComponent implements OnInit {
             title: `Prescription - ${prescription.prescriptionNumber || 'No number'}`,
             subtitle: `${prescription.medications?.length || 0} medication(s)`,
             description: medicationNames,
-            status: prescription.status || 'ACTIVE',
+            status: prescription.status, // Now calculated by backend
             data: prescription
           });
         }
@@ -274,6 +274,7 @@ export class PatientDetailComponent implements OnInit {
     } else {
       switch (status) {
         case 'ACTIVE': return 'success';
+        case 'EXPIRING_SOON': return 'accent'; // Warning color for expiring soon
         case 'EXPIRED': return 'warn';
         case 'CANCELLED': return 'warn';
         default: return 'default';
