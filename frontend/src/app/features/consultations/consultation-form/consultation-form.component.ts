@@ -263,7 +263,7 @@ export class ConsultationFormComponent implements OnInit {
     // For creation, prepare all required fields
     const baseData = {
       patientId: formValue.patientId,
-      doctorId: currentUser?.id || '',  // Add doctorId from current user
+      // doctorId removed - backend automatically uses authenticated user's ID for security
       consultationDate: new Date(formValue.consultationDate).toISOString(),
       type: formValue.type,
       reason: formValue.reason,  // Use reason instead of chiefComplaint
