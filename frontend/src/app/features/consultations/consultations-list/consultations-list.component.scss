@@ -153,10 +153,70 @@
 // Table Container
 .table-container {
   position: relative;
+  overflow-x: auto;
   
   .consultations-table {
     width: 100%;
+    min-width: 1130px; // Ensure minimum width for proper display (adjusted for wider actions)
     margin-bottom: 0;
+    
+    // Column width constraints
+    .mat-column-consultationNumber {
+      width: 130px;
+      min-width: 130px;
+      max-width: 150px;
+    }
+    
+    .mat-column-patientName {
+      width: 200px;
+      min-width: 180px;
+      max-width: 250px;
+      
+      // Apply text truncation to content
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .mat-column-consultationDate {
+      width: 120px;
+      min-width: 120px;
+      max-width: 140px;
+    }
+    
+    .mat-column-type {
+      width: 140px;
+      min-width: 140px;
+      max-width: 160px;
+      white-space: nowrap; // Prevent wrapping
+    }
+    
+    .mat-column-status {
+      width: 120px;
+      min-width: 120px;
+      max-width: 140px;
+      white-space: nowrap; // Prevent wrapping
+    }
+    
+    .mat-column-chiefComplaint {
+      min-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .mat-column-actions {
+      width: 130px;
+      min-width: 130px;
+      max-width: 140px;
+      text-align: center;
+      white-space: nowrap;
+      
+      button {
+        display: inline-flex;
+        margin: 0 2px;
+      }
+    }
     
     .consultation-row {
       cursor: pointer;
@@ -183,7 +243,7 @@
   font-weight: 500;
   text-align: center;
   display: inline-block;
-  min-width: 60px;
+  white-space: nowrap;
   
   &.status-completed {
     background-color: #e8f5e8;
@@ -218,7 +278,7 @@
   font-weight: 500;
   text-align: center;
   display: inline-block;
-  min-width: 80px;
+  white-space: nowrap;
   
   &.type-emergency {
     background-color: #ffebee;
