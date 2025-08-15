@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, AfterLoad } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 import { AuditableEntity } from '../../common/entities/auditable.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -82,5 +82,117 @@ export class Prescription extends AuditableEntity {
 
     getMedicationNames(): string[] {
         return this.medications?.map((med) => med.name) || [];
+    }
+
+    // Computed fields (not stored in database)
+    @Expose()
+    status?: 'ACTIVE' | 'EXPIRED' | 'EXPIRING_SOON';
+
+    @Expose()
+    validUntil?: Date | null;
+
+    @AfterLoad()
+    setComputedFields() {
+        this.validUntil = this.calculateValidUntil();
+        this.status = this.calculateStatus();
+    }
+
+    /**
+     * Calculate the prescription status based on the longest medication duration
+     */
+    calculateStatus(): 'ACTIVE' | 'EXPIRED' | 'EXPIRING_SOON' {
+        const now = new Date();
+        const validUntil = this.calculateValidUntil();
+        
+        if (!validUntil) {
+            // No valid duration found, consider expired
+            return 'EXPIRED';
+        }
+        
+        const daysUntilExpiry = Math.ceil((validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilExpiry < 0) {
+            return 'EXPIRED';
+        }
+        if (daysUntilExpiry <= 3) {
+            return 'EXPIRING_SOON'; // Warning period for prescriptions expiring soon
+        }
+        return 'ACTIVE';
+    }
+
+    /**
+     * Calculate the valid until date based on the longest medication duration
+     */
+    calculateValidUntil(): Date | null {
+        if (!this.medications || this.medications.length === 0) {
+            return null;
+        }
+        
+        if (!this.prescribedDate) {
+            return null;
+        }
+        
+        const prescribedDate = new Date(this.prescribedDate);
+        let maxDuration = 0;
+        
+        // Find the medication with the longest duration
+        for (const med of this.medications) {
+            const days = this.parseDurationToDays(med.duration);
+            if (days > maxDuration) {
+                maxDuration = days;
+            }
+        }
+        
+        if (maxDuration === 0) {
+            // No valid duration found
+            return null;
+        }
+        
+        // Cap maximum validity at 365 days (1 year)
+        if (maxDuration > 365) {
+            maxDuration = 365;
+        }
+        
+        const validUntil = new Date(prescribedDate);
+        validUntil.setDate(validUntil.getDate() + maxDuration);
+        return validUntil;
+    }
+
+    /**
+     * Parse duration string to days
+     * Handles formats like "7 days", "2 weeks", "1 month", "3 months"
+     */
+    parseDurationToDays(duration: string): number {
+        if (!duration) return 0;
+        
+        // Convert to lowercase and remove extra spaces
+        const normalizedDuration = duration.toLowerCase().trim();
+        
+        // Match patterns like "7 days", "2 weeks", "1 month"
+        const match = normalizedDuration.match(/(\d+)\s*(day|days|week|weeks|month|months|year|years)/);
+        if (!match) {
+            return 0;
+        }
+        
+        const value = parseInt(match[1]);
+        const unit = match[2];
+        
+        // Convert to days based on unit
+        switch(unit) {
+            case 'day':
+            case 'days':
+                return value;
+            case 'week':
+            case 'weeks':
+                return value * 7;
+            case 'month':
+            case 'months':
+                return value * 30; // Approximate month as 30 days
+            case 'year':
+            case 'years':
+                return value * 365;
+            default:
+                return 0;
+        }
     }
 }
