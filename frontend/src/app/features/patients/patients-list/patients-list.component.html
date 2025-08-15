@@ -142,8 +142,10 @@
         <mat-paginator 
           *ngIf="dataSource.data.length > 0"
           [length]="totalPatients"
-          [pageSize]="10"
+          [pageIndex]="currentPage"
+          [pageSize]="pageSize"
           [pageSizeOptions]="[5, 10, 25, 50]"
+          (page)="onPageChange($event)"
           showFirstLastButtons>
         </mat-paginator>
       </div>

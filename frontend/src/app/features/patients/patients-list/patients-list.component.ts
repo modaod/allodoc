@@ -27,6 +27,10 @@ export class PatientsListComponent implements OnInit {
   loading = false;
   totalPatients = 0;
   
+  // Pagination state
+  currentPage = 0;
+  pageSize = 10;
+  
   // Advanced search controls
   filterForm = new FormGroup({
     startDate: new FormControl(''),
@@ -51,13 +55,20 @@ export class PatientsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadPatients();
+    // Load patients with initial pagination parameters
+    const initialParams: PatientSearchParams = {
+      page: 1,
+      limit: this.pageSize,
+      sortBy: 'lastName',
+      sortOrder: 'ASC'
+    };
+    this.loadPatients(initialParams);
     this.setupSearch();
     this.setupFilters();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    // Remove client-side pagination - we're using server-side
     this.dataSource.sort = this.sort;
   }
 
@@ -72,7 +83,7 @@ export class PatientsListComponent implements OnInit {
           this.totalPatients = response.length;
         } else if (response && response.data) {
           this.dataSource.data = response.data;
-          this.totalPatients = response.total || response.data.length;
+          this.totalPatients = response.meta?.total || response.data.length;
         } else {
           this.dataSource.data = [];
           this.totalPatients = 0;
@@ -119,10 +130,16 @@ export class PatientsListComponent implements OnInit {
       endDate: filters.endDate || undefined,
       sortBy: filters.sortBy || 'lastName',
       sortOrder: filters.sortOrder || 'ASC',
-      page: 1,
-      limit: 10
+      page: this.currentPage + 1, // API uses 1-based pagination
+      limit: this.pageSize
     };
     this.loadPatients(params);
+  }
+  
+  onPageChange(event: any): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.applyFilters();
   }
   
   clearFilters(): void {
@@ -131,7 +148,17 @@ export class PatientsListComponent implements OnInit {
       sortBy: 'lastName',
       sortOrder: 'ASC'
     });
-    this.loadPatients();
+    // Reset pagination
+    this.currentPage = 0;
+    this.pageSize = 10;
+    // Load with reset pagination parameters
+    const params: PatientSearchParams = {
+      page: 1,
+      limit: this.pageSize,
+      sortBy: 'lastName',
+      sortOrder: 'ASC'
+    };
+    this.loadPatients(params);
   }
 
   viewPatient(patient: Patient): void {
@@ -172,7 +199,8 @@ export class PatientsListComponent implements OnInit {
       this.patientsService.deletePatient(patient.id!).subscribe({
         next: () => {
           this.notificationService.showSuccess(`Patient ${patient.firstName} ${patient.lastName} has been deleted successfully.`);
-          this.loadPatients();
+          // Reload with current pagination state
+          this.applyFilters();
         },
         error: (error) => {
           const errorMessage = this.errorHandler.getErrorMessage(error);

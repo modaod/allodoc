@@ -24,6 +24,10 @@ export class ConsultationsListComponent implements OnInit {
   searchControl = new FormControl('');
   loading = false;
   totalConsultations = 0;
+  
+  // Pagination state
+  currentPage = 0;
+  pageSize = 10;
 
   // Enum values for template
   consultationStatuses = Object.values(ConsultationStatus);
@@ -79,8 +83,8 @@ export class ConsultationsListComponent implements OnInit {
           dateTo: todayStr
         }, { emitEvent: false });
         
-        // Use the special endpoint for today's consultations
-        this.loadTodayConsultations();
+        // Load consultations with today's date filter and pagination
+        this.applyFilters();
       } else if (filter === 'week') {
         // Calculate this week's date range (Sunday to Saturday) for visual feedback
         const today = new Date();
@@ -116,8 +120,8 @@ export class ConsultationsListComponent implements OnInit {
           dateTo: saturdayStr
         }, { emitEvent: false });
         
-        // Use the special endpoint for this week's consultations
-        this.loadThisWeekConsultations();
+        // Load consultations with this week's date filter and pagination
+        this.applyFilters();
       } else if (params['dateFrom'] || params['dateTo']) {
         // Apply the date filters from query parameters
         this.filterForm.patchValue({
@@ -126,8 +130,8 @@ export class ConsultationsListComponent implements OnInit {
         }, { emitEvent: false });
         this.applyFilters();
       } else {
-        // No query params, load all consultations
-        this.loadConsultations();
+        // No query params, load all consultations with pagination
+        this.applyFilters();
       }
     });
     
@@ -136,7 +140,7 @@ export class ConsultationsListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    // Remove client-side pagination - we're using server-side
     this.dataSource.sort = this.sort;
   }
 
@@ -146,7 +150,7 @@ export class ConsultationsListComponent implements OnInit {
       next: (response) => {
         console.log('Consultations list received:', response);
         this.dataSource.data = response.data || [];
-        this.totalConsultations = response.total || 0;
+        this.totalConsultations = response.meta?.total || 0;
         this.loading = false;
       },
       error: (error) => {
@@ -158,41 +162,8 @@ export class ConsultationsListComponent implements OnInit {
     });
   }
 
-  loadTodayConsultations(): void {
-    this.loading = true;
-    this.consultationsService.getTodayConsultations().subscribe({
-      next: (consultations) => {
-        console.log('Today consultations received:', consultations);
-        this.dataSource.data = consultations || [];
-        this.totalConsultations = consultations?.length || 0;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading today consultations:', error);
-        this.dataSource.data = [];
-        this.totalConsultations = 0;
-        this.loading = false;
-      }
-    });
-  }
-
-  loadThisWeekConsultations(): void {
-    this.loading = true;
-    this.consultationsService.getThisWeekConsultations().subscribe({
-      next: (consultations) => {
-        console.log('This week consultations received:', consultations);
-        this.dataSource.data = consultations || [];
-        this.totalConsultations = consultations?.length || 0;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading week consultations:', error);
-        this.dataSource.data = [];
-        this.totalConsultations = 0;
-        this.loading = false;
-      }
-    });
-  }
+  // Removed loadTodayConsultations and loadThisWeekConsultations
+  // Now using applyFilters() with date ranges for consistent pagination
 
   setupSearch(): void {
     this.searchControl.valueChanges
@@ -226,10 +197,16 @@ export class ConsultationsListComponent implements OnInit {
       type: filters.type as ConsultationType || undefined,
       sortBy: filters.sortBy || 'consultationDate',
       sortOrder: filters.sortOrder || 'DESC',
-      page: 1,
-      limit: 10
+      page: this.currentPage + 1, // API uses 1-based pagination
+      limit: this.pageSize
     };
     this.loadConsultations(params);
+  }
+  
+  onPageChange(event: any): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.applyFilters();
   }
   
   clearFilters(): void {
@@ -243,9 +220,13 @@ export class ConsultationsListComponent implements OnInit {
       sortOrder: 'DESC'
     }, { emitEvent: false });
     
-    // Clear query parameters and reload
+    // Reset pagination
+    this.currentPage = 0;
+    this.pageSize = 10;
+    
+    // Clear query parameters and reload with pagination
     this.router.navigate(['/consultations']);
-    this.loadConsultations();
+    this.applyFilters();
   }
 
 
