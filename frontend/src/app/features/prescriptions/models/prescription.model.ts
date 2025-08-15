@@ -87,6 +87,7 @@ export interface MedicationTemplate {
 export enum PrescriptionStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
+  EXPIRING_SOON = 'EXPIRING_SOON',
   DISPENSED = 'DISPENSED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
