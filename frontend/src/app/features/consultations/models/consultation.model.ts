@@ -36,6 +36,13 @@ export interface Consultation {
   duration?: number; // in minutes - to be deprecated
   fee?: number; // to be deprecated
   organizationId?: string;
+  organization?: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }

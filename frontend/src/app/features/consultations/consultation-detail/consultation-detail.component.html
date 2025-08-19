@@ -323,9 +323,9 @@
             <span class="value">{{ formatDateTime(consultation.updatedAt) }}</span>
           </div>
 
-          <div class="info-item" *ngIf="consultation.organizationId">
-            <span class="label">Organization ID:</span>
-            <span class="value">{{ consultation.organizationId }}</span>
+          <div class="info-item" *ngIf="consultation.organizationId || consultation.organization">
+            <span class="label">Organization:</span>
+            <span class="value">{{ getOrganizationName() }}</span>
           </div>
         </div>
       </mat-card-content>

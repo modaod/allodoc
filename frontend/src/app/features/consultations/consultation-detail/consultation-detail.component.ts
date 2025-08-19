@@ -281,4 +281,12 @@ export class ConsultationDetailComponent implements OnInit {
   getEmbeddedQuantity(prescription: any): number | null {
     return prescription.quantity || null;
   }
+
+  getOrganizationName(): string {
+    if (this.consultation?.organization?.name) {
+      return this.consultation.organization.name;
+    }
+    // Fallback to organizationId if organization object not populated
+    return this.consultation?.organizationId || '';
+  }
 }

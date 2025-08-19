@@ -94,6 +94,7 @@ export class ConsultationsService {
             'doctor',
             'appointment',
             'prescriptions',
+            'organization',
         ]);
     }
 
