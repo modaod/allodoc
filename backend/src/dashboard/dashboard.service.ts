@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThan, Between } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThan, Between, IsNull } from 'typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
@@ -123,6 +123,22 @@ export class DashboardService {
 
             this.logger.debug(`Found ${recentPatients.length} recent patients`);
 
+            // Get recent standalone prescriptions (last 5)
+            const recentPrescriptions = await this.prescriptionRepository.find({
+                where: { 
+                    organizationId,
+                    consultationId: IsNull()  // Only standalone prescriptions (quick prescriptions)
+                },
+                relations: ['patient'],
+                order: { prescribedDate: 'DESC' },
+                take: 5,
+            }).catch(err => {
+                this.logger.error('Error fetching recent prescriptions:', err);
+                throw err;
+            });
+
+            this.logger.debug(`Found ${recentPrescriptions.length} recent standalone prescriptions`);
+
             // Convert to activity items
             const activities: ActivityItemDto[] = [];
 
@@ -155,6 +171,28 @@ export class DashboardService {
                     });
                 } catch (err) {
                     this.logger.warn(`Error processing patient ${patient.id}:`, err);
+                }
+            });
+
+            // Add recent standalone prescriptions
+            recentPrescriptions.forEach(prescription => {
+                try {
+                    const medicationCount = prescription.medications?.length || 0;
+                    const medicationNames = prescription.medications?.slice(0, 2).map(m => m.name).join(', ') || 'No medications';
+                    const description = medicationCount > 2 
+                        ? `${medicationNames} and ${medicationCount - 2} more`
+                        : medicationNames;
+                    
+                    activities.push({
+                        type: 'prescription',
+                        title: `Prescription for ${prescription.patient?.firstName || 'Unknown'} ${prescription.patient?.lastName || 'Patient'}`,
+                        description: description,
+                        timestamp: prescription.prescribedDate,
+                        icon: 'medication',
+                        entityId: prescription.id,
+                    });
+                } catch (err) {
+                    this.logger.warn(`Error processing prescription ${prescription.id}:`, err);
                 }
             });
 
