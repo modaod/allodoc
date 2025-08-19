@@ -77,12 +77,27 @@ export class PatientsListComponent implements OnInit, OnDestroy {
       }
       
       // Load with restored state
+      // Convert saved dates to ISO if they exist
+      let startDateISO: string | undefined;
+      let endDateISO: string | undefined;
+      
+      if (savedState.filters?.startDate) {
+        const startDate = new Date(savedState.filters.startDate);
+        startDateISO = startDate.toISOString();
+      }
+      
+      if (savedState.filters?.endDate) {
+        const endDate = new Date(savedState.filters.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        endDateISO = endDate.toISOString();
+      }
+      
       const params: PatientSearchParams = {
         page: this.currentPage + 1,
         limit: this.pageSize,
         search: savedState.search || undefined,
-        startDate: savedState.filters?.startDate || undefined,
-        endDate: savedState.filters?.endDate || undefined,
+        startDate: startDateISO,
+        endDate: endDateISO,
         sortBy: savedState.filters?.sortBy || 'lastName',
         sortOrder: savedState.filters?.sortOrder || 'ASC'
       };
@@ -179,10 +194,27 @@ export class PatientsListComponent implements OnInit, OnDestroy {
   
   applyFilters(): void {
     const filters = this.filterForm.value;
+    
+    // Convert Date objects to ISO 8601 strings
+    let startDateISO: string | undefined;
+    let endDateISO: string | undefined;
+    
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      startDateISO = startDate.toISOString();
+    }
+    
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      // Set to end of day for the end date
+      endDate.setHours(23, 59, 59, 999);
+      endDateISO = endDate.toISOString();
+    }
+    
     const params: PatientSearchParams = {
       search: this.searchControl.value || undefined,
-      startDate: filters.startDate || undefined,
-      endDate: filters.endDate || undefined,
+      startDate: startDateISO,
+      endDate: endDateISO,
       sortBy: filters.sortBy || 'lastName',
       sortOrder: filters.sortOrder || 'ASC',
       page: this.currentPage + 1, // API uses 1-based pagination

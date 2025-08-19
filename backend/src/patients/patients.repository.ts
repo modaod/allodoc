@@ -178,9 +178,9 @@ export class PatientsRepository extends BaseRepository<Patient> {
             ]);
         }
 
-        // Date filterings
+        // Date filterings - filter by last visit date
         if (searchDto.startDate || searchDto.endDate) {
-            this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'patient.createdAt');
+            this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'patient.lastVisit');
         }
 
         // Sorting
