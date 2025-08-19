@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Patient, CreatePatientRequest, UpdatePatientRequest, PatientSearchParams, PatientsResponse } from '../models/patient.model';
 import { environment } from '../../../../environments/environment';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
@@ -71,8 +71,9 @@ export class PatientsService {
 
   searchPatients(searchTerm: string): Observable<Patient[]> {
     const params = new HttpParams().set('search', searchTerm);
-    return this.http.get<Patient[]>(`${this.apiUrl}/search`, { params })
+    return this.http.get<any>(this.apiUrl, { params })
       .pipe(
+        map(response => response.data || []),
         catchError(this.errorHandler.handleError.bind(this.errorHandler))
       );
   }
