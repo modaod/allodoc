@@ -251,22 +251,6 @@ export class PatientsListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/patients', 'new']);
   }
 
-  deletePatient(patient: Patient): void {
-    if (confirm(`Are you sure you want to delete patient ${patient.firstName} ${patient.lastName}?`)) {
-      this.patientsService.deletePatient(patient.id!).subscribe({
-        next: () => {
-          this.notificationService.showSuccess(`Patient ${patient.firstName} ${patient.lastName} has been deleted successfully.`);
-          // Reload with current pagination state
-          this.applyFilters();
-        },
-        error: (error) => {
-          const errorMessage = this.errorHandler.getErrorMessage(error);
-          this.notificationService.showError(`Failed to delete patient: ${errorMessage}`);
-        }
-      });
-    }
-  }
-
   getPatientFullName(patient: Patient): string {
     return `${patient.firstName} ${patient.lastName}`;
   }

@@ -131,19 +131,6 @@ export class PatientDetailComponent implements OnInit {
     }
   }
 
-  deletePatient(): void {
-    if (this.patient && confirm(`Are you sure you want to delete patient ${this.patient.firstName} ${this.patient.lastName}?`)) {
-      this.patientsService.deletePatient(this.patient.id!).subscribe({
-        next: () => {
-          this.router.navigate(['/patients']);
-        },
-        error: (error) => {
-          console.error('Error deleting patient:', error);
-        }
-      });
-    }
-  }
-
   goBack(): void {
     this.router.navigate(['/patients']);
   }
