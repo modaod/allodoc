@@ -36,8 +36,8 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
   
   // Advanced search controls
   filterForm = new FormGroup({
-    dateFrom: new FormControl(''),
-    dateTo: new FormControl(''),
+    dateFrom: new FormControl<Date | string | null>(null),
+    dateTo: new FormControl<Date | string | null>(null),
     status: new FormControl(''),
     type: new FormControl(''),
     sortBy: new FormControl('consultationDate'),
@@ -90,22 +90,17 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
       if (filter === 'today') {
         // Set today's date in both from and to fields for visual feedback
         const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
+        today.setHours(0, 0, 0, 0); // Normalize to start of day in local timezone
         
-        console.log('Today filter - Date calculation:', {
+        console.log('Today filter - Date:', {
           raw: today,
-          year,
-          month,
-          day,
-          todayStr
+          isoString: today.toISOString(),
+          localString: today.toLocaleDateString()
         });
         
         this.filterForm.patchValue({
-          dateFrom: todayStr,
-          dateTo: todayStr
+          dateFrom: today,
+          dateTo: today
         }, { emitEvent: false });
         
         // Load consultations with today's date filter and pagination
@@ -113,36 +108,29 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
       } else if (filter === 'week') {
         // Calculate this week's date range (Sunday to Saturday) for visual feedback
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const dayOfWeek = today.getDay();
         
         // Calculate Sunday
         const sunday = new Date(today);
         sunday.setDate(today.getDate() - dayOfWeek);
-        const sundayYear = sunday.getFullYear();
-        const sundayMonth = String(sunday.getMonth() + 1).padStart(2, '0');
-        const sundayDay = String(sunday.getDate()).padStart(2, '0');
-        const sundayStr = `${sundayYear}-${sundayMonth}-${sundayDay}`;
+        sunday.setHours(0, 0, 0, 0);
         
         // Calculate Saturday
         const saturday = new Date(sunday);
         saturday.setDate(sunday.getDate() + 6);
-        const saturdayYear = saturday.getFullYear();
-        const saturdayMonth = String(saturday.getMonth() + 1).padStart(2, '0');
-        const saturdayDay = String(saturday.getDate()).padStart(2, '0');
-        const saturdayStr = `${saturdayYear}-${saturdayMonth}-${saturdayDay}`;
+        saturday.setHours(0, 0, 0, 0);
         
         console.log('Week filter - Date calculation:', {
           today,
           dayOfWeek,
-          sunday,
-          sundayStr,
-          saturday,
-          saturdayStr
+          sunday: sunday.toLocaleDateString(),
+          saturday: saturday.toLocaleDateString()
         });
         
         this.filterForm.patchValue({
-          dateFrom: sundayStr,
-          dateTo: saturdayStr
+          dateFrom: sunday,
+          dateTo: saturday
         }, { emitEvent: false });
         
         // Load consultations with this week's date filter and pagination
@@ -236,10 +224,31 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
   
   applyFilters(): void {
     const filters = this.filterForm.value;
+    
+    // Convert Date objects to YYYY-MM-DD strings for the API
+    let startDateStr: string | undefined;
+    let endDateStr: string | undefined;
+    
+    if (filters.dateFrom) {
+      const dateFrom = filters.dateFrom instanceof Date ? filters.dateFrom : new Date(filters.dateFrom as string);
+      const year = dateFrom.getFullYear();
+      const month = String(dateFrom.getMonth() + 1).padStart(2, '0');
+      const day = String(dateFrom.getDate()).padStart(2, '0');
+      startDateStr = `${year}-${month}-${day}`;
+    }
+    
+    if (filters.dateTo) {
+      const dateTo = filters.dateTo instanceof Date ? filters.dateTo : new Date(filters.dateTo as string);
+      const year = dateTo.getFullYear();
+      const month = String(dateTo.getMonth() + 1).padStart(2, '0');
+      const day = String(dateTo.getDate()).padStart(2, '0');
+      endDateStr = `${year}-${month}-${day}`;
+    }
+    
     const params: ConsultationSearchParams = {
       search: this.searchControl.value || undefined,
-      startDate: filters.dateFrom || undefined,
-      endDate: filters.dateTo || undefined,
+      startDate: startDateStr,
+      endDate: endDateStr,
       status: filters.status as ConsultationStatus || undefined,
       type: filters.type as ConsultationType || undefined,
       sortBy: filters.sortBy || 'consultationDate',
@@ -259,8 +268,8 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
   clearFilters(): void {
     this.searchControl.setValue('', { emitEvent: false });
     this.filterForm.reset({
-      dateFrom: '',
-      dateTo: '',
+      dateFrom: null,
+      dateTo: null,
       status: '',
       type: '',
       sortBy: 'consultationDate',
