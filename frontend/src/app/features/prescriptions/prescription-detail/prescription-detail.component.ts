@@ -40,6 +40,12 @@ export class PrescriptionDetailComponent implements OnInit {
   }
 
   getPatientName(): string {
+    // Check direct patient first (for standalone prescriptions)
+    if (this.prescription?.patient) {
+      const patient = this.prescription.patient;
+      return `${patient.firstName} ${patient.lastName}`;
+    }
+    // Then check consultation patient (for consultation-linked prescriptions)
     if (this.prescription?.consultation?.patient) {
       const patient = this.prescription.consultation.patient;
       return `${patient.firstName} ${patient.lastName}`;
@@ -48,6 +54,12 @@ export class PrescriptionDetailComponent implements OnInit {
   }
 
   getDoctorName(): string {
+    // Check direct doctor first (for standalone prescriptions)
+    if (this.prescription?.doctor) {
+      const doctor = this.prescription.doctor;
+      return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    }
+    // Then check consultation doctor (for consultation-linked prescriptions)
     if (this.prescription?.consultation?.doctor) {
       const doctor = this.prescription.consultation.doctor;
       return `Dr. ${doctor.firstName} ${doctor.lastName}`;

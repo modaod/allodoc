@@ -3,8 +3,19 @@ export interface Prescription {
   prescriptionNumber?: string;
   patientId?: string;
   patientName?: string;
+  patient?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
   doctorId?: string;
   doctorName?: string;
+  doctor?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    specialty?: string;
+  };
   consultationId?: string;
   consultation?: {
     patient?: {

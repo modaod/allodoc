@@ -44,7 +44,10 @@ export class PrescriptionsService {
             warnings,
         };
 
-        return await this.prescriptionsRepository.create(prescriptionData, currentUser);
+        const createdPrescription = await this.prescriptionsRepository.create(prescriptionData, currentUser);
+        
+        // Return the populated prescription with patient and doctor data
+        return await this.findById(createdPrescription.id);
     }
 
     async findById(id: string): Promise<Prescription> {
