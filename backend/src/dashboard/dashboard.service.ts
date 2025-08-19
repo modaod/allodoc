@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThan, Between, IsNull } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
@@ -24,21 +24,23 @@ export class DashboardService {
         try {
             this.logger.log(`Getting dashboard stats for userId: ${userId}, organizationId: ${organizationId}`);
             
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const endOfToday = new Date(today);
-            endOfToday.setHours(23, 59, 59, 999);
-
-            // Week starts on Sunday, ends on Saturday
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
+            // Use timezone from environment or default to America/New_York
+            const timezone = process.env.TZ || 'America/New_York';
             
+            // Calculate dates for this week (Sunday to Saturday)
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - dayOfWeek);
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
-            endOfWeek.setHours(23, 59, 59, 999);
+            
+            // Format dates as YYYY-MM-DD for SQL
+            const todayStr = today.toISOString().split('T')[0];
+            const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
+            const endOfWeekStr = endOfWeek.toISOString().split('T')[0];
 
-            this.logger.debug(`Date ranges - today: ${today.toISOString()}, endOfToday: ${endOfToday.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}, endOfWeek: ${endOfWeek.toISOString()}`);
+            this.logger.debug(`Date strings - today: ${todayStr}, startOfWeek: ${startOfWeekStr}, endOfWeek: ${endOfWeekStr}, timezone: ${timezone}`);
 
             // Get statistics in parallel
             const [
@@ -53,24 +55,36 @@ export class DashboardService {
                     this.logger.error('Error counting patients:', err);
                     throw err;
                 }),
-                this.consultationRepository.count({
-                    where: {
-                        organizationId,
-                        consultationDate: Between(today, endOfToday),
-                    },
-                }).catch(err => {
-                    this.logger.error('Error counting today consultations:', err);
-                    throw err;
-                }),
-                this.consultationRepository.count({
-                    where: {
-                        organizationId,
-                        consultationDate: Between(startOfWeek, endOfWeek),
-                    },
-                }).catch(err => {
-                    this.logger.error('Error counting week consultations:', err);
-                    throw err;
-                }),
+                // Use timezone-aware query for today's consultations
+                this.consultationRepository
+                    .createQueryBuilder('consultation')
+                    .where('consultation.organizationId = :organizationId', { organizationId })
+                    .andWhere(
+                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) = DATE(:today)`,
+                        { timezone, today: todayStr }
+                    )
+                    .getCount()
+                    .catch(err => {
+                        this.logger.error('Error counting today consultations:', err);
+                        throw err;
+                    }),
+                // Use timezone-aware query for this week's consultations
+                this.consultationRepository
+                    .createQueryBuilder('consultation')
+                    .where('consultation.organizationId = :organizationId', { organizationId })
+                    .andWhere(
+                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= DATE(:startOfWeek)`,
+                        { timezone, startOfWeek: startOfWeekStr }
+                    )
+                    .andWhere(
+                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) <= DATE(:endOfWeek)`,
+                        { timezone, endOfWeek: endOfWeekStr }
+                    )
+                    .getCount()
+                    .catch(err => {
+                        this.logger.error('Error counting week consultations:', err);
+                        throw err;
+                    }),
                 this.consultationRepository.count({
                     where: { organizationId },
                 }).catch(err => {
