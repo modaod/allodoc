@@ -26,8 +26,8 @@ export class DashboardService {
             
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
+            const endOfToday = new Date(today);
+            endOfToday.setHours(23, 59, 59, 999);
 
             // Week starts on Sunday, ends on Saturday
             const startOfWeek = new Date(today);
@@ -38,7 +38,7 @@ export class DashboardService {
             endOfWeek.setDate(startOfWeek.getDate() + 6);
             endOfWeek.setHours(23, 59, 59, 999);
 
-            this.logger.debug(`Date ranges - today: ${today.toISOString()}, tomorrow: ${tomorrow.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}, endOfWeek: ${endOfWeek.toISOString()}`);
+            this.logger.debug(`Date ranges - today: ${today.toISOString()}, endOfToday: ${endOfToday.toISOString()}, startOfWeek: ${startOfWeek.toISOString()}, endOfWeek: ${endOfWeek.toISOString()}`);
 
             // Get statistics in parallel
             const [
@@ -56,7 +56,7 @@ export class DashboardService {
                 this.consultationRepository.count({
                     where: {
                         organizationId,
-                        consultationDate: Between(today, tomorrow),
+                        consultationDate: Between(today, endOfToday),
                     },
                 }).catch(err => {
                     this.logger.error('Error counting today consultations:', err);

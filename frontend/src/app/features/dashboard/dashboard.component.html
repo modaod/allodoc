@@ -2,14 +2,19 @@
   <!-- Welcome Header -->
   <div class="welcome-section">
     <h1 class="welcome-title">
-      Welcome back, {{ currentUser?.firstName || 'Doctor' }}!
+      Welcome back, {{ currentUser?.firstName || "Doctor" }}!
     </h1>
-    <p class="welcome-subtitle">Here's what's happening in your practice today</p>
+    <p class="welcome-subtitle">
+      Here's what's happening in your practice today
+    </p>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-section">
-    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="50"
+    ></mat-progress-spinner>
     <p>Loading dashboard data...</p>
   </div>
 
@@ -27,7 +32,10 @@
       </div>
     </mat-card>
 
-    <mat-card class="stat-card consultations-card" (click)="navigateToTodayConsultations()">
+    <mat-card
+      class="stat-card consultations-card"
+      (click)="navigateToTodayConsultations()"
+    >
       <div class="stat-content">
         <div class="stat-icon">
           <mat-icon>medical_services</mat-icon>
@@ -39,7 +47,10 @@
       </div>
     </mat-card>
 
-    <mat-card class="stat-card consultations-card" (click)="navigateToWeekConsultations()">
+    <mat-card
+      class="stat-card consultations-card"
+      (click)="navigateToWeekConsultations()"
+    >
       <div class="stat-content">
         <div class="stat-icon">
           <mat-icon>timeline</mat-icon>
@@ -51,7 +62,10 @@
       </div>
     </mat-card>
 
-    <mat-card class="stat-card consultations-card" (click)="navigateToAllConsultations()">
+    <mat-card
+      class="stat-card consultations-card"
+      (click)="navigateToAllConsultations()"
+    >
       <div class="stat-content">
         <div class="stat-icon">
           <mat-icon>medical_information</mat-icon>
@@ -74,24 +88,39 @@
           Quick Actions
         </mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <div class="quick-actions-grid">
-          <button mat-raised-button color="primary" class="action-button" (click)="addNewPatient()">
+          <button
+            mat-raised-button
+            color="primary"
+            class="action-button"
+            (click)="addNewPatient()"
+          >
             <mat-icon>person_add</mat-icon>
             Add New Patient
           </button>
-          
-          <button mat-raised-button color="accent" class="action-button" (click)="newConsultation()">
+
+          <button
+            mat-raised-button
+            color="accent"
+            class="action-button"
+            (click)="newConsultation()"
+          >
             <mat-icon>medical_services</mat-icon>
             New Consultation
           </button>
-          
-          <button mat-stroked-button color="primary" class="action-button" (click)="quickPrescription()">
+
+          <button
+            mat-stroked-button
+            color="primary"
+            class="action-button"
+            (click)="quickPrescription()"
+          >
             <mat-icon>medication</mat-icon>
             Quick Prescription
           </button>
-          
+
           <button mat-stroked-button class="action-button">
             <mat-icon>event</mat-icon>
             Schedule Appointment
@@ -105,21 +134,27 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>history</mat-icon>
-          Recent Activity
+          Recent Activities
         </mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <!-- Empty State -->
         <div *ngIf="recentActivities.length === 0" class="empty-state">
           <mat-icon>history</mat-icon>
           <p>No recent activities</p>
-          <p class="empty-subtitle">Start by adding a patient or creating a consultation</p>
+          <p class="empty-subtitle">
+            Start by adding a patient or creating a consultation
+          </p>
         </div>
 
         <!-- Activity List -->
         <div *ngIf="recentActivities.length > 0" class="activity-list">
-          <div *ngFor="let activity of recentActivities" class="activity-item clickable" (click)="navigateToActivity(activity)">
+          <div
+            *ngFor="let activity of recentActivities"
+            class="activity-item clickable"
+            (click)="navigateToActivity(activity)"
+          >
             <div class="activity-icon" [ngClass]="'activity-' + activity.type">
               <mat-icon>{{ activity.icon }}</mat-icon>
             </div>
@@ -141,12 +176,14 @@
         Today's Schedule
       </mat-card-title>
     </mat-card-header>
-    
+
     <mat-card-content>
       <div class="schedule-placeholder empty-state">
         <mat-icon>event_available</mat-icon>
         <p>No appointments scheduled for today</p>
-        <p class="empty-subtitle">Schedule your first appointment to get started</p>
+        <p class="empty-subtitle">
+          Schedule your first appointment to get started
+        </p>
         <button mat-raised-button color="primary">
           <mat-icon>add</mat-icon>
           Schedule Appointment
