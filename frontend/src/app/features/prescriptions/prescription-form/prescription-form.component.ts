@@ -64,6 +64,7 @@ export class PrescriptionFormComponent implements OnInit {
   ngOnInit(): void {
     this.prescriptionId = this.route.snapshot.paramMap.get('id');
     this.consultationId = this.route.snapshot.queryParamMap.get('consultationId');
+    const patientIdFromQuery = this.route.snapshot.queryParamMap.get('patientId');
     this.isEditMode = this.prescriptionId !== null && this.prescriptionId !== 'new';
 
     // Get current user name
@@ -81,6 +82,13 @@ export class PrescriptionFormComponent implements OnInit {
       // Pre-populate from consultation if coming from consultation detail
       this.loadConsultationData(this.consultationId);
     } else {
+      // Check if we have a patient ID from query params (e.g., from patient detail page)
+      if (patientIdFromQuery) {
+        this.prescriptionForm.patchValue({
+          patientId: patientIdFromQuery
+        });
+      }
+      
       // Ensure at least one medication exists (already added in constructor)
       if (this.medicationsArray.length === 0) {
         this.addMedication();
