@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
     # PostgreSQL Database
     postgres:
@@ -11,7 +13,7 @@ services:
             PGDATA: /var/lib/postgresql/data/pgdata
         volumes:
             - postgres_data:/var/lib/postgresql/data
-            - ./src/database/init:/docker-entrypoint-initdb.d
+            - ./backend/src/database/init:/docker-entrypoint-initdb.d
         ports:
             - '5432:5432'
         networks:
@@ -39,10 +41,10 @@ services:
             timeout: 10s
             retries: 3
 
-    # NestJS Application (for development)
+    # NestJS Backend Application
     app:
         build:
-            context: .
+            context: ./backend
             dockerfile: Dockerfile.dev
         container_name: medical_app
         restart: unless-stopped
@@ -50,7 +52,7 @@ services:
             - '3000:3000'
             - '9229:9229' # Debug port
         volumes:
-            - .:/app
+            - ./backend:/app
             - /app/node_modules
         environment:
             - NODE_ENV=development
@@ -71,14 +73,14 @@ services:
     # Angular Frontend Application
     frontend:
         build:
-            context: ../frontend
+            context: ./frontend
             dockerfile: Dockerfile.dev
         container_name: medical_frontend
         restart: unless-stopped
         ports:
             - '4200:4200'
         volumes:
-            - ../frontend:/app
+            - ./frontend:/app
             - /app/node_modules  # Anonymous volume to prevent node_modules conflicts
         environment:
             - NODE_ENV=development
@@ -88,7 +90,7 @@ services:
             - app  # Frontend depends on backend API
         command: ng serve --host 0.0.0.0 --proxy-config proxy.conf.docker.json --poll=2000
 
-    # PgAdmin for database administration (optional)
+    # PgAdmin for database administration
     pgadmin:
         image: dpage/pgadmin4:latest
         container_name: medical_pgadmin
@@ -101,7 +103,7 @@ services:
             - '5050:80'
         volumes:
             - pgadmin_data:/var/lib/pgadmin
-            - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+            - ./backend/pgadmin-servers.json:/pgadmin4/servers.json:ro
         networks:
             - medical_network
         depends_on:

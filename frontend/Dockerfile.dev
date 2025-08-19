@@ -1,0 +1,25 @@
+# Dockerfile.dev for Angular Frontend
+FROM node:20-alpine
+
+# Create application directory
+WORKDIR /app
+
+# Install Angular CLI globally
+RUN npm install -g @angular/cli@16
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy the rest of the application
+COPY . .
+
+# Expose port 4200 for Angular dev server
+EXPOSE 4200
+
+# Start Angular dev server with hot reload
+# --poll=2000 ensures file watching works properly in Docker
+# Using proxy.conf.docker.json for Docker service name resolution
+CMD ["ng", "serve", "--host", "0.0.0.0", "--proxy-config", "proxy.conf.docker.json", "--poll=2000"]
