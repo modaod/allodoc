@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -6,7 +6,16 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  private authService: AuthService | null = null;
+
+  constructor(private injector: Injector) {}
+
+  private getAuthService(): AuthService {
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+    return this.authService;
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.log(`=== AUTH INTERCEPTOR DEBUG ===`);
@@ -20,7 +29,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // Add auth header if user is authenticated
-    const authToken = this.authService.getAccessToken();
+    const authToken = this.getAuthService().getAccessToken();
     console.log(`Auth token exists: ${!!authToken}`);
     if (authToken) {
       console.log(`Auth token (first 20 chars): ${authToken.substring(0, 20)}...`);
@@ -65,10 +74,10 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return this.authService.refreshToken().pipe(
+    return this.getAuthService().refreshToken().pipe(
       switchMap(() => {
         // Retry the original request with new token
-        const newToken = this.authService.getAccessToken();
+        const newToken = this.getAuthService().getAccessToken();
         if (newToken) {
           const newReq = this.addAuthHeader(req, newToken);
           return next.handle(newReq);
@@ -77,7 +86,7 @@ export class AuthInterceptor implements HttpInterceptor {
       }),
       catchError((error) => {
         // Refresh failed, logout user
-        this.authService.logout();
+        this.getAuthService().logout();
         return throwError(error);
       })
     );
