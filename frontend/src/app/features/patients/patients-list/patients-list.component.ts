@@ -18,7 +18,7 @@ import { PaginationStateService } from '../../../core/services/pagination-state.
   styleUrls: ['./patients-list.component.scss']
 })
 export class PatientsListComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['patientNumber', 'name', 'dateOfBirth', 'gender', 'phone', 'lastVisit', 'actions'];
+  displayedColumns: string[] = ['patientNumber', 'name', 'dateOfBirth', 'gender', 'phone', 'lastVisit'];
   dataSource = new MatTableDataSource<Patient>();
   
   @ViewChild(MatPaginator) paginator!: MatPaginator;

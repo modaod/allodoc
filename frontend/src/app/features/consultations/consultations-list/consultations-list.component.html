@@ -89,10 +89,8 @@
             <div class="skeleton-cell"></div>
             <div class="skeleton-cell"></div>
             <div class="skeleton-cell"></div>
-            <div class="skeleton-cell"></div>
           </div>
           <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
-            <div class="skeleton-cell"></div>
             <div class="skeleton-cell"></div>
             <div class="skeleton-cell"></div>
             <div class="skeleton-cell"></div>
@@ -152,21 +150,8 @@
             <td mat-cell *matCellDef="let consultation">{{ consultation.reason || '-' }}</td>
           </ng-container>
 
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let consultation">
-              <button mat-icon-button color="primary" (click)="viewConsultation(consultation)" matTooltip="View Consultation">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button mat-icon-button color="accent" (click)="editConsultation(consultation)" matTooltip="Edit Consultation">
-                <mat-icon>edit</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="consultation-row"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="consultation-row" (click)="viewConsultation(row)"></tr>
         </table>
 
         <!-- No Data Message -->

@@ -108,19 +108,6 @@
         max-width: 140px;
       }
 
-      .mat-column-actions {
-        width: 150px;
-        min-width: 150px;
-        max-width: 170px;
-        text-align: center;
-        white-space: nowrap;
-        
-        button {
-          display: inline-flex;
-          margin: 0 2px;
-        }
-      }
-
       .patient-row {
         cursor: pointer;
         transition: background-color 0.2s;

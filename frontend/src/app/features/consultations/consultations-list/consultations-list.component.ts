@@ -16,7 +16,7 @@ import { PaginationStateService } from '../../../core/services/pagination-state.
   styleUrls: ['./consultations-list.component.scss']
 })
 export class ConsultationsListComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['consultationNumber', 'patientName', 'consultationDate', 'type', 'status', 'chiefComplaint', 'actions'];
+  displayedColumns: string[] = ['consultationNumber', 'patientName', 'consultationDate', 'type', 'status', 'chiefComplaint'];
   dataSource = new MatTableDataSource<Consultation>();
   
   @ViewChild(MatPaginator) paginator!: MatPaginator;
