@@ -280,8 +280,15 @@ export class PrescriptionFormComponent implements OnInit {
     );
   }
 
-  displayPatient(patient: Patient): string {
+  displayPatient(patient: Patient | string): string {
     if (!patient) return '';
+    
+    // If it's a string, return it as is (already formatted as "FirstName LastName")
+    if (typeof patient === 'string') {
+      return patient;
+    }
+    
+    // If it's a Patient object, format the name
     return `${patient.firstName} ${patient.lastName}`;
   }
 
