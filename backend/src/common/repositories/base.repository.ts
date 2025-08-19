@@ -160,12 +160,21 @@ export abstract class BaseRepository<T extends AuditableEntity> {
         endDate?: string,
         dateField: string = 'createdAt',
     ): SelectQueryBuilder<T> {
-        // Use PostgreSQL DATE() function to compare only date portions, ignoring time
+        // Convert UTC timestamps to local timezone (EDT/EST) before comparing dates
+        // This ensures filtering matches what users see in their local time
+        const timezone = process.env.TZ || 'America/New_York';
+        
         if (startDate) {
-            qb.andWhere(`DATE(${dateField}) >= DATE(:startDate)`, { startDate });
+            qb.andWhere(
+                `DATE(${dateField} AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= DATE(:startDate)`,
+                { startDate, timezone }
+            );
         }
         if (endDate) {
-            qb.andWhere(`DATE(${dateField}) <= DATE(:endDate)`, { endDate });
+            qb.andWhere(
+                `DATE(${dateField} AT TIME ZONE 'UTC' AT TIME ZONE :timezone) <= DATE(:endDate)`,
+                { endDate, timezone }
+            );
         }
         return qb;
     }
