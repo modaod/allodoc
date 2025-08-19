@@ -30,6 +30,7 @@ import { PatientConsultationsListComponent } from './patient-consultations-list/
 import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/patient-prescriptions-list.component';
 import { PatientConsultationDetailComponent } from './patient-consultation-detail/patient-consultation-detail.component';
 import { PatientPrescriptionDetailComponent } from './patient-prescription-detail/patient-prescription-detail.component';
+import { PatientQuickCreateDialogComponent } from './patient-quick-create-dialog/patient-quick-create-dialog.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { PatientPrescriptionDetailComponent } from './patient-prescription-detai
     PatientConsultationsListComponent,
     PatientPrescriptionsListComponent,
     PatientConsultationDetailComponent,
-    PatientPrescriptionDetailComponent
+    PatientPrescriptionDetailComponent,
+    PatientQuickCreateDialogComponent
   ],
   imports: [
     CommonModule,
@@ -64,6 +66,9 @@ import { PatientPrescriptionDetailComponent } from './patient-prescription-detai
     MatDialogModule,
     MatProgressSpinnerModule,
     MatTabsModule
+  ],
+  exports: [
+    PatientQuickCreateDialogComponent
   ]
 })
 export class PatientsModule { }

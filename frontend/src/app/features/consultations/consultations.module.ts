@@ -22,6 +22,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { ConsultationsRoutingModule } from './consultations-routing.module';
 import { ConsultationsListComponent } from './consultations-list/consultations-list.component';
@@ -57,7 +58,8 @@ import { ConsultationDetailComponent } from './consultation-detail/consultation-
     MatTabsModule,
     MatExpansionModule,
     MatDividerModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatAutocompleteModule
   ],
   exports: [
     ConsultationDetailComponent

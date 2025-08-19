@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>
+  <mat-icon>person_add</mat-icon>
+  Quick Add Patient
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="patientForm" class="quick-create-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName" placeholder="Enter first name" required>
+        <mat-error>{{ getFieldError('firstName') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName" placeholder="Enter last name" required>
+        <mat-error>{{ getFieldError('lastName') }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Date of Birth</mat-label>
+        <input matInput type="date" formControlName="dateOfBirth" required>
+        <mat-error>{{ getFieldError('dateOfBirth') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Gender</mat-label>
+        <mat-select formControlName="gender" required>
+          <mat-option value="M">Male</mat-option>
+          <mat-option value="F">Female</mat-option>
+        </mat-select>
+        <mat-error>{{ getFieldError('gender') }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Phone Number</mat-label>
+        <input matInput formControlName="phone" placeholder="+1 234 567 8900" required>
+        <mat-icon matPrefix>phone</mat-icon>
+        <mat-error>{{ getFieldError('phone') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email (Optional)</mat-label>
+        <input matInput formControlName="email" placeholder="patient@example.com">
+        <mat-icon matPrefix>email</mat-icon>
+        <mat-error>{{ getFieldError('email') }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Address</mat-label>
+      <textarea matInput formControlName="address" rows="2" placeholder="Enter full address" required></textarea>
+      <mat-icon matPrefix>home</mat-icon>
+      <mat-error>{{ getFieldError('address') }}</mat-error>
+    </mat-form-field>
+
+    <div class="info-note">
+      <mat-icon>info</mat-icon>
+      <span>You can add more details like medical history after creating the patient.</span>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="saving">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="patientForm.invalid || saving">
+    <mat-progress-spinner *ngIf="saving" mode="indeterminate" diameter="20"></mat-progress-spinner>
+    <span *ngIf="!saving">Create Patient</span>
+    <span *ngIf="saving">Creating...</span>
+  </button>
+</mat-dialog-actions>

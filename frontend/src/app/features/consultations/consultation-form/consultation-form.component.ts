@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { startWith, debounceTime, distinctUntilChanged, switchMap, map, catchError, tap } from 'rxjs/operators';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatDialog } from '@angular/material/dialog';
 
 import { 
   Consultation,
@@ -25,6 +29,12 @@ export class ConsultationFormComponent implements OnInit {
   saving = false;
   showEditModeInfo = false;
 
+  // Patient autocomplete
+  patientSearchControl = new FormControl();
+  filteredPatients$!: Observable<Patient[]>;
+  selectedPatient: Patient | null = null;
+  showCreatePatient = false;
+
   // Data for dropdowns
   patients: Patient[] = [];
   consultationTypes = Object.values(ConsultationType);
@@ -36,13 +46,74 @@ export class ConsultationFormComponent implements OnInit {
     private patientsService: PatientsService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadPatients();
+    this.setupPatientAutocomplete();
     this.checkRouteParams();
+  }
+
+  setupPatientAutocomplete(): void {
+    this.filteredPatients$ = this.patientSearchControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        // If value is an object (Patient), extract the name for search
+        const searchTerm = typeof value === 'string' ? value : value?.firstName + ' ' + value?.lastName;
+        
+        if (searchTerm && searchTerm.length >= 2) {
+          return this.patientsService.searchPatients(searchTerm).pipe(
+            map(response => {
+              // Handle both array response and paginated response
+              const patients = Array.isArray(response) ? response : (response as any).data || [];
+              this.showCreatePatient = patients.length === 0;
+              return patients;
+            }),
+            catchError(() => {
+              this.showCreatePatient = true;
+              return of([]);
+            })
+          );
+        }
+        this.showCreatePatient = false;
+        return of([]);
+      })
+    );
+  }
+
+  displayPatient(patient: Patient): string {
+    if (!patient) return '';
+    return `${patient.firstName} ${patient.lastName}`;
+  }
+
+  onPatientSelected(event: MatAutocompleteSelectedEvent): void {
+    const patient = event.option.value as Patient;
+    this.selectedPatient = patient;
+    this.consultationForm.patchValue({ patientId: patient.id });
+  }
+
+  async openCreatePatientDialog(): Promise<void> {
+    // Dynamically import the PatientsModule to access the dialog component
+    const { PatientsModule } = await import('../../patients/patients.module');
+    const { PatientQuickCreateDialogComponent } = await import('../../patients/patient-quick-create-dialog/patient-quick-create-dialog.component');
+    
+    const dialogRef = this.dialog.open(PatientQuickCreateDialogComponent, {
+      width: '600px',
+      data: { searchTerm: this.patientSearchControl.value }
+    });
+
+    dialogRef.afterClosed().subscribe(patient => {
+      if (patient) {
+        // Set the newly created patient in the form
+        this.selectedPatient = patient;
+        this.patientSearchControl.setValue(patient, { emitEvent: false });
+        this.consultationForm.patchValue({ patientId: patient.id });
+      }
+    });
   }
 
   initializeForm(): void {
@@ -95,17 +166,6 @@ export class ConsultationFormComponent implements OnInit {
     this.prescriptions.removeAt(index);
   }
 
-  loadPatients(): void {
-    this.patientsService.getAllPatients().subscribe({
-      next: (response) => {
-        this.patients = response.data;
-      },
-      error: (error) => {
-        console.error('Error loading patients:', error);
-      }
-    });
-  }
-
   checkRouteParams(): void {
     this.consultationId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = this.consultationId !== null && this.consultationId !== 'new';
@@ -115,8 +175,27 @@ export class ConsultationFormComponent implements OnInit {
     } else {
       // Check for query parameters to pre-populate form
       const patientId = this.route.snapshot.queryParamMap.get('patientId');
+      const patientName = this.route.snapshot.queryParamMap.get('patientName');
+      
       if (patientId) {
+        // Set the patientId in the form
         this.consultationForm.patchValue({ patientId });
+        
+        // If we have the patient name, set it in the search control for display
+        if (patientName) {
+          this.patientSearchControl.setValue(patientName, { emitEvent: false });
+        } else {
+          // Load the patient to display in autocomplete
+          this.patientsService.getPatientById(patientId).subscribe({
+            next: (patient) => {
+              this.selectedPatient = patient;
+              this.patientSearchControl.setValue(patient, { emitEvent: false });
+            },
+            error: (error) => {
+              console.error('Error loading patient:', error);
+            }
+          });
+        }
       }
       
       // Set default consultation date to now
@@ -170,6 +249,23 @@ export class ConsultationFormComponent implements OnInit {
         weight: consultation.vitalSigns?.weight || ''
       }
     });
+
+    // Set patient in autocomplete
+    if (consultation.patient) {
+      this.selectedPatient = consultation.patient as Patient;
+      this.patientSearchControl.setValue(consultation.patient, { emitEvent: false });
+    } else if (consultation.patientId) {
+      // Load patient if not populated
+      this.patientsService.getPatientById(consultation.patientId).subscribe({
+        next: (patient) => {
+          this.selectedPatient = patient;
+          this.patientSearchControl.setValue(patient, { emitEvent: false });
+        },
+        error: (error) => {
+          console.error('Error loading patient for autocomplete:', error);
+        }
+      });
+    }
 
     // For now, skip prescriptions since we need to integrate with backend properly
     

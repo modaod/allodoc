@@ -29,15 +29,45 @@
           </h3>
 
           <div class="form-grid">
-            <!-- Patient Selection -->
+            <!-- Patient Selection with Autocomplete -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Patient</mat-label>
-              <mat-select formControlName="patientId" required>
-                <mat-option *ngFor="let patient of patients" [value]="patient.id">
-                  {{ patient.firstName }} {{ patient.lastName }}
-                  <span *ngIf="patient.dateOfBirth"> ({{ calculateAge(patient.dateOfBirth) }} years)</span>
+              <mat-label>Search Patient</mat-label>
+              <input matInput 
+                     [formControl]="patientSearchControl"
+                     [matAutocomplete]="auto"
+                     placeholder="Type patient name, number or phone..."
+                     [readonly]="isEditMode">
+              <mat-icon matSuffix>search</mat-icon>
+              
+              <mat-autocomplete #auto="matAutocomplete" 
+                                [displayWith]="displayPatient"
+                                (optionSelected)="onPatientSelected($event)">
+                <mat-option *ngFor="let patient of filteredPatients$ | async" [value]="patient">
+                  <div class="patient-option">
+                    <div class="patient-name">
+                      <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
+                      <span class="patient-number">{{ patient.patientNumber }}</span>
+                    </div>
+                    <div class="patient-details">
+                      <span *ngIf="patient.dateOfBirth">{{ patient.dateOfBirth | date }} | </span>
+                      <span *ngIf="patient.gender">{{ patient.gender }} | </span>
+                      <span *ngIf="patient.phone">{{ patient.phone }}</span>
+                    </div>
+                  </div>
                 </mat-option>
-              </mat-select>
+                
+                <!-- No results message -->
+                <mat-option *ngIf="(filteredPatients$ | async)?.length === 0 && patientSearchControl.value?.length >= 2" disabled>
+                  <span class="no-results">No patients found</span>
+                </mat-option>
+                
+                <!-- Create new patient option -->
+                <mat-option *ngIf="showCreatePatient" (click)="openCreatePatientDialog()" class="create-patient-option">
+                  <mat-icon>add_circle</mat-icon>
+                  <strong>Create New Patient</strong>
+                </mat-option>
+              </mat-autocomplete>
+              
               <mat-error *ngIf="isFieldInvalid('patientId')">
                 Patient is required
               </mat-error>

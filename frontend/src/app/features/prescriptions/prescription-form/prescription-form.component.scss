@@ -213,3 +213,77 @@
     }
   }
 }
+
+// Patient autocomplete styles
+.patient-option {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .patient-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    
+    strong {
+      color: #333;
+      font-size: 14px;
+    }
+    
+    .patient-number {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+  }
+  
+  .patient-details {
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+
+.no-results {
+  color: #999;
+  font-style: italic;
+  padding: 8px;
+  display: block;
+  text-align: center;
+}
+
+.create-patient-option {
+  background: #f8f9fa;
+  border-top: 2px solid #e9ecef;
+  
+  &:hover {
+    background: #e3f2fd;
+  }
+  
+  ::ng-deep .mat-option-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4caf50;
+    font-weight: 500;
+    
+    mat-icon {
+      color: #4caf50;
+    }
+  }
+}
+
+// Override Material autocomplete panel styles
+::ng-deep .mat-autocomplete-panel {
+  max-height: 400px;
+  margin-top: 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
