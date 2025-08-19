@@ -143,7 +143,14 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
         }, { emitEvent: false });
         this.applyFilters();
       } else {
-        // No query params, load all consultations with pagination
+        // No query params, clear date filters and load all consultations
+        // Clear date filters when navigating to all consultations
+        if (!params['dateFrom'] && !params['dateTo']) {
+          this.filterForm.patchValue({
+            dateFrom: null,
+            dateTo: null
+          }, { emitEvent: false });
+        }
         this.applyFilters();
       }
     });

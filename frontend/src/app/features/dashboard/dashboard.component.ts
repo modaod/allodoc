@@ -82,7 +82,10 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToConsultations(): void {
-    this.router.navigate(['/consultations']);
+    // Explicitly clear query params when navigating to all consultations
+    this.router.navigate(['/consultations'], {
+      queryParams: {}
+    });
   }
   
   navigateToTodayConsultations(): void {
@@ -99,7 +102,10 @@ export class DashboardComponent implements OnInit {
   
   navigateToAllConsultations(): void {
     // Navigate without any filters for total consultations
-    this.router.navigate(['/consultations']);
+    // Explicitly clear query params to ensure filters are removed
+    this.router.navigate(['/consultations'], {
+      queryParams: {}
+    });
   }
 
   navigateToPrescriptions(): void {
