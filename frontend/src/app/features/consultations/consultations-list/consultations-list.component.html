@@ -37,21 +37,21 @@
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="">All Statuses</mat-option>
-            <mat-option *ngFor="let status of consultationStatuses" [value]="status">
-              {{ status }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Type</mat-label>
           <mat-select formControlName="type">
             <mat-option value="">All Types</mat-option>
             <mat-option *ngFor="let type of consultationTypes" [value]="type">
               {{ formatEnumValue(type) | titlecase }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">All Statuses</mat-option>
+            <mat-option *ngFor="let status of consultationStatuses" [value]="status">
+              {{ status }}
             </mat-option>
           </mat-select>
         </mat-form-field>
