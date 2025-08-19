@@ -160,11 +160,12 @@ export abstract class BaseRepository<T extends AuditableEntity> {
         endDate?: string,
         dateField: string = 'createdAt',
     ): SelectQueryBuilder<T> {
+        // Use PostgreSQL DATE() function to compare only date portions, ignoring time
         if (startDate) {
-            qb.andWhere(`${dateField} >= :startDate`).setParameter('startDate', startDate);
+            qb.andWhere(`DATE(${dateField}) >= DATE(:startDate)`, { startDate });
         }
         if (endDate) {
-            qb.andWhere(`${dateField} <= :endDate`).setParameter('endDate', endDate);
+            qb.andWhere(`DATE(${dateField}) <= DATE(:endDate)`, { endDate });
         }
         return qb;
     }
