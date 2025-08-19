@@ -130,7 +130,7 @@ export class DashboardService {
                     consultationId: IsNull()  // Only standalone prescriptions (quick prescriptions)
                 },
                 relations: ['patient'],
-                order: { prescribedDate: 'DESC' },
+                order: { createdAt: 'DESC' },
                 take: 5,
             }).catch(err => {
                 this.logger.error('Error fetching recent prescriptions:', err);
@@ -187,7 +187,7 @@ export class DashboardService {
                         type: 'prescription',
                         title: `Prescription for ${prescription.patient?.firstName || 'Unknown'} ${prescription.patient?.lastName || 'Patient'}`,
                         description: description,
-                        timestamp: prescription.prescribedDate,
+                        timestamp: prescription.createdAt,
                         icon: 'medication',
                         entityId: prescription.id,
                     });
