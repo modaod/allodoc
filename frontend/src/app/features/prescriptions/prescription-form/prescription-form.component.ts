@@ -100,7 +100,6 @@ export class PrescriptionFormComponent implements OnInit {
     return this.fb.group({
       prescriptionNumber: [''],
       patientId: ['', Validators.required],
-      doctorId: [''],
       prescriptionDate: [new Date().toISOString().split('T')[0], Validators.required],
       validUntil: [''],
       status: [PrescriptionStatus.ACTIVE, Validators.required],
@@ -247,12 +246,10 @@ export class PrescriptionFormComponent implements OnInit {
       const formValue = this.prescriptionForm.value;
       
       // Prepare the data for backend
+      // Note: doctorId and prescribedDate are now automatically set by the backend
       const prescriptionData: any = {
         patientId: formValue.patientId,
-        // Always use current user's ID as doctor ID
-        doctorId: this.authService.currentUser?.id || undefined,
         consultationId: formValue.consultationId || undefined,
-        prescribedDate: formValue.prescriptionDate,
         medications: formValue.medications,
         generalInstructions: formValue.generalInstructions || '',
         notes: formValue.notes || ''
