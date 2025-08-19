@@ -93,6 +93,14 @@ export class ConsultationDetailComponent implements OnInit {
     }
   }
 
+  viewPatientDetail(): void {
+    // Use patient.id if available (populated), otherwise use patientId
+    const patientId = this.consultation?.patient?.id || this.consultation?.patientId;
+    if (patientId) {
+      this.router.navigate(['/patients', patientId]);
+    }
+  }
+
   goBack(): void {
     if (this.isPatientContext && this.patientId) {
       // If in patient context, go back to patient consultations
