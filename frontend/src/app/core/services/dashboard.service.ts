@@ -17,6 +17,7 @@ export interface ActivityItem {
   timestamp: Date;
   icon: string;
   time?: string; // Added for UI display
+  entityId?: string; // ID of the related entity for navigation
 }
 
 export interface RecentActivity {

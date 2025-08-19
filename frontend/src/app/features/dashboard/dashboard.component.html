@@ -119,7 +119,7 @@
 
         <!-- Activity List -->
         <div *ngIf="recentActivities.length > 0" class="activity-list">
-          <div *ngFor="let activity of recentActivities" class="activity-item">
+          <div *ngFor="let activity of recentActivities" class="activity-item clickable" (click)="navigateToActivity(activity)">
             <div class="activity-icon" [ngClass]="'activity-' + activity.type">
               <mat-icon>{{ activity.icon }}</mat-icon>
             </div>

@@ -15,6 +15,9 @@ export class ActivityItemDto {
 
     @ApiProperty({ description: 'Material icon name for UI' })
     icon: string;
+
+    @ApiProperty({ description: 'ID of the related entity', required: false })
+    entityId?: string;
 }
 
 export class RecentActivityDto {

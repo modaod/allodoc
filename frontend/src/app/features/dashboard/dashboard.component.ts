@@ -117,4 +117,25 @@ export class DashboardComponent implements OnInit {
   quickPrescription(): void {
     this.router.navigate(['/prescriptions/new']);
   }
+
+  navigateToActivity(activity: ActivityItem): void {
+    if (!activity.entityId) {
+      console.warn('Activity item has no entityId:', activity);
+      return;
+    }
+
+    switch (activity.type) {
+      case 'consultation':
+        this.router.navigate(['/consultations', activity.entityId]);
+        break;
+      case 'patient':
+        this.router.navigate(['/patients', activity.entityId]);
+        break;
+      case 'prescription':
+        this.router.navigate(['/prescriptions', activity.entityId]);
+        break;
+      default:
+        console.warn('Unknown activity type:', activity.type);
+    }
+  }
 }

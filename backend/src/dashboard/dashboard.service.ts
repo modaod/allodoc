@@ -135,6 +135,7 @@ export class DashboardService {
                         description: consultation.reason || (consultation as any).chiefComplaint || 'Medical consultation',
                         timestamp: consultation.consultationDate,
                         icon: 'medical_services',
+                        entityId: consultation.id,
                     });
                 } catch (err) {
                     this.logger.warn(`Error processing consultation ${consultation.id}:`, err);
@@ -150,6 +151,7 @@ export class DashboardService {
                         description: 'Patient registered',
                         timestamp: patient.createdAt,
                         icon: 'person_add',
+                        entityId: patient.id,
                     });
                 } catch (err) {
                     this.logger.warn(`Error processing patient ${patient.id}:`, err);
