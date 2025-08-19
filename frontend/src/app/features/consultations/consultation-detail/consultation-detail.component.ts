@@ -174,14 +174,34 @@ export class ConsultationDetailComponent implements OnInit {
     });
   }
 
-  getBMICategory(bmi: number): string {
+  hasVitalSigns(): boolean {
+    if (!this.consultation?.vitalSigns) return false;
+    
+    // Check if vitalSigns has any actual data
+    const vitalSigns = this.consultation.vitalSigns;
+    return !!(
+      vitalSigns.bloodPressure?.systolic ||
+      vitalSigns.bloodPressure?.diastolic ||
+      vitalSigns.heartRate ||
+      vitalSigns.temperature ||
+      vitalSigns.respiratoryRate ||
+      vitalSigns.oxygenSaturation ||
+      vitalSigns.weight ||
+      vitalSigns.height ||
+      vitalSigns.bmi
+    );
+  }
+
+  getBMICategory(bmi: number | undefined): string {
+    if (!bmi) return '';
     if (bmi < 18.5) return 'Underweight';
     if (bmi < 25) return 'Normal';
     if (bmi < 30) return 'Overweight';
     return 'Obese';
   }
 
-  getBMIClass(bmi: number): string {
+  getBMIClass(bmi: number | undefined): string {
+    if (!bmi) return '';
     if (bmi < 18.5) return 'bmi-underweight';
     if (bmi < 25) return 'bmi-normal';
     if (bmi < 30) return 'bmi-overweight';

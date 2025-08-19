@@ -112,77 +112,77 @@
     </mat-card>
 
     <!-- Vital Signs Card -->
-    <mat-card class="info-card" *ngIf="consultation.vitalSigns">
+    <mat-card class="info-card" *ngIf="hasVitalSigns()">
       <mat-card-header>
         <mat-card-title>Vital Signs</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
         <div class="vital-signs-grid">
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.temperature">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.temperature">
             <mat-icon>device_thermostat</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Temperature</span>
-              <span class="vital-value">{{ consultation.vitalSigns.temperature }}°C</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.temperature }}°C</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.bloodPressure">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.bloodPressure">
             <mat-icon>favorite</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Blood Pressure</span>
               <span class="vital-value">
-                {{ consultation.vitalSigns.bloodPressure.systolic }}/{{ consultation.vitalSigns.bloodPressure.diastolic }} mmHg
+                {{ consultation.vitalSigns?.bloodPressure?.systolic }}/{{ consultation.vitalSigns?.bloodPressure?.diastolic }} mmHg
               </span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.heartRate">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.heartRate">
             <mat-icon>monitor_heart</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Heart Rate</span>
-              <span class="vital-value">{{ consultation.vitalSigns.heartRate }} BPM</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.heartRate }} BPM</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.respiratoryRate">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.respiratoryRate">
             <mat-icon>air</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Respiratory Rate</span>
-              <span class="vital-value">{{ consultation.vitalSigns.respiratoryRate }}/min</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.respiratoryRate }}/min</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.oxygenSaturation">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.oxygenSaturation">
             <mat-icon>opacity</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Oxygen Saturation</span>
-              <span class="vital-value">{{ consultation.vitalSigns.oxygenSaturation }}%</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.oxygenSaturation }}%</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.weight">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.weight">
             <mat-icon>scale</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Weight</span>
-              <span class="vital-value">{{ consultation.vitalSigns.weight }} kg</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.weight }} kg</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.height">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.height">
             <mat-icon>height</mat-icon>
             <div class="vital-info">
               <span class="vital-label">Height</span>
-              <span class="vital-value">{{ consultation.vitalSigns.height }} cm</span>
+              <span class="vital-value">{{ consultation.vitalSigns?.height }} cm</span>
             </div>
           </div>
 
-          <div class="vital-sign-item" *ngIf="consultation.vitalSigns.bmi">
+          <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.bmi">
             <mat-icon>calculate</mat-icon>
             <div class="vital-info">
               <span class="vital-label">BMI</span>
-              <span class="vital-value" [ngClass]="getBMIClass(consultation.vitalSigns.bmi)">
-                {{ consultation.vitalSigns.bmi }} ({{ getBMICategory(consultation.vitalSigns.bmi) }})
+              <span class="vital-value" [ngClass]="consultation.vitalSigns?.bmi ? getBMIClass(consultation.vitalSigns?.bmi) : ''">
+                {{ consultation.vitalSigns?.bmi }} <span *ngIf="consultation.vitalSigns?.bmi">({{ getBMICategory(consultation.vitalSigns?.bmi) }})</span>
               </span>
             </div>
           </div>
