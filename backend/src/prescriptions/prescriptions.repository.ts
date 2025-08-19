@@ -25,8 +25,10 @@ export class PrescriptionsRepository extends BaseRepository<Prescription> {
     async findByPatient(patientId: string): Promise<Prescription[]> {
         return await this.prescriptionRepository
             .createQueryBuilder('prescription')
-            .innerJoin('prescription.consultation', 'consultation')
-            .where('consultation.patientId = :patientId', { patientId })
+            .leftJoinAndSelect('prescription.patient', 'patient')
+            .leftJoinAndSelect('prescription.doctor', 'doctor')
+            .leftJoinAndSelect('prescription.consultation', 'consultation')
+            .where('prescription.patientId = :patientId', { patientId })
             .orderBy('prescription.prescribedDate', 'DESC')
             .getMany();
     }
