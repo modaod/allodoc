@@ -110,19 +110,6 @@ export class PrescriptionDetailComponent implements OnInit {
     }
   }
 
-  deletePrescription(): void {
-    if (this.prescription && confirm(`Are you sure you want to delete prescription ${this.prescription.prescriptionNumber}?`)) {
-      this.prescriptionsService.deletePrescription(this.prescription.id!).subscribe({
-        next: () => {
-          this.router.navigate(['/prescriptions']);
-        },
-        error: (error) => {
-          console.error('Error deleting prescription:', error);
-        }
-      });
-    }
-  }
-
   goBack(): void {
     if (this.fromConsultationId) {
       // If we came from a consultation, go back to it

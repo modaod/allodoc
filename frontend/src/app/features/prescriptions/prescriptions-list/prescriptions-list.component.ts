@@ -141,19 +141,6 @@ export class PrescriptionsListComponent implements OnInit {
     this.router.navigate(['/prescriptions', 'new']);
   }
 
-  deletePrescription(prescription: Prescription): void {
-    if (confirm(`Are you sure you want to delete prescription ${prescription.prescriptionNumber}?`)) {
-      this.prescriptionsService.deletePrescription(prescription.id!).subscribe({
-        next: () => {
-          this.loadPrescriptions();
-        },
-        error: (error) => {
-          console.error('Error deleting prescription:', error);
-        }
-      });
-    }
-  }
-
   formatDate(date: Date | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString();

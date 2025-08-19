@@ -93,19 +93,6 @@ export class ConsultationDetailComponent implements OnInit {
     }
   }
 
-  deleteConsultation(): void {
-    if (this.consultation && confirm(`Are you sure you want to delete consultation ${this.consultation.consultationNumber}?`)) {
-      this.consultationsService.deleteConsultation(this.consultation.id!).subscribe({
-        next: () => {
-          this.router.navigate(['/consultations']);
-        },
-        error: (error) => {
-          console.error('Error deleting consultation:', error);
-        }
-      });
-    }
-  }
-
   goBack(): void {
     if (this.isPatientContext && this.patientId) {
       // If in patient context, go back to patient consultations
