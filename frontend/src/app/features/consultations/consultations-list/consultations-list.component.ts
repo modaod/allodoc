@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -8,13 +8,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { Consultation, ConsultationSearchParams, ConsultationStatus, ConsultationType } from '../models/consultation.model';
 import { ConsultationsService } from '../services/consultations.service';
+import { PaginationStateService } from '../../../core/services/pagination-state.service';
 
 @Component({
   selector: 'app-consultations-list',
   templateUrl: './consultations-list.component.html',
   styleUrls: ['./consultations-list.component.scss']
 })
-export class ConsultationsListComponent implements OnInit {
+export class ConsultationsListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['consultationNumber', 'patientName', 'consultationDate', 'type', 'status', 'chiefComplaint', 'actions'];
   dataSource = new MatTableDataSource<Consultation>();
   
@@ -51,16 +52,40 @@ export class ConsultationsListComponent implements OnInit {
     { value: 'type', label: 'Type' }
   ];
 
+  private readonly STATE_KEY = 'consultations-list';
+
   constructor(
     private consultationsService: ConsultationsService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private paginationState: PaginationStateService
   ) {}
 
   ngOnInit(): void {
+    // Try to restore saved state
+    const savedState = this.paginationState.getState(this.STATE_KEY);
+    let stateRestored = false;
+    
     // Check for query parameters to determine which endpoint to use
     this.route.queryParams.subscribe(params => {
       const filter = params['filter'];
+      
+      // Only restore state if no special filter is applied
+      if (!filter && !params['dateFrom'] && !params['dateTo'] && savedState && !stateRestored) {
+        stateRestored = true;
+        // Restore pagination settings
+        this.currentPage = savedState.pageIndex;
+        this.pageSize = savedState.pageSize;
+        
+        // Restore search and filters
+        if (savedState.search !== undefined) {
+          this.searchControl.setValue(savedState.search, { emitEvent: false });
+        }
+        
+        if (savedState.filters) {
+          this.filterForm.patchValue(savedState.filters, { emitEvent: false });
+        }
+      }
       
       if (filter === 'today') {
         // Set today's date in both from and to fields for visual feedback
@@ -144,6 +169,28 @@ export class ConsultationsListComponent implements OnInit {
     this.dataSource.sort = this.sort;
   }
 
+  ngOnDestroy(): void {
+    // Save current state before navigating away
+    this.saveCurrentState();
+  }
+
+  private saveCurrentState(): void {
+    const filters = this.filterForm.value;
+    this.paginationState.saveState(this.STATE_KEY, {
+      pageIndex: this.currentPage,
+      pageSize: this.pageSize,
+      search: this.searchControl.value || undefined,
+      filters: {
+        dateFrom: filters.dateFrom || undefined,
+        dateTo: filters.dateTo || undefined,
+        status: filters.status || undefined,
+        type: filters.type || undefined,
+        sortBy: filters.sortBy || 'consultationDate',
+        sortOrder: filters.sortOrder || 'DESC'
+      }
+    });
+  }
+
   loadConsultations(params?: ConsultationSearchParams): void {
     this.loading = true;
     this.consultationsService.getAllConsultations(params).subscribe({
@@ -223,6 +270,9 @@ export class ConsultationsListComponent implements OnInit {
     // Reset pagination
     this.currentPage = 0;
     this.pageSize = 10;
+    
+    // Clear saved state
+    this.paginationState.clearState(this.STATE_KEY);
     
     // Clear query parameters and reload with pagination
     this.router.navigate(['/consultations']);

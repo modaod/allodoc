@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -10,13 +10,14 @@ import { Patient, PatientSearchParams } from '../models/patient.model';
 import { PatientsService } from '../services/patients.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { PaginationStateService } from '../../../core/services/pagination-state.service';
 
 @Component({
   selector: 'app-patients-list',
   templateUrl: './patients-list.component.html',
   styleUrls: ['./patients-list.component.scss']
 })
-export class PatientsListComponent implements OnInit {
+export class PatientsListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['patientNumber', 'name', 'dateOfBirth', 'gender', 'phone', 'lastVisit', 'actions'];
   dataSource = new MatTableDataSource<Patient>();
   
@@ -47,22 +48,56 @@ export class PatientsListComponent implements OnInit {
     { value: 'patientNumber', label: 'Patient Number' }
   ];
 
+  private readonly STATE_KEY = 'patients-list';
+
   constructor(
     private patientsService: PatientsService,
     private router: Router,
     private notificationService: NotificationService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private paginationState: PaginationStateService
   ) {}
 
   ngOnInit(): void {
-    // Load patients with initial pagination parameters
-    const initialParams: PatientSearchParams = {
-      page: 1,
-      limit: this.pageSize,
-      sortBy: 'lastName',
-      sortOrder: 'ASC'
-    };
-    this.loadPatients(initialParams);
+    // Try to restore saved state
+    const savedState = this.paginationState.getState(this.STATE_KEY);
+    
+    if (savedState) {
+      // Restore pagination settings
+      this.currentPage = savedState.pageIndex;
+      this.pageSize = savedState.pageSize;
+      
+      // Restore search and filters
+      if (savedState.search !== undefined) {
+        this.searchControl.setValue(savedState.search, { emitEvent: false });
+      }
+      
+      if (savedState.filters) {
+        this.filterForm.patchValue(savedState.filters, { emitEvent: false });
+      }
+      
+      // Load with restored state
+      const params: PatientSearchParams = {
+        page: this.currentPage + 1,
+        limit: this.pageSize,
+        search: savedState.search || undefined,
+        startDate: savedState.filters?.startDate || undefined,
+        endDate: savedState.filters?.endDate || undefined,
+        sortBy: savedState.filters?.sortBy || 'lastName',
+        sortOrder: savedState.filters?.sortOrder || 'ASC'
+      };
+      this.loadPatients(params);
+    } else {
+      // Load patients with initial pagination parameters
+      const initialParams: PatientSearchParams = {
+        page: 1,
+        limit: this.pageSize,
+        sortBy: 'lastName',
+        sortOrder: 'ASC'
+      };
+      this.loadPatients(initialParams);
+    }
+    
     this.setupSearch();
     this.setupFilters();
   }
@@ -70,6 +105,26 @@ export class PatientsListComponent implements OnInit {
   ngAfterViewInit(): void {
     // Remove client-side pagination - we're using server-side
     this.dataSource.sort = this.sort;
+  }
+
+  ngOnDestroy(): void {
+    // Save current state before navigating away
+    this.saveCurrentState();
+  }
+
+  private saveCurrentState(): void {
+    const filters = this.filterForm.value;
+    this.paginationState.saveState(this.STATE_KEY, {
+      pageIndex: this.currentPage,
+      pageSize: this.pageSize,
+      search: this.searchControl.value || undefined,
+      filters: {
+        startDate: filters.startDate || undefined,
+        endDate: filters.endDate || undefined,
+        sortBy: filters.sortBy || 'lastName',
+        sortOrder: filters.sortOrder || 'ASC'
+      }
+    });
   }
 
   loadPatients(params?: PatientSearchParams): void {
@@ -151,6 +206,8 @@ export class PatientsListComponent implements OnInit {
     // Reset pagination
     this.currentPage = 0;
     this.pageSize = 10;
+    // Clear saved state
+    this.paginationState.clearState(this.STATE_KEY);
     // Load with reset pagination parameters
     const params: PatientSearchParams = {
       page: 1,

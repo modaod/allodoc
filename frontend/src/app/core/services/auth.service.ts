@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { PaginationStateService } from './pagination-state.service';
 
 export interface LoginRequest {
   email: string;
@@ -65,7 +66,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private paginationState: PaginationStateService
   ) {
     // Check for existing session on service initialization
     this.loadStoredUser();
@@ -264,6 +266,9 @@ export class AuthService {
     
     // Clear user state
     this.currentUserSubject.next(null);
+    
+    // Clear pagination states
+    this.paginationState.clearAll();
     
     // Clear timer
     if (this.tokenExpiryTimer) {
