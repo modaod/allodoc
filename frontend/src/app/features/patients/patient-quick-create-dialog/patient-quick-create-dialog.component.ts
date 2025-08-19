@@ -24,9 +24,9 @@ export class PatientQuickCreateDialogComponent {
       lastName: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
       gender: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern('^[0-9-+() ]+$')]],
+      phone: ['', [Validators.pattern('^[0-9-+() ]+$')]],
       email: ['', [Validators.email]],
-      address: ['', Validators.required]
+      address: ['']
     });
 
     // If search term was provided, try to parse it for pre-filling
@@ -50,9 +50,9 @@ export class PatientQuickCreateDialogComponent {
       this.saving = true;
       const formValue = this.patientForm.value;
       
-      // Convert date to ISO string
+      // Convert date to ISO date string (YYYY-MM-DD)
       if (formValue.dateOfBirth) {
-        formValue.dateOfBirth = new Date(formValue.dateOfBirth).toISOString();
+        formValue.dateOfBirth = new Date(formValue.dateOfBirth).toISOString().split('T')[0];
       }
 
       this.patientsService.createPatient(formValue).subscribe({

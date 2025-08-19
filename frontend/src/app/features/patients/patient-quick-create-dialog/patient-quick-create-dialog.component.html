@@ -38,8 +38,8 @@
 
     <div class="form-row">
       <mat-form-field appearance="outline">
-        <mat-label>Phone Number</mat-label>
-        <input matInput formControlName="phone" placeholder="+1 234 567 8900" required>
+        <mat-label>Phone Number (Optional)</mat-label>
+        <input matInput formControlName="phone" placeholder="+1 234 567 8900">
         <mat-icon matPrefix>phone</mat-icon>
         <mat-error>{{ getFieldError('phone') }}</mat-error>
       </mat-form-field>
@@ -53,8 +53,8 @@
     </div>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Address</mat-label>
-      <textarea matInput formControlName="address" rows="2" placeholder="Enter full address" required></textarea>
+      <mat-label>Address (Optional)</mat-label>
+      <textarea matInput formControlName="address" rows="2" placeholder="Enter full address"></textarea>
       <mat-icon matPrefix>home</mat-icon>
       <mat-error>{{ getFieldError('address') }}</mat-error>
     </mat-form-field>

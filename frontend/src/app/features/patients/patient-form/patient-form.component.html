@@ -60,21 +60,21 @@
           <h3>Contact Information</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Email</mat-label>
+              <mat-label>Email (Optional)</mat-label>
               <input matInput formControlName="email" type="email">
               <mat-error>{{ getFieldError('email') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Phone</mat-label>
-              <input matInput formControlName="phone" required>
+              <mat-label>Phone (Optional)</mat-label>
+              <input matInput formControlName="phone">
               <mat-error>{{ getFieldError('phone') }}</mat-error>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Alternate Phone</mat-label>
+              <mat-label>Alternate Phone (Optional)</mat-label>
               <input matInput formControlName="alternatePhone">
               <mat-error>{{ getFieldError('alternatePhone') }}</mat-error>
             </mat-form-field>
@@ -82,8 +82,8 @@
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Address</mat-label>
-              <textarea matInput formControlName="address" rows="3" required></textarea>
+              <mat-label>Address (Optional)</mat-label>
+              <textarea matInput formControlName="address" rows="3"></textarea>
               <mat-error>{{ getFieldError('address') }}</mat-error>
             </mat-form-field>
           </div>
