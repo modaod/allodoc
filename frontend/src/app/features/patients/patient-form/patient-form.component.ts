@@ -210,7 +210,7 @@ export class PatientFormComponent implements OnInit {
   onSubmit(): void {
     if (this.patientForm.valid) {
       this.saving = true;
-      const formValue = this.patientForm.value;
+      const formValue = { ...this.patientForm.value };
       
       // Include allergies and chronic diseases
       formValue.medicalHistory.allergies = this.allergies;
@@ -222,6 +222,23 @@ export class PatientFormComponent implements OnInit {
       } else if (formValue.dateOfBirth && typeof formValue.dateOfBirth === 'string' && formValue.dateOfBirth.includes('T')) {
         // If it's already an ISO string, extract just the date part
         formValue.dateOfBirth = formValue.dateOfBirth.split('T')[0];
+      }
+      
+      // Remove empty optional fields to avoid backend validation errors
+      if (!formValue.phone || formValue.phone.trim() === '') {
+        delete formValue.phone;
+      }
+      if (!formValue.email || formValue.email.trim() === '') {
+        delete formValue.email;
+      }
+      if (!formValue.address || formValue.address.trim() === '') {
+        delete formValue.address;
+      }
+      if (!formValue.alternatePhone || formValue.alternatePhone.trim() === '') {
+        delete formValue.alternatePhone;
+      }
+      if (!formValue.notes || formValue.notes.trim() === '') {
+        delete formValue.notes;
       }
 
       console.log('Form value before submission:', formValue);

@@ -48,12 +48,25 @@ export class PatientQuickCreateDialogComponent {
   onSubmit(): void {
     if (this.patientForm.valid) {
       this.saving = true;
-      const formValue = this.patientForm.value;
+      const formValue = { ...this.patientForm.value };
       
       // Convert date to ISO date string (YYYY-MM-DD)
       if (formValue.dateOfBirth) {
         formValue.dateOfBirth = new Date(formValue.dateOfBirth).toISOString().split('T')[0];
       }
+      
+      // Remove empty optional fields to avoid backend validation errors
+      if (!formValue.phone || formValue.phone.trim() === '') {
+        delete formValue.phone;
+      }
+      if (!formValue.email || formValue.email.trim() === '') {
+        delete formValue.email;
+      }
+      if (!formValue.address || formValue.address.trim() === '') {
+        delete formValue.address;
+      }
+
+      console.log('Sending patient data:', formValue);
 
       this.patientsService.createPatient(formValue).subscribe({
         next: (patient: Patient) => {
@@ -62,8 +75,11 @@ export class PatientQuickCreateDialogComponent {
         },
         error: (error) => {
           console.error('Error creating patient:', error);
+          console.error('Backend error details:', error.error);
           this.saving = false;
-          // You might want to show an error message here
+          // Show actual error message to user
+          const errorMessage = error?.error?.message?.message || error?.error?.message || 'Failed to create patient';
+          alert(`Error: ${errorMessage}`);
         }
       });
     }
