@@ -111,6 +111,28 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
         };
     }
 
+    async findLatestConsultationNumber(prefix: string): Promise<string | null> {
+        const result = await this.consultationRepository
+            .createQueryBuilder('consultation')
+            .select('consultation.consultationNumber')
+            .where('consultation.consultationNumber LIKE :prefix', { prefix: `${prefix}%` })
+            .orderBy('consultation.consultationNumber', 'DESC')
+            .getOne();
+        
+        return result?.consultationNumber || null;
+    }
+
+    async findOne(options: any): Promise<Consultation | null> {
+        return await this.consultationRepository.findOne(options);
+    }
+
+    async getNextConsultationNumber(): Promise<string> {
+        const result = await this.consultationRepository.query(
+            'SELECT get_next_consultation_number() as consultation_number'
+        );
+        return result[0].consultation_number;
+    }
+
     private createSearchQuery(
         searchDto: SearchDto,
         organizationId: string,

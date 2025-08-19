@@ -242,21 +242,9 @@ export class ConsultationsService {
     }
 
     private async generateConsultationNumber(organizationId: string): Promise<string> {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        
-        // Get the count of consultations for this organization this month
-        const startOfMonth = new Date(year, date.getMonth(), 1);
-        const endOfMonth = new Date(year, date.getMonth() + 1, 0);
-        
-        const count = await this.consultationsRepository.count({
-            organizationId,
-            consultationDate: Between(startOfMonth, endOfMonth),
-        });
-        
-        const sequence = String(count + 1).padStart(4, '0');
-        return `CONS-${year}${month}-${sequence}`;
+        // Use PostgreSQL sequence to get guaranteed unique consultation number
+        // The database function handles formatting as CONS-YYYYMM-XXXX
+        return await this.consultationsRepository.getNextConsultationNumber();
     }
 
     private async validateConsultationCreation(
