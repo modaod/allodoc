@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Material modules
 import { MatCardModule } from '@angular/material/card';
@@ -30,6 +31,7 @@ import { OrganizationSelectorComponent } from './organization-selector/organizat
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
+    TranslateModule,
     AuthRoutingModule,
     
     // Material modules
