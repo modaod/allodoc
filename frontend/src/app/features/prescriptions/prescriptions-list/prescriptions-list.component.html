@@ -1,8 +1,8 @@
 <div class="prescriptions-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Prescriptions Management</mat-card-title>
-      <mat-card-subtitle>Manage prescriptions and medication orders</mat-card-subtitle>
+      <mat-card-title>{{ 'prescriptions.title' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'prescriptions.subtitle' | translate }}</mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
@@ -11,22 +11,22 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon>filter_list</mat-icon>
-            Filters & Search
+            {{ 'filters.filtersAndSearch' | translate }}
           </mat-panel-title>
         </mat-expansion-panel-header>
         
         <form [formGroup]="filterForm" class="filters-form">
           <div class="filter-row">
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Search prescriptions...</mat-label>
-              <input matInput formControlName="search" placeholder="Search by patient, prescription number, or medication">
+              <mat-label>{{ 'common.search' | translate }}</mat-label>
+              <input matInput formControlName="search" [placeholder]="'prescriptions.searchPlaceholder' | translate">
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Status</mat-label>
+              <mat-label>{{ 'filters.status' | translate }}</mat-label>
               <mat-select formControlName="status">
-                <mat-option value="">All Statuses</mat-option>
+                <mat-option value="">{{ 'filters.allStatuses' | translate }}</mat-option>
                 <mat-option *ngFor="let status of prescriptionStatuses" [value]="status">
                   {{ status.replace('_', ' ') | titlecase }}
                 </mat-option>
@@ -36,17 +36,17 @@
 
           <div class="filter-row">
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Date From</mat-label>
+              <mat-label>{{ 'filters.fromDate' | translate }}</mat-label>
               <input matInput type="date" formControlName="dateFrom">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Date To</mat-label>
+              <mat-label>{{ 'filters.toDate' | translate }}</mat-label>
               <input matInput type="date" formControlName="dateTo">
             </mat-form-field>
             
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Sort By</mat-label>
+              <mat-label>{{ 'filters.sortBy' | translate }}</mat-label>
               <mat-select formControlName="sortBy">
                 <mat-option *ngFor="let option of sortOptions" [value]="option.value">
                   {{ option.label }}
@@ -55,17 +55,17 @@
             </mat-form-field>
             
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Sort Order</mat-label>
+              <mat-label>{{ 'filters.sortOrder' | translate }}</mat-label>
               <mat-select formControlName="sortOrder">
-                <mat-option value="ASC">Ascending</mat-option>
-                <mat-option value="DESC">Descending</mat-option>
+                <mat-option value="ASC">{{ 'filters.ascending' | translate }}</mat-option>
+                <mat-option value="DESC">{{ 'filters.descending' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
 
             <div class="filter-actions">
               <button type="button" mat-button (click)="clearFilters()">
                 <mat-icon>clear</mat-icon>
-                Clear
+                {{ 'common.clear' | translate }}
               </button>
             </div>
           </div>
@@ -75,12 +75,12 @@
       <!-- Actions Bar -->
       <div class="actions-bar">
         <div class="results-info">
-          <span>{{ totalPrescriptions }} prescription(s) found</span>
+          <span>{{ totalPrescriptions }} {{ 'prescriptions.prescriptionsFound' | translate }}</span>
         </div>
         
         <button mat-raised-button color="primary" (click)="addPrescription()">
           <mat-icon>add</mat-icon>
-          New Prescription
+          {{ 'prescriptions.newPrescription' | translate }}
         </button>
       </div>
 
@@ -94,7 +94,7 @@
         <table mat-table [dataSource]="dataSource" matSort class="prescriptions-table">
           <!-- Prescription Number Column -->
           <ng-container matColumnDef="prescriptionNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Prescription #</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'prescriptions.fields.prescriptionNumber' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <div class="prescription-number">
                 <strong>{{ prescription.prescriptionNumber }}</strong>
@@ -105,7 +105,7 @@
 
           <!-- Patient Name Column -->
           <ng-container matColumnDef="patientName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'prescriptions.fields.patient' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <div class="patient-info">
                 <div class="patient-name">{{ prescription.patientName }}</div>
@@ -116,13 +116,13 @@
 
           <!-- Prescription Date Column -->
           <ng-container matColumnDef="prescriptionDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'common.date' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">{{ formatDate(prescription.prescriptionDate) }}</td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'filters.status' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <span [ngStyle]="getStatusStyle(prescription.status)"
                     [attr.data-status]="prescription.status">
@@ -133,7 +133,7 @@
 
           <!-- Medications Column -->
           <ng-container matColumnDef="medications">
-            <th mat-header-cell *matHeaderCellDef>Medications</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'prescriptions.fields.medications' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <div class="medications-info">
                 <div class="medication-list">{{ getMedicationsList(prescription) }}</div>
@@ -146,7 +146,7 @@
 
           <!-- Valid Until Column -->
           <ng-container matColumnDef="validUntil">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Valid Until</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'prescriptions.fields.validUntil' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <div class="validity-info">
                 <div class="validity-date" 
@@ -158,12 +158,12 @@
                 </div>
                 <mat-icon *ngIf="isExpiringSoon(prescription.validUntil)" 
                           class="warning-icon" 
-                          matTooltip="Expires within 30 days">
+                          [matTooltip]="'prescriptions.messages.expiresWithin30Days' | translate">
                   warning
                 </mat-icon>
                 <mat-icon *ngIf="isExpired(prescription.validUntil)" 
                           class="error-icon" 
-                          matTooltip="Expired">
+                          [matTooltip]="'prescriptions.messages.expired' | translate">
                   error
                 </mat-icon>
               </div>
@@ -172,16 +172,16 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
             <td mat-cell *matCellDef="let prescription">
               <div class="actions-menu">
-                <button mat-icon-button color="primary" (click)="viewPrescription(prescription)" matTooltip="View Prescription">
+                <button mat-icon-button color="primary" (click)="viewPrescription(prescription)" [matTooltip]="'prescriptions.actions.view' | translate">
                   <mat-icon>visibility</mat-icon>
                 </button>
-                <button mat-icon-button color="accent" (click)="editPrescription(prescription)" matTooltip="Edit Prescription">
+                <button mat-icon-button color="accent" (click)="editPrescription(prescription)" [matTooltip]="'prescriptions.actions.edit' | translate">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button matTooltip="Print Prescription">
+                <button mat-icon-button [matTooltip]="'prescriptions.actions.print' | translate">
                   <mat-icon>print</mat-icon>
                 </button>
               </div>
@@ -195,11 +195,11 @@
         <!-- No Data Message -->
         <div *ngIf="dataSource.data.length === 0" class="no-data">
           <mat-icon>medication</mat-icon>
-          <h3>No prescriptions found</h3>
-          <p>{{ filterForm.get('search')?.value ? 'No prescriptions match your search criteria.' : 'Start by creating your first prescription.' }}</p>
+          <h3>{{ 'prescriptions.messages.noPrescriptions' | translate }}</h3>
+          <p>{{ filterForm.get('search')?.value ? ('prescriptions.messages.noSearchResults' | translate) : ('prescriptions.messages.createFirstPrescription' | translate) }}</p>
           <button mat-raised-button color="primary" (click)="addPrescription()">
             <mat-icon>add</mat-icon>
-            Create First Prescription
+            {{ 'prescriptions.messages.createFirstPrescriptionButton' | translate }}
           </button>
         </div>
 

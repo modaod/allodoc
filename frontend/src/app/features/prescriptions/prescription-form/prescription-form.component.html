@@ -5,10 +5,10 @@
         <mat-icon>medication</mat-icon>
       </div>
       <mat-card-title>
-        {{ isEditMode ? 'Edit Prescription' : 'New Prescription' }}
+        {{ isEditMode ? ('prescriptions.editPrescription' | translate) : ('prescriptions.newPrescription' | translate) }}
       </mat-card-title>
       <mat-card-subtitle>
-        {{ isEditMode ? 'Update prescription details' : 'Create a new prescription for patient' }}
+        {{ isEditMode ? ('prescriptions.updatePrescriptionDetails' | translate) : ('prescriptions.createNewPrescription' | translate) }}
       </mat-card-subtitle>
     </mat-card-header>
 
@@ -25,17 +25,17 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>info</mat-icon>
-            Basic Information
+            {{ 'prescriptions.basicInformation' | translate }}
           </h3>
 
           <div class="form-grid">
             <!-- Patient Selection with Autocomplete -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Search Patient</mat-label>
+              <mat-label>{{ 'prescriptions.searchPatient' | translate }}</mat-label>
               <input matInput 
                      [formControl]="patientSearchControl"
                      [matAutocomplete]="auto"
-                     placeholder="Type patient name, number or phone..."
+                     [placeholder]="'prescriptions.placeholders.searchPatient' | translate"
                      [readonly]="isEditMode">
               <mat-icon matSuffix>search</mat-icon>
               
@@ -58,39 +58,39 @@
                 
                 <!-- No results message -->
                 <mat-option *ngIf="(filteredPatients$ | async)?.length === 0 && patientSearchControl.value?.length >= 2" disabled>
-                  <span class="no-results">No patients found</span>
+                  <span class="no-results">{{ 'prescriptions.noPatientsFound' | translate }}</span>
                 </mat-option>
                 
                 <!-- Create new patient option -->
                 <mat-option *ngIf="showCreatePatient" (click)="openCreatePatientDialog()" class="create-patient-option">
                   <mat-icon>add_circle</mat-icon>
-                  <strong>Create New Patient</strong>
+                  <strong>{{ 'prescriptions.createNewPatient' | translate }}</strong>
                 </mat-option>
               </mat-autocomplete>
               
               <mat-error *ngIf="isFieldInvalid('patientId')">
-                Patient is required
+                {{ 'prescriptions.patientRequired' | translate }}
               </mat-error>
             </mat-form-field>
 
             <!-- Prescriber (Current User) -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Prescriber</mat-label>
+              <mat-label>{{ 'prescriptions.prescriber' | translate }}</mat-label>
               <input matInput [value]="currentUserName" disabled>
             </mat-form-field>
 
             <!-- Prescription Date -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Prescription Date</mat-label>
+              <mat-label>{{ 'prescriptions.fields.prescribedDate' | translate }}</mat-label>
               <input matInput type="date" formControlName="prescriptionDate" required>
               <mat-error *ngIf="isFieldInvalid('prescriptionDate')">
-                Date is required
+                {{ 'prescriptions.dateRequired' | translate }}
               </mat-error>
             </mat-form-field>
 
             <!-- Status -->
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Status</mat-label>
+              <mat-label>{{ 'prescriptions.fields.status' | translate }}</mat-label>
               <mat-select formControlName="status">
                 <mat-option *ngFor="let status of prescriptionStatuses" [value]="status">
                   {{ status.replace('_', ' ') | titlecase }}
@@ -104,16 +104,16 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>medication</mat-icon>
-            Medications ({{ medicationsArray.length }})
+            {{ 'prescriptions.medications' | translate }} ({{ medicationsArray.length }})
           </h3>
 
           <!-- Check if medications array is empty -->
           <div *ngIf="medicationsArray && medicationsArray.length === 0" class="no-medications">
             <mat-icon>medication</mat-icon>
-            <p>No medications added yet</p>
+            <p>{{ 'prescriptions.noMedicationsAdded' | translate }}</p>
             <button mat-raised-button color="primary" type="button" (click)="addMedication()">
               <mat-icon>add</mat-icon>
-              Add First Medication
+              {{ 'prescriptions.addFirstMedication' | translate }}
             </button>
           </div>
 
@@ -123,10 +123,10 @@
                  class="medication-card" [formGroupName]="i">
               
               <div class="medication-header">
-                <h4>Medication {{ i + 1 }}</h4>
+                <h4>{{ 'prescriptions.medication' | translate }} {{ i + 1 }}</h4>
                 <button mat-icon-button color="warn" type="button" (click)="removeMedication(i)" 
                         [disabled]="medicationsArray.length === 1"
-                        matTooltip="Remove medication">
+                        [matTooltip]="'prescriptions.removeMedicationTooltip' | translate">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -134,54 +134,54 @@
               <div class="medication-form-grid">
                 <!-- Medication Name -->
                 <mat-form-field appearance="outline" class="medication-field full-width">
-                  <mat-label>Medication Name</mat-label>
-                  <input matInput formControlName="name" placeholder="Enter medication name" required>
+                  <mat-label>{{ 'prescriptions.medicationNameLabel' | translate }}</mat-label>
+                  <input matInput formControlName="name" [placeholder]="'prescriptions.medicationNamePlaceholder' | translate" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'name')">
-                    Medication name is required
+                    {{ 'prescriptions.medicationNameRequired' | translate }}
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Dosage -->
                 <mat-form-field appearance="outline" class="medication-field">
-                  <mat-label>Dosage</mat-label>
-                  <input matInput formControlName="dosage" placeholder="e.g., 500mg" required>
+                  <mat-label>{{ 'prescriptions.dosageLabel' | translate }}</mat-label>
+                  <input matInput formControlName="dosage" [placeholder]="'prescriptions.dosagePlaceholder' | translate" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'dosage')">
-                    Dosage is required
+                    {{ 'prescriptions.dosageRequired' | translate }}
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Frequency -->
                 <mat-form-field appearance="outline" class="medication-field">
-                  <mat-label>Frequency</mat-label>
-                  <input matInput formControlName="frequency" placeholder="e.g., Twice daily" required>
+                  <mat-label>{{ 'prescriptions.frequencyLabel' | translate }}</mat-label>
+                  <input matInput formControlName="frequency" [placeholder]="'prescriptions.frequencyPlaceholder' | translate" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'frequency')">
-                    Frequency is required
+                    {{ 'prescriptions.frequencyRequired' | translate }}
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Duration -->
                 <mat-form-field appearance="outline" class="medication-field">
-                  <mat-label>Duration</mat-label>
-                  <input matInput formControlName="duration" placeholder="e.g., 7 days" required>
+                  <mat-label>{{ 'prescriptions.durationLabel' | translate }}</mat-label>
+                  <input matInput formControlName="duration" [placeholder]="'prescriptions.durationPlaceholder' | translate" required>
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'duration')">
-                    Duration is required
+                    {{ 'prescriptions.durationRequired' | translate }}
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Quantity -->
                 <mat-form-field appearance="outline" class="medication-field">
-                  <mat-label>Quantity</mat-label>
-                  <input matInput type="number" formControlName="quantity" placeholder="e.g., 30" min="1">
+                  <mat-label>{{ 'prescriptions.quantityLabel' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="quantity" [placeholder]="'prescriptions.quantityPlaceholder' | translate" min="1">
                   <mat-error *ngIf="isMedicationFieldInvalid(i, 'quantity')">
-                    Quantity is required
+                    {{ 'prescriptions.quantityRequired' | translate }}
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Instructions -->
                 <mat-form-field appearance="outline" class="medication-field full-width">
-                  <mat-label>Instructions</mat-label>
+                  <mat-label>{{ 'prescriptions.instructionsLabel' | translate }}</mat-label>
                   <textarea matInput formControlName="instructions" rows="2" 
-                            placeholder="e.g., Take with food"></textarea>
+                            [placeholder]="'prescriptions.instructionsPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>
             </div>
@@ -190,7 +190,7 @@
             <div class="add-medication-section">
               <button mat-stroked-button color="primary" type="button" (click)="addMedication()">
                 <mat-icon>add</mat-icon>
-                Add Another Medication
+                {{ 'prescriptions.addAnotherMedication' | translate }}
               </button>
             </div>
           </div>
@@ -200,33 +200,33 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>notes</mat-icon>
-            Additional Information
+            {{ 'prescriptions.additionalInformation' | translate }}
           </h3>
 
           <div class="form-grid">
             <!-- General Instructions -->
             <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>General Instructions</mat-label>
+              <mat-label>{{ 'prescriptions.generalInstructions' | translate }}</mat-label>
               <textarea matInput formControlName="generalInstructions" rows="3" 
-                        placeholder="General instructions for the patient..."></textarea>
+                        [placeholder]="'prescriptions.generalInstructionsPlaceholder' | translate"></textarea>
             </mat-form-field>
 
             <!-- Notes -->
             <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>Internal Notes</mat-label>
+              <mat-label>{{ 'prescriptions.internalNotes' | translate }}</mat-label>
               <textarea matInput formControlName="notes" rows="2" 
-                        placeholder="Internal notes..."></textarea>
+                        [placeholder]="'prescriptions.internalNotesPlaceholder' | translate"></textarea>
             </mat-form-field>
           </div>
         </div>
 
         <!-- Form Actions -->
         <div class="form-actions">
-          <button mat-button type="button" (click)="onCancel()">Cancel</button>
+          <button mat-button type="button" (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
           <button mat-raised-button color="primary" type="submit" [disabled]="saving || !prescriptionForm.valid">
             <mat-icon *ngIf="saving">hourglass_empty</mat-icon>
             <mat-icon *ngIf="!saving">save</mat-icon>
-            {{ saving ? 'Saving...' : (isEditMode ? 'Update Prescription' : 'Create Prescription') }}
+            {{ saving ? ('prescriptions.saving' | translate) : (isEditMode ? ('prescriptions.updatePrescription' | translate) : ('prescriptions.createPrescription' | translate)) }}
           </button>
         </div>
       </form>
