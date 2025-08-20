@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -28,6 +29,7 @@ import { ConsultationsRoutingModule } from './consultations-routing.module';
 import { ConsultationsListComponent } from './consultations-list/consultations-list.component';
 import { ConsultationFormComponent } from './consultation-form/consultation-form.component';
 import { ConsultationDetailComponent } from './consultation-detail/consultation-detail.component';
+import { DATE_ADAPTER_PROVIDERS } from '../../core/utils/date-adapter-providers';
 
 @NgModule({
   declarations: [
@@ -35,10 +37,14 @@ import { ConsultationDetailComponent } from './consultation-detail/consultation-
     ConsultationFormComponent,
     ConsultationDetailComponent
   ],
+  providers: [
+    ...DATE_ADAPTER_PROVIDERS
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
+    TranslateModule,
     ConsultationsRoutingModule,
     MatTableModule,
     MatPaginatorModule,

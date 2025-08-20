@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -28,6 +29,7 @@ import { PrescriptionsRoutingModule } from './prescriptions-routing.module';
 import { PrescriptionsListComponent } from './prescriptions-list/prescriptions-list.component';
 import { PrescriptionFormComponent } from './prescription-form/prescription-form.component';
 import { PrescriptionDetailComponent } from './prescription-detail/prescription-detail.component';
+import { DATE_ADAPTER_PROVIDERS } from '../../core/utils/date-adapter-providers';
 
 @NgModule({
   declarations: [
@@ -35,10 +37,14 @@ import { PrescriptionDetailComponent } from './prescription-detail/prescription-
     PrescriptionFormComponent,
     PrescriptionDetailComponent
   ],
+  providers: [
+    ...DATE_ADAPTER_PROVIDERS
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
+    TranslateModule,
     PrescriptionsRoutingModule,
     MatTableModule,
     MatPaginatorModule,

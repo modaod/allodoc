@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -31,6 +32,7 @@ import { PatientPrescriptionsListComponent } from './patient-prescriptions-list/
 import { PatientConsultationDetailComponent } from './patient-consultation-detail/patient-consultation-detail.component';
 import { PatientPrescriptionDetailComponent } from './patient-prescription-detail/patient-prescription-detail.component';
 import { PatientQuickCreateDialogComponent } from './patient-quick-create-dialog/patient-quick-create-dialog.component';
+import { DATE_ADAPTER_PROVIDERS } from '../../core/utils/date-adapter-providers';
 
 @NgModule({
   declarations: [
@@ -43,10 +45,14 @@ import { PatientQuickCreateDialogComponent } from './patient-quick-create-dialog
     PatientPrescriptionDetailComponent,
     PatientQuickCreateDialogComponent
   ],
+  providers: [
+    ...DATE_ADAPTER_PROVIDERS
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
+    TranslateModule,
     PatientsRoutingModule,
     ConsultationsModule,
     PrescriptionsModule,
