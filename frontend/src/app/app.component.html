@@ -75,6 +75,26 @@
   
   <span class="spacer"></span>
   
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <button mat-button [matMenuTriggerFor]="languageMenu" class="language-button">
+      <mat-icon>language</mat-icon>
+      <span>{{ currentLang === 'en' ? 'EN' : 'FR' }}</span>
+    </button>
+    <mat-menu #languageMenu="matMenu">
+      <button mat-menu-item (click)="switchLanguage('en')" [class.active]="currentLang === 'en'">
+        <span class="flag">🇬🇧</span>
+        <span>English</span>
+        <mat-icon *ngIf="currentLang === 'en'">check</mat-icon>
+      </button>
+      <button mat-menu-item (click)="switchLanguage('fr')" [class.active]="currentLang === 'fr'">
+        <span class="flag">🇫🇷</span>
+        <span>Français</span>
+        <mat-icon *ngIf="currentLang === 'fr'">check</mat-icon>
+      </button>
+    </mat-menu>
+  </div>
+  
   <!-- User Menu -->
   <div class="user-menu">
     <span class="user-name">{{ getUserDisplayName() }}</span>
