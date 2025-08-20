@@ -7,6 +7,7 @@ import { ConsultationsService } from '../../consultations/services/consultations
 import { PrescriptionsService } from '../../prescriptions/services/prescriptions.service';
 import { Consultation } from '../../consultations/models/consultation.model';
 import { Prescription } from '../../prescriptions/models/prescription.model';
+import { DateFormatterService } from '../../../core/utils/date-formatter';
 
 interface MedicalTimelineEvent {
   id: string;
@@ -39,7 +40,8 @@ export class PatientDetailComponent implements OnInit {
     private router: Router,
     private patientsService: PatientsService,
     private consultationsService: ConsultationsService,
-    private prescriptionsService: PrescriptionsService
+    private prescriptionsService: PrescriptionsService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
@@ -149,9 +151,8 @@ export class PatientDetailComponent implements OnInit {
     return age;
   }
 
-  formatDate(date: Date | undefined): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatter.formatDate(date);
   }
 
   getGenderDisplay(): string {

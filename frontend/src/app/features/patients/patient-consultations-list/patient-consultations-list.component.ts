@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConsultationsService } from '../../consultations/services/consultations.service';
 import { PatientsService } from '../services/patients.service';
 import { Consultation, ConsultationStatus, ConsultationType } from '../../consultations/models/consultation.model';
+import { DateFormatterService } from '../../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-patient-consultations-list',
@@ -19,7 +20,8 @@ export class PatientConsultationsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private consultationsService: ConsultationsService,
-    private patientsService: PatientsService
+    private patientsService: PatientsService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
@@ -75,9 +77,8 @@ export class PatientConsultationsListComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date | string): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatter.formatDate(date);
   }
 
   getStatusClass(status: ConsultationStatus): string {
