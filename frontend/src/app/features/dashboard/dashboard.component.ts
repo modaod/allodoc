@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService, User } from '../../core/services/auth.service';
 import { DashboardService, DashboardStats, ActivityItem } from '../../core/services/dashboard.service';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,11 +21,13 @@ export class DashboardComponent implements OnInit {
   };
 
   recentActivities: ActivityItem[] = [];
+  private originalActivities: ActivityItem[] = []; // Store original activity data
 
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +35,13 @@ export class DashboardComponent implements OnInit {
       this.currentUser = user;
       if (user) {
         this.loadDashboardData();
+      }
+    });
+    
+    // Subscribe to language changes and update activity titles
+    this.translate.onLangChange.subscribe(() => {
+      if (this.originalActivities.length > 0) {
+        this.updateActivityTitles();
       }
     });
   }
@@ -48,10 +58,9 @@ export class DashboardComponent implements OnInit {
         this.statistics = stats;
       }
       if (activity) {
-        this.recentActivities = activity.activities.map(item => ({
-          ...item,
-          time: this.formatTimeAgo(new Date(item.timestamp))
-        }));
+        // Store original activities for re-translation on language change
+        this.originalActivities = activity.activities;
+        this.updateActivityTitles();
       }
       this.loading = false;
     }).catch(error => {
@@ -60,21 +69,47 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private updateActivityTitles(): void {
+    this.recentActivities = this.originalActivities.map(item => {
+      // Extract patient name from the original title if it exists
+      let title = item.title;
+      const patientNameMatch = item.title.match(/(?:with|for|:)\s+(.+)$/);
+      const patientName = patientNameMatch ? patientNameMatch[1] : '';
+      
+      if (item.type === 'consultation' && patientName) {
+        title = this.translate.instant('dashboard.activities.consultation') + ' ' + patientName;
+      } else if (item.type === 'patient') {
+        title = this.translate.instant('dashboard.activities.patientRegistered') + (patientName ? ': ' + patientName : '');
+      } else if (item.type === 'prescription' && patientName) {
+        title = this.translate.instant('dashboard.activities.prescription') + ' ' + patientName;
+      }
+      
+      return {
+        ...item,
+        title,
+        time: this.formatTimeAgo(new Date(item.timestamp))
+      };
+    });
+  }
+
   private formatTimeAgo(date: Date): string {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+      const key = diffInMinutes === 1 ? 'dates.minuteAgo' : 'dates.minutesAgo';
+      return this.translate.instant(key, { count: diffInMinutes });
     }
     
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+      const key = diffInHours === 1 ? 'dates.hourAgo' : 'dates.hoursAgo';
+      return this.translate.instant(key, { count: diffInHours });
     }
     
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    const key = diffInDays === 1 ? 'dates.dayAgo' : 'dates.daysAgo';
+    return this.translate.instant(key, { count: diffInDays });
   }
 
   navigateToPatients(): void {

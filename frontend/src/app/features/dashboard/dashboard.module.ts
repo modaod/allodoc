@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Angular Material modules
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +18,7 @@ import { DashboardComponent } from './dashboard.component';
   imports: [
     CommonModule,
     DashboardRoutingModule,
+    TranslateModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

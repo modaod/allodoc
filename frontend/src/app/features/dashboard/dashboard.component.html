@@ -2,10 +2,10 @@
   <!-- Welcome Header -->
   <div class="welcome-section">
     <h1 class="welcome-title">
-      Welcome back, {{ currentUser?.firstName || "Doctor" }}!
+      {{ 'dashboard.welcomeBack' | translate }}, {{ currentUser?.firstName || "Doctor" }}!
     </h1>
     <p class="welcome-subtitle">
-      Here's what's happening in your practice today
+      {{ 'dashboard.subtitle' | translate }}
     </p>
   </div>
 
@@ -15,7 +15,7 @@
       mode="indeterminate"
       diameter="50"
     ></mat-progress-spinner>
-    <p>Loading dashboard data...</p>
+    <p>{{ 'common.loading' | translate }}</p>
   </div>
 
   <!-- Statistics Cards -->
@@ -27,7 +27,7 @@
         </div>
         <div class="stat-details">
           <div class="stat-number">{{ statistics.totalPatients }}</div>
-          <div class="stat-label">Total Patients</div>
+          <div class="stat-label">{{ 'dashboard.statistics.totalPatients' | translate }}</div>
         </div>
       </div>
     </mat-card>
@@ -42,7 +42,7 @@
         </div>
         <div class="stat-details">
           <div class="stat-number">{{ statistics.todayConsultations }}</div>
-          <div class="stat-label">Today's Consultations</div>
+          <div class="stat-label">{{ 'dashboard.statistics.todayConsultations' | translate }}</div>
         </div>
       </div>
     </mat-card>
@@ -57,7 +57,7 @@
         </div>
         <div class="stat-details">
           <div class="stat-number">{{ statistics.thisWeekConsultations }}</div>
-          <div class="stat-label">This Week's Consultations</div>
+          <div class="stat-label">{{ 'dashboard.statistics.weekConsultations' | translate }}</div>
         </div>
       </div>
     </mat-card>
@@ -72,7 +72,7 @@
         </div>
         <div class="stat-details">
           <div class="stat-number">{{ statistics.totalConsultations }}</div>
-          <div class="stat-label">Total Consultations</div>
+          <div class="stat-label">{{ 'dashboard.statistics.totalConsultations' | translate }}</div>
         </div>
       </div>
     </mat-card>
@@ -85,7 +85,7 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>flash_on</mat-icon>
-          Quick Actions
+          {{ 'dashboard.quickActionsTitle' | translate }}
         </mat-card-title>
       </mat-card-header>
 
@@ -98,7 +98,7 @@
             (click)="addNewPatient()"
           >
             <mat-icon>person_add</mat-icon>
-            Add New Patient
+            {{ 'dashboard.quickActions.addPatient' | translate }}
           </button>
 
           <button
@@ -108,7 +108,7 @@
             (click)="newConsultation()"
           >
             <mat-icon>medical_services</mat-icon>
-            New Consultation
+            {{ 'dashboard.quickActions.newConsultation' | translate }}
           </button>
 
           <button
@@ -118,12 +118,12 @@
             (click)="quickPrescription()"
           >
             <mat-icon>medication</mat-icon>
-            Quick Prescription
+            {{ 'dashboard.quickActions.quickPrescription' | translate }}
           </button>
 
           <button mat-stroked-button class="action-button">
             <mat-icon>event</mat-icon>
-            Schedule Appointment
+            {{ 'common.scheduleAppointment' | translate }}
           </button>
         </div>
       </mat-card-content>
@@ -134,7 +134,7 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>history</mat-icon>
-          Recent Activities
+          {{ 'dashboard.recentActivity' | translate }}
         </mat-card-title>
       </mat-card-header>
 
@@ -142,9 +142,9 @@
         <!-- Empty State -->
         <div *ngIf="recentActivities.length === 0" class="empty-state">
           <mat-icon>history</mat-icon>
-          <p>No recent activities</p>
+          <p>{{ 'messages.noResults' | translate }}</p>
           <p class="empty-subtitle">
-            Start by adding a patient or creating a consultation
+            {{ 'dashboard.emptyActivitySubtitle' | translate }}
           </p>
         </div>
 
@@ -173,20 +173,20 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon>today</mat-icon>
-        Today's Schedule
+        {{ 'dashboard.todaySchedule' | translate }}
       </mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
       <div class="schedule-placeholder empty-state">
         <mat-icon>event_available</mat-icon>
-        <p>No appointments scheduled for today</p>
+        <p>{{ 'dashboard.noAppointmentsToday' | translate }}</p>
         <p class="empty-subtitle">
-          Schedule your first appointment to get started
+          {{ 'dashboard.scheduleFirstAppointment' | translate }}
         </p>
         <button mat-raised-button color="primary">
           <mat-icon>add</mat-icon>
-          Schedule Appointment
+          {{ 'common.scheduleAppointment' | translate }}
         </button>
       </div>
     </mat-card-content>
