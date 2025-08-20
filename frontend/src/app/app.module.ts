@@ -58,6 +58,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatButtonToggleModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [TranslateModule]
 })
 export class AppModule { }
