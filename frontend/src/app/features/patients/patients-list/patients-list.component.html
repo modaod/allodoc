@@ -1,43 +1,43 @@
 <div class="patients-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Patients Management</mat-card-title>
-      <mat-card-subtitle>Manage patient records and information</mat-card-subtitle>
+      <mat-card-title>{{ 'patients.title' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'patients.subtitle' | translate }}</mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
       <!-- Search and Actions Bar -->
       <div class="actions-bar">
         <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search patients...</mat-label>
-          <input matInput [formControl]="searchControl" placeholder="Search by name, email, or patient number">
+          <mat-label>{{ 'common.search' | translate }}</mat-label>
+          <input matInput [formControl]="searchControl" [placeholder]="'patients.searchPlaceholder' | translate">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         
         <button mat-raised-button color="primary" (click)="addPatient()">
           <mat-icon>add</mat-icon>
-          Add Patient
+          {{ 'nav.addPatient' | translate }}
         </button>
       </div>
       
       <!-- Advanced Filters Bar -->
       <div class="filters-bar" [formGroup]="filterForm">
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Last Visit From</mat-label>
-          <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="Start date">
+          <mat-label>{{ 'filters.lastVisitFrom' | translate }}</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" [placeholder]="'filters.fromDate' | translate">
           <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
           <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Last Visit To</mat-label>
-          <input matInput [matDatepicker]="endPicker" formControlName="endDate" placeholder="End date">
+          <mat-label>{{ 'filters.lastVisitTo' | translate }}</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate" [placeholder]="'filters.toDate' | translate">
           <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
           <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sort By</mat-label>
+          <mat-label>{{ 'filters.sortBy' | translate }}</mat-label>
           <mat-select formControlName="sortBy">
             <mat-option *ngFor="let option of sortOptions" [value]="option.value">
               {{ option.label }}
@@ -46,16 +46,16 @@
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sort Order</mat-label>
+          <mat-label>{{ 'filters.sortOrder' | translate }}</mat-label>
           <mat-select formControlName="sortOrder">
-            <mat-option value="ASC">Ascending</mat-option>
-            <mat-option value="DESC">Descending</mat-option>
+            <mat-option value="ASC">{{ 'filters.ascending' | translate }}</mat-option>
+            <mat-option value="DESC">{{ 'filters.descending' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
         
         <button mat-button color="accent" (click)="clearFilters()">
           <mat-icon>clear</mat-icon>
-          Clear Filters
+          {{ 'filters.clearFilters' | translate }}
         </button>
       </div>
 
@@ -69,41 +69,41 @@
         <table mat-table [dataSource]="dataSource" matSort class="patients-table">
           <!-- Patient Number Column -->
           <ng-container matColumnDef="patientNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient #</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'patients.fields.patientNumber' | translate }}</th>
             <td mat-cell *matCellDef="let patient">{{ patient.patientNumber }}</td>
           </ng-container>
 
           <!-- Name Column -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'patients.fields.name' | translate }}</th>
             <td mat-cell *matCellDef="let patient">{{ getPatientFullName(patient) }}</td>
           </ng-container>
 
           <!-- Date of Birth Column -->
           <ng-container matColumnDef="dateOfBirth">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date of Birth</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'patients.fields.dateOfBirth' | translate }}</th>
             <td mat-cell *matCellDef="let patient">{{ formatDate(patient.dateOfBirth) }}</td>
           </ng-container>
 
           <!-- Gender Column -->
           <ng-container matColumnDef="gender">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Gender</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'patients.fields.gender' | translate }}</th>
             <td mat-cell *matCellDef="let patient">
               <span class="gender-badge" [class.male]="patient.gender === 'M'" [class.female]="patient.gender === 'F'">
-                {{ patient.gender === 'M' ? 'Male' : 'Female' }}
+                {{ patient.gender === 'M' ? ('patients.gender.male' | translate) : ('patients.gender.female' | translate) }}
               </span>
             </td>
           </ng-container>
 
           <!-- Phone Column -->
           <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef>Phone</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'patients.fields.phone' | translate }}</th>
             <td mat-cell *matCellDef="let patient">{{ patient.phone }}</td>
           </ng-container>
 
           <!-- Last Visit Column -->
           <ng-container matColumnDef="lastVisit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Visit</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'patients.fields.lastVisit' | translate }}</th>
             <td mat-cell *matCellDef="let patient">{{ formatDate(patient.lastVisit) }}</td>
           </ng-container>
 
@@ -114,11 +114,11 @@
         <!-- No Data Message -->
         <div *ngIf="dataSource.data.length === 0" class="no-data">
           <mat-icon>people_outline</mat-icon>
-          <h3>No patients found</h3>
-          <p>{{ searchControl.value ? 'No patients match your search criteria.' : 'Start by adding your first patient.' }}</p>
+          <h3>{{ 'patients.messages.noPatients' | translate }}</h3>
+          <p>{{ searchControl.value ? ('patients.messages.noSearchResults' | translate) : ('patients.messages.addFirstPatient' | translate) }}</p>
           <button mat-raised-button color="primary" (click)="addPatient()">
             <mat-icon>add</mat-icon>
-            Add First Patient
+            {{ 'patients.messages.addFirstPatientButton' | translate }}
           </button>
         </div>
 

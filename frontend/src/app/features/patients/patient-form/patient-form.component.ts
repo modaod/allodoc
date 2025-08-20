@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Patient, CreatePatientRequest, UpdatePatientRequest } from '../models/patient.model';
 import { PatientsService } from '../services/patients.service';
@@ -28,7 +29,8 @@ export class PatientFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private notificationService: NotificationService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -294,10 +296,21 @@ export class PatientFormComponent implements OnInit {
   getFieldError(fieldName: string): string {
     const field = this.patientForm.get(fieldName);
     if (field?.errors && field.touched) {
-      if (field.errors['required']) return `${fieldName} is required`;
-      if (field.errors['email']) return 'Invalid email format';
-      if (field.errors['minlength']) return `${fieldName} is too short`;
-      if (field.errors['pattern']) return 'Invalid format';
+      if (field.errors['required']) {
+        const translatedField = this.translate.instant(`patients.fields.${fieldName}`);
+        return this.translate.instant('common.required');
+      }
+      if (field.errors['email']) return this.translate.instant('patients.validation.invalidEmail');
+      if (field.errors['minlength']) {
+        const translatedField = this.translate.instant(`patients.fields.${fieldName}`);
+        return this.translate.instant('patients.validation.tooShort', { field: translatedField });
+      }
+      if (field.errors['pattern']) {
+        if (fieldName === 'phone' || fieldName === 'alternatePhone') {
+          return this.translate.instant('patients.validation.invalidPhone');
+        }
+        return this.translate.instant('patients.validation.invalidFormat');
+      }
     }
     return '';
   }
