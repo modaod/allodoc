@@ -8,28 +8,33 @@
   <mat-menu #appMenu="matMenu" class="app-menu">
     <button mat-menu-item routerLink="/dashboard">
       <mat-icon>dashboard</mat-icon>
-      <span>Dashboard</span>
+      <span>{{ 'nav.dashboard' | translate }}</span>
     </button>
     <button mat-menu-item routerLink="/patients">
       <mat-icon>people</mat-icon>
-      <span>Patients</span>
+      <span>{{ 'nav.patients' | translate }}</span>
     </button>
     <button mat-menu-item routerLink="/consultations">
       <mat-icon>medical_services</mat-icon>
-      <span>Consultations</span>
+      <span>{{ 'nav.consultations' | translate }}</span>
     </button>
     <mat-divider></mat-divider>
     <button mat-menu-item routerLink="/patients/new">
       <mat-icon>person_add</mat-icon>
-      <span>Add Patient</span>
+      <span>{{ 'nav.addPatient' | translate }}</span>
     </button>
     <button mat-menu-item routerLink="/consultations/new">
       <mat-icon>add</mat-icon>
-      <span>New Consultation</span>
+      <span>{{ 'nav.newConsultation' | translate }}</span>
     </button>
     <button mat-menu-item routerLink="/prescriptions/new">
       <mat-icon>medication</mat-icon>
-      <span>Quick Prescription</span>
+      <span>{{ 'nav.quickPrescription' | translate }}</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="switchLanguage(currentLang === 'en' ? 'fr' : 'en')">
+      <mat-icon>language</mat-icon>
+      <span>{{ currentLang === 'en' ? 'Français' : 'English' }}</span>
     </button>
   </mat-menu>
 
@@ -75,26 +80,6 @@
   
   <span class="spacer"></span>
   
-  <!-- Language Switcher -->
-  <div class="language-switcher">
-    <button mat-button [matMenuTriggerFor]="languageMenu" class="language-button">
-      <mat-icon>language</mat-icon>
-      <span>{{ currentLang === 'en' ? 'EN' : 'FR' }}</span>
-    </button>
-    <mat-menu #languageMenu="matMenu">
-      <button mat-menu-item (click)="switchLanguage('en')" [class.active]="currentLang === 'en'">
-        <span class="flag">🇬🇧</span>
-        <span>English</span>
-        <mat-icon *ngIf="currentLang === 'en'">check</mat-icon>
-      </button>
-      <button mat-menu-item (click)="switchLanguage('fr')" [class.active]="currentLang === 'fr'">
-        <span class="flag">🇫🇷</span>
-        <span>Français</span>
-        <mat-icon *ngIf="currentLang === 'fr'">check</mat-icon>
-      </button>
-    </mat-menu>
-  </div>
-  
   <!-- User Menu -->
   <div class="user-menu">
     <span class="user-name">{{ getUserDisplayName() }}</span>
@@ -104,16 +89,16 @@
     <mat-menu #userMenu="matMenu">
       <button mat-menu-item>
         <mat-icon>person</mat-icon>
-        <span>Profile</span>
+        <span>{{ 'nav.profile' | translate }}</span>
       </button>
       <button mat-menu-item>
         <mat-icon>settings</mat-icon>
-        <span>Settings</span>
+        <span>{{ 'nav.settings' | translate }}</span>
       </button>
       <mat-divider></mat-divider>
       <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
-        <span>Logout</span>
+        <span>{{ 'nav.logout' | translate }}</span>
       </button>
     </mat-menu>
   </div>
