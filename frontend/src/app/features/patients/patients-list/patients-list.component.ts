@@ -5,12 +5,14 @@ import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Patient, PatientSearchParams } from '../models/patient.model';
 import { PatientsService } from '../services/patients.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { PaginationStateService } from '../../../core/services/pagination-state.service';
+import { DateFormatterService } from '../../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-patients-list',
@@ -40,13 +42,7 @@ export class PatientsListComponent implements OnInit, OnDestroy {
     sortOrder: new FormControl<'ASC' | 'DESC'>('ASC')
   });
   
-  sortOptions = [
-    { value: 'lastName', label: 'Last Name' },
-    { value: 'firstName', label: 'First Name' },
-    { value: 'createdAt', label: 'Registration Date' },
-    { value: 'lastVisit', label: 'Last Visit' },
-    { value: 'patientNumber', label: 'Patient Number' }
-  ];
+  sortOptions: any[] = [];
 
   private readonly STATE_KEY = 'patients-list';
 
@@ -55,10 +51,31 @@ export class PatientsListComponent implements OnInit, OnDestroy {
     private router: Router,
     private notificationService: NotificationService,
     private errorHandler: ErrorHandlerService,
-    private paginationState: PaginationStateService
+    private paginationState: PaginationStateService,
+    private translate: TranslateService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
+    // Initialize sort options with translations
+    this.sortOptions = [
+      { value: 'lastName', label: this.translate.instant('patients.fields.lastName') },
+      { value: 'firstName', label: this.translate.instant('patients.fields.firstName') },
+      { value: 'createdAt', label: this.translate.instant('patients.fields.registeredDate') },
+      { value: 'lastVisit', label: this.translate.instant('patients.fields.lastVisit') },
+      { value: 'patientNumber', label: this.translate.instant('patients.fields.patientNumber') }
+    ];
+    
+    // Update sort options when language changes
+    this.translate.onLangChange.subscribe(() => {
+      this.sortOptions = [
+        { value: 'lastName', label: this.translate.instant('patients.fields.lastName') },
+        { value: 'firstName', label: this.translate.instant('patients.fields.firstName') },
+        { value: 'createdAt', label: this.translate.instant('patients.fields.registeredDate') },
+        { value: 'lastVisit', label: this.translate.instant('patients.fields.lastVisit') },
+        { value: 'patientNumber', label: this.translate.instant('patients.fields.patientNumber') }
+      ];
+    });
     // Try to restore saved state
     const savedState = this.paginationState.getState(this.STATE_KEY);
     
@@ -287,8 +304,7 @@ export class PatientsListComponent implements OnInit, OnDestroy {
     return `${patient.firstName} ${patient.lastName}`;
   }
 
-  formatDate(date: Date | undefined): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatter.formatDate(date);
   }
 }

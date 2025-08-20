@@ -12,6 +12,7 @@ import {
   PrescriptionStatus 
 } from '../models/prescription.model';
 import { PrescriptionsService } from '../services/prescriptions.service';
+import { DateFormatterService } from '../../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-prescriptions-list',
@@ -51,7 +52,8 @@ export class PrescriptionsListComponent implements OnInit {
 
   constructor(
     private prescriptionsService: PrescriptionsService,
-    private router: Router
+    private router: Router,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
@@ -141,9 +143,8 @@ export class PrescriptionsListComponent implements OnInit {
     this.router.navigate(['/prescriptions', 'new']);
   }
 
-  formatDate(date: Date | undefined): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatter.formatDate(date);
   }
 
   getStatusClass(status: any): string {

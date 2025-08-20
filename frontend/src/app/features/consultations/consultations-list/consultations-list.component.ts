@@ -5,10 +5,12 @@ import { MatSort } from '@angular/material/sort';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Consultation, ConsultationSearchParams, ConsultationStatus, ConsultationType } from '../models/consultation.model';
 import { ConsultationsService } from '../services/consultations.service';
 import { PaginationStateService } from '../../../core/services/pagination-state.service';
+import { DateFormatterService } from '../../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-consultations-list',
@@ -44,13 +46,7 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
     sortOrder: new FormControl<'ASC' | 'DESC'>('DESC')
   });
   
-  sortOptions = [
-    { value: 'consultationDate', label: 'Consultation Date' },
-    { value: 'consultationNumber', label: 'Consultation Number' },
-    { value: 'createdAt', label: 'Created Date' },
-    { value: 'status', label: 'Status' },
-    { value: 'type', label: 'Type' }
-  ];
+  sortOptions: any[] = [];
 
   private readonly STATE_KEY = 'consultations-list';
 
@@ -58,10 +54,19 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
     private consultationsService: ConsultationsService,
     private router: Router,
     private route: ActivatedRoute,
-    private paginationState: PaginationStateService
+    private paginationState: PaginationStateService,
+    private translate: TranslateService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
+    // Initialize sort options with translations
+    this.initializeSortOptions();
+    
+    // Update sort options when language changes
+    this.translate.onLangChange.subscribe(() => {
+      this.initializeSortOptions();
+    });
     // Try to restore saved state
     const savedState = this.paginationState.getState(this.STATE_KEY);
     let stateRestored = false;
@@ -167,6 +172,16 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Save current state before navigating away
     this.saveCurrentState();
+  }
+
+  private initializeSortOptions(): void {
+    this.sortOptions = [
+      { value: 'consultationDate', label: this.translate.instant('consultations.fields.date') },
+      { value: 'consultationNumber', label: this.translate.instant('consultations.fields.consultationNumber') },
+      { value: 'createdAt', label: this.translate.instant('common.createdDate') },
+      { value: 'status', label: this.translate.instant('consultations.fields.status') },
+      { value: 'type', label: this.translate.instant('consultations.fields.type') }
+    ];
   }
 
   private saveCurrentState(): void {
@@ -308,9 +323,8 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/consultations', 'new']);
   }
 
-  formatDate(date: Date | string): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatter.formatDate(date);
   }
 
   getStatusClass(status: ConsultationStatus): string {
