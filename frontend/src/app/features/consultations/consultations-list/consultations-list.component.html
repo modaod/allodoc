@@ -1,45 +1,45 @@
 <div class="consultations-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Consultations Management</mat-card-title>
-      <mat-card-subtitle>View and manage all patient consultations</mat-card-subtitle>
+      <mat-card-title>{{ 'consultations.title' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'consultations.subtitle' | translate }}</mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
       <!-- Search and Actions Bar -->
       <div class="actions-bar">
         <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search consultations...</mat-label>
-          <input matInput [formControl]="searchControl" placeholder="Search by patient name or consultation">
+          <mat-label>{{ 'common.search' | translate }}</mat-label>
+          <input matInput [formControl]="searchControl" [placeholder]="'consultations.searchPlaceholder' | translate">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         
         <button mat-raised-button color="primary" (click)="newConsultation()">
           <mat-icon>add</mat-icon>
-          New Consultation
+          {{ 'consultations.newConsultation' | translate }}
         </button>
       </div>
       
       <!-- Advanced Filters Bar -->
       <div class="filters-bar" [formGroup]="filterForm">
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>From Date</mat-label>
+          <mat-label>{{ 'filters.fromDate' | translate }}</mat-label>
           <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom">
           <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
           <mat-datepicker #fromPicker></mat-datepicker>
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>To Date</mat-label>
+          <mat-label>{{ 'filters.toDate' | translate }}</mat-label>
           <input matInput [matDatepicker]="toPicker" formControlName="dateTo">
           <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
           <mat-datepicker #toPicker></mat-datepicker>
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Type</mat-label>
+          <mat-label>{{ 'filters.type' | translate }}</mat-label>
           <mat-select formControlName="type">
-            <mat-option value="">All Types</mat-option>
+            <mat-option value="">{{ 'filters.allTypes' | translate }}</mat-option>
             <mat-option *ngFor="let type of consultationTypes" [value]="type">
               {{ formatEnumValue(type) | titlecase }}
             </mat-option>
@@ -47,9 +47,9 @@
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Status</mat-label>
+          <mat-label>{{ 'filters.status' | translate }}</mat-label>
           <mat-select formControlName="status">
-            <mat-option value="">All Statuses</mat-option>
+            <mat-option value="">{{ 'filters.allStatuses' | translate }}</mat-option>
             <mat-option *ngFor="let status of consultationStatuses" [value]="status">
               {{ status }}
             </mat-option>
@@ -57,7 +57,7 @@
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sort By</mat-label>
+          <mat-label>{{ 'filters.sortBy' | translate }}</mat-label>
           <mat-select formControlName="sortBy">
             <mat-option *ngFor="let option of sortOptions" [value]="option.value">
               {{ option.label }}
@@ -66,16 +66,16 @@
         </mat-form-field>
         
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sort Order</mat-label>
+          <mat-label>{{ 'filters.sortOrder' | translate }}</mat-label>
           <mat-select formControlName="sortOrder">
-            <mat-option value="ASC">Ascending</mat-option>
-            <mat-option value="DESC">Descending</mat-option>
+            <mat-option value="ASC">{{ 'filters.ascending' | translate }}</mat-option>
+            <mat-option value="DESC">{{ 'filters.descending' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
         
         <button mat-button color="accent" (click)="clearFilters()">
           <mat-icon>clear</mat-icon>
-          Clear Filters
+          {{ 'filters.clearFilters' | translate }}
         </button>
       </div>
 
@@ -106,13 +106,13 @@
         <table mat-table [dataSource]="dataSource" matSort class="consultations-table">
           <!-- Consultation Number Column -->
           <ng-container matColumnDef="consultationNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Consultation #</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'consultations.fields.consultationNumber' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">{{ consultation.consultationNumber || 'N/A' }}</td>
           </ng-container>
 
           <!-- Patient Name Column -->
           <ng-container matColumnDef="patientName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'consultations.fields.patient' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">
               {{ consultation.patient ? (consultation.patient.firstName + ' ' + consultation.patient.lastName) : (consultation.patientName || 'Unknown Patient') }}
             </td>
@@ -120,13 +120,13 @@
 
           <!-- Date Column -->
           <ng-container matColumnDef="consultationDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'consultations.fields.date' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">{{ formatDate(consultation.consultationDate) }}</td>
           </ng-container>
 
           <!-- Type Column -->
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'consultations.fields.type' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">
               <span class="type-badge" [class]="getTypeClass(consultation.type)">
                 {{ consultation.type?.replace('_', ' ') | titlecase }}
@@ -136,7 +136,7 @@
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'consultations.fields.status' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">
               <span class="status-badge" [class]="getStatusClass(consultation.status)">
                 {{ consultation.status?.replace('_', ' ') | titlecase }}
@@ -146,7 +146,7 @@
 
           <!-- Reason Column -->
           <ng-container matColumnDef="chiefComplaint">
-            <th mat-header-cell *matHeaderCellDef>Reason</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'consultations.fields.chiefComplaint' | translate }}</th>
             <td mat-cell *matCellDef="let consultation">{{ consultation.reason || '-' }}</td>
           </ng-container>
 
@@ -157,11 +157,11 @@
         <!-- No Data Message -->
         <div *ngIf="dataSource.data.length === 0" class="no-data">
           <mat-icon>medical_services</mat-icon>
-          <h3>No consultations found</h3>
-          <p>{{ searchControl.value ? 'No consultations match your search criteria.' : 'Start by creating your first consultation.' }}</p>
+          <h3>{{ 'consultations.messages.noConsultations' | translate }}</h3>
+          <p>{{ searchControl.value ? ('consultations.messages.noSearchResults' | translate) : ('consultations.messages.createFirstConsultation' | translate) }}</p>
           <button mat-raised-button color="primary" (click)="newConsultation()">
             <mat-icon>add</mat-icon>
-            Create First Consultation
+            {{ 'consultations.messages.createFirstConsultationButton' | translate }}
           </button>
         </div>
 

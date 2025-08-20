@@ -5,10 +5,10 @@
         <mat-icon>medical_services</mat-icon>
       </div>
       <mat-card-title>
-        {{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}
+        {{ isEditMode ? ('consultations.editConsultation' | translate) : ('consultations.newConsultation' | translate) }}
       </mat-card-title>
       <mat-card-subtitle>
-        {{ isEditMode ? 'Update consultation details' : 'Create a new consultation record' }}
+        {{ isEditMode ? ('consultations.updateConsultationDetails' | translate) : ('consultations.createNewConsultation' | translate) }}
       </mat-card-subtitle>
     </mat-card-header>
 
@@ -16,7 +16,7 @@
       <!-- Loading State -->
       <div *ngIf="loading" class="loading-section">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-        <p>Loading consultation data...</p>
+        <p>{{ 'consultations.loadingConsultationData' | translate }}</p>
       </div>
 
       <!-- Simplified Consultation Form -->
@@ -29,7 +29,7 @@
               <div style="display: flex; align-items: center;">
                 <mat-icon style="color: #856404; margin-right: 8px;">info</mat-icon>
                 <span style="color: #856404;">
-                  <strong>Edit Mode:</strong> Only notes and vital signs can be modified in existing consultations. Other fields are read-only for data integrity.
+                  <strong>{{ 'consultations.editMode' | translate }}:</strong> {{ 'consultations.editModeInfo' | translate }}
                 </span>
               </div>
             </mat-card-content>
@@ -40,17 +40,17 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>info</mat-icon>
-            Basic Information
+            {{ 'consultations.basicInformation' | translate }}
           </h3>
           
           <div class="form-section-content">
             <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Search Patient</mat-label>
+              <mat-label>{{ 'consultations.searchPatient' | translate }}</mat-label>
               <input matInput 
                      [formControl]="patientSearchControl"
                      [matAutocomplete]="auto"
-                     placeholder="Type patient name, number or phone..."
+                     [placeholder]="'consultations.placeholders.searchPatient' | translate"
                      [readonly]="isEditMode">
               <mat-icon matSuffix>search</mat-icon>
               
@@ -73,13 +73,13 @@
                 
                 <!-- No results message -->
                 <mat-option *ngIf="(filteredPatients$ | async)?.length === 0 && patientSearchControl.value?.length >= 2" disabled>
-                  <span class="no-results">No patients found</span>
+                  <span class="no-results">{{ 'consultations.noPatientsfound' | translate }}</span>
                 </mat-option>
                 
                 <!-- Create new patient option -->
                 <mat-option *ngIf="showCreatePatient" (click)="openCreatePatientDialog()" class="create-patient-option">
                   <mat-icon>add_circle</mat-icon>
-                  <strong>Create New Patient</strong>
+                  <strong>{{ 'consultations.createNewPatient' | translate }}</strong>
                 </mat-option>
               </mat-autocomplete>
               
@@ -87,7 +87,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Date & Time</mat-label>
+              <mat-label>{{ 'consultations.dateAndTime' | translate }}</mat-label>
               <input matInput type="datetime-local" formControlName="consultationDate" required>
               <mat-error>{{ getFieldError('consultationDate') }}</mat-error>
             </mat-form-field>
@@ -95,7 +95,7 @@
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Type</mat-label>
+              <mat-label>{{ 'consultations.fields.type' | translate }}</mat-label>
               <mat-select formControlName="type" required>
                 <mat-option *ngFor="let type of consultationTypes" [value]="type">
                   {{ type.replace('_', ' ') | titlecase }}
@@ -105,7 +105,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Status</mat-label>
+              <mat-label>{{ 'consultations.fields.status' | translate }}</mat-label>
               <mat-select formControlName="status">
                 <mat-option *ngFor="let status of consultationStatuses" [value]="status">
                   {{ status.replace('_', ' ') | titlecase }}
@@ -120,48 +120,48 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>description</mat-icon>
-            Consultation Details
+            {{ 'consultations.consultationDetails' | translate }}
           </h3>
           
           <div class="form-section-content">
             <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Reason for Visit</mat-label>
+              <mat-label>{{ 'consultations.fields.chiefComplaint' | translate }}</mat-label>
               <textarea matInput formControlName="reason" rows="2" required 
-                        placeholder="What brought the patient to see you today?"></textarea>
+                        [placeholder]="'consultations.placeholders.chiefComplaint' | translate"></textarea>
               <mat-error>{{ getFieldError('reason') }}</mat-error>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Symptoms</mat-label>
+              <mat-label>{{ 'consultations.fields.symptoms' | translate }}</mat-label>
               <textarea matInput formControlName="symptoms" rows="3" 
-                        placeholder="Describe the patient's symptoms and complaints"></textarea>
+                        [placeholder]="'consultations.placeholders.symptoms' | translate"></textarea>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Physical Examination</mat-label>
+              <mat-label>{{ 'consultations.fields.physicalExamination' | translate }}</mat-label>
               <textarea matInput formControlName="physicalExamination" rows="4" 
-                        placeholder="Record your physical examination findings"></textarea>
+                        [placeholder]="'consultations.placeholders.physicalExamination' | translate"></textarea>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Diagnosis</mat-label>
+              <mat-label>{{ 'consultations.fields.diagnosis' | translate }}</mat-label>
               <textarea matInput formControlName="diagnosis" rows="2" 
-                        placeholder="Your diagnosis and assessment"></textarea>
+                        [placeholder]="'consultations.placeholders.diagnosis' | translate"></textarea>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Treatment Plan</mat-label>
+              <mat-label>{{ 'consultations.fields.treatment' | translate }}</mat-label>
               <textarea matInput formControlName="treatmentPlan" rows="3" 
-                        placeholder="Recommended treatment and care plan"></textarea>
+                        [placeholder]="'consultations.placeholders.treatment' | translate"></textarea>
             </mat-form-field>
             </div>
           </div>
@@ -171,28 +171,28 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>favorite</mat-icon>
-            Vital Signs (Optional)
+            {{ 'consultations.vitalSigns' | translate }} ({{ 'common.optional' | translate }})
           </h3>
           
           <div class="form-section-content">
             <div class="vitals-grid" formGroupName="vitalSigns">
             <mat-form-field appearance="outline">
-              <mat-label>Temperature (°C)</mat-label>
+              <mat-label>{{ 'consultations.fields.temperature' | translate }} (°C)</mat-label>
               <input matInput type="number" formControlName="temperature" step="0.1">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Heart Rate (BPM)</mat-label>
+              <mat-label>{{ 'consultations.fields.heartRate' | translate }} (BPM)</mat-label>
               <input matInput type="number" formControlName="heartRate">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Blood Pressure</mat-label>
+              <mat-label>{{ 'consultations.fields.bloodPressure' | translate }}</mat-label>
               <input matInput formControlName="bloodPressureText" placeholder="120/80">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Weight (kg)</mat-label>
+              <mat-label>{{ 'consultations.fields.weight' | translate }} (kg)</mat-label>
               <input matInput type="number" formControlName="weight" step="0.1">
             </mat-form-field>
             </div>
@@ -203,7 +203,7 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>medication</mat-icon>
-            Prescriptions
+            {{ 'nav.prescriptions' | translate }}
           </h3>
           
           <div class="form-section-content">
@@ -211,10 +211,10 @@
             <!-- Empty State -->
             <div *ngIf="prescriptions.length === 0" class="empty-prescriptions">
               <mat-icon>medication</mat-icon>
-              <p>No prescriptions added</p>
+              <p>{{ 'consultations.noPrescriptionsAdded' | translate }}</p>
               <button type="button" mat-raised-button color="primary" (click)="addPrescription()">
                 <mat-icon>add</mat-icon>
-                Add Prescription
+                {{ 'consultations.addPrescription' | translate }}
               </button>
             </div>
 
@@ -224,9 +224,9 @@
               
               <mat-card class="prescription-card">
                 <mat-card-header>
-                  <mat-card-title>Prescription {{ i + 1 }}</mat-card-title>
+                  <mat-card-title>{{ 'prescriptions.title' | translate }} {{ i + 1 }}</mat-card-title>
                   <button type="button" mat-icon-button color="warn" 
-                          (click)="removePrescription(i)" matTooltip="Remove prescription">
+                          (click)="removePrescription(i)" [matTooltip]="'consultations.removePrescription' | translate">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </mat-card-header>
@@ -235,37 +235,37 @@
                   <div class="prescription-form">
                     <div class="form-row">
                       <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Medication Name</mat-label>
+                        <mat-label>{{ 'prescriptions.fields.medicationName' | translate }}</mat-label>
                         <input matInput formControlName="medicationName" required>
-                        <mat-error>Medication name is required</mat-error>
+                        <mat-error>{{ 'consultations.medicationNameRequired' | translate }}</mat-error>
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Dosage</mat-label>
-                        <input matInput formControlName="dosage" placeholder="500mg" required>
-                        <mat-error>Dosage is required</mat-error>
+                        <mat-label>{{ 'prescriptions.fields.dosage' | translate }}</mat-label>
+                        <input matInput formControlName="dosage" [placeholder]="'prescriptions.placeholders.dosage' | translate" required>
+                        <mat-error>{{ 'consultations.dosageRequired' | translate }}</mat-error>
                       </mat-form-field>
                     </div>
 
                     <div class="form-row">
                       <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Frequency</mat-label>
-                        <input matInput formControlName="frequency" placeholder="2 times daily" required>
-                        <mat-error>Frequency is required</mat-error>
+                        <mat-label>{{ 'consultations.frequencyRequired' | translate }}</mat-label>
+                        <input matInput formControlName="frequency" [placeholder]="'consultations.placeholders.frequency' | translate" required>
+                        <mat-error>{{ 'consultations.frequencyRequired' | translate }}</mat-error>
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Duration</mat-label>
-                        <input matInput formControlName="duration" placeholder="7 days" required>
-                        <mat-error>Duration is required</mat-error>
+                        <mat-label>{{ 'consultations.durationRequired' | translate }}</mat-label>
+                        <input matInput formControlName="duration" [placeholder]="'consultations.placeholders.duration' | translate" required>
+                        <mat-error>{{ 'consultations.durationRequired' | translate }}</mat-error>
                       </mat-form-field>
                     </div>
 
                     <div class="form-row">
                       <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Instructions</mat-label>
+                        <mat-label>{{ 'consultations.instructions' | translate }}</mat-label>
                         <textarea matInput formControlName="instructions" rows="2" 
-                                  placeholder="Take with food, avoid alcohol, etc."></textarea>
+                                  [placeholder]="'consultations.placeholders.instructions' | translate"></textarea>
                       </mat-form-field>
                     </div>
                   </div>
@@ -277,7 +277,7 @@
             <div *ngIf="prescriptions.length > 0" class="add-prescription-section">
               <button type="button" mat-stroked-button color="primary" (click)="addPrescription()">
                 <mat-icon>add</mat-icon>
-                Add Another Prescription
+                {{ 'consultations.addAnotherPrescription' | translate }}
               </button>
             </div>
             </div>
@@ -288,23 +288,23 @@
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>notes</mat-icon>
-            Additional Notes
+            {{ 'consultations.additionalNotes' | translate }}
           </h3>
           
           <div class="form-section-content">
             <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Follow-up Instructions</mat-label>
+              <mat-label>{{ 'consultations.followUpInstructions' | translate }}</mat-label>
               <textarea matInput formControlName="followUpInstructions" rows="2" 
-                        placeholder="When should the patient return? Any specific instructions?"></textarea>
+                        [placeholder]="'consultations.placeholders.followUpPlaceholder' | translate"></textarea>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Additional Notes</mat-label>
+              <mat-label>{{ 'consultations.additionalNotes' | translate }}</mat-label>
               <textarea matInput formControlName="notes" rows="3" 
-                        placeholder="Any additional notes or observations"></textarea>
+                        [placeholder]="'consultations.placeholders.additionalNotesPlaceholder' | translate"></textarea>
             </mat-form-field>
             </div>
           </div>
@@ -313,14 +313,14 @@
         <!-- Form Actions -->
         <div class="form-actions">
           <button type="button" mat-button (click)="onCancel()" class="cancel-btn">
-            Cancel
+            {{ 'common.cancel' | translate }}
           </button>
           <button type="submit" mat-raised-button color="primary" 
                   [disabled]="consultationForm.invalid || saving" class="submit-btn">
             <mat-progress-spinner *ngIf="saving" mode="indeterminate" diameter="20"></mat-progress-spinner>
             <mat-icon *ngIf="!saving">save</mat-icon>
-            <span *ngIf="!saving">{{ isEditMode ? 'Update Consultation' : 'Create Consultation' }}</span>
-            <span *ngIf="saving">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+            <span *ngIf="!saving">{{ isEditMode ? ('common.update' | translate) + ' ' + ('nav.consultations' | translate) : ('common.create' | translate) + ' ' + ('nav.consultations' | translate) }}</span>
+            <span *ngIf="saving">{{ isEditMode ? ('patients.updating' | translate) : ('patients.creating' | translate) }}</span>
           </button>
         </div>
       </form>
