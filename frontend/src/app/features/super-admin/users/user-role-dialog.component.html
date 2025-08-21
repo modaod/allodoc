@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>Manage User Roles</h2>
+
+<mat-dialog-content>
+  <p class="user-info">
+    Managing roles for <strong>{{ data.user.firstName }} {{ data.user.lastName }}</strong>
+    <br>
+    <small>{{ data.user.email }}</small>
+  </p>
+
+  <div class="current-roles">
+    <h3>Current Roles</h3>
+    <div class="roles-display">
+      <mat-chip *ngFor="let role of currentRoles" [color]="getRoleColor(role)" selected>
+        {{ role }}
+      </mat-chip>
+      <span *ngIf="currentRoles.length === 0" class="no-roles">No roles assigned</span>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="role-selection">
+    <h3>Select Roles</h3>
+    <mat-selection-list [(ngModel)]="selectedRoles">
+      <mat-list-option *ngFor="let role of availableRoles" [value]="role" [disabled]="role === 'SUPER_ADMIN' && !canAssignSuperAdmin()">
+        <div class="role-option">
+          <span class="role-name">{{ role }}</span>
+          <span class="role-description">{{ getRoleDescription(role) }}</span>
+        </div>
+        <mat-icon *ngIf="role === 'SUPER_ADMIN'" matTooltip="Only super admins can assign this role" class="warning-icon">info</mat-icon>
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+
+  <mat-card class="info-card" *ngIf="hasChanges()">
+    <mat-card-content>
+      <mat-icon>info</mat-icon>
+      <span>Role changes will take effect immediately. The user may need to log in again to see the changes.</span>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" 
+          [disabled]="!hasChanges() || selectedRoles.length === 0 || loading"
+          (click)="onSave()">
+    <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+    <span *ngIf="!loading">Save Changes</span>
+  </button>
+</mat-dialog-actions>

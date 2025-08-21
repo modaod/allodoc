@@ -237,8 +237,7 @@ export class AuthService {
       const updatedUser = {
         ...user,
         selectedOrganization: user.organizations[0],
-        organizationId: user.organizations[0].id,
-        roles: [user.organizations[0].role]
+        organizationId: user.organizations[0].id
       };
       localStorage.setItem('selectedOrganizationId', user.organizations[0].id);
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));

@@ -28,6 +28,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'super-admin',
+    loadChildren: () => import('./features/super-admin/super-admin.module').then(m => m.SuperAdminModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: '',
     redirectTo: '/auth/login',
     pathMatch: 'full'

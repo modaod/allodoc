@@ -31,6 +31,11 @@
       <mat-icon>medication</mat-icon>
       <span>{{ 'nav.quickPrescription' | translate }}</span>
     </button>
+    <mat-divider *ngIf="isSuperAdmin()"></mat-divider>
+    <button mat-menu-item routerLink="/super-admin" *ngIf="isSuperAdmin()">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <span>Super Admin</span>
+    </button>
     <mat-divider></mat-divider>
     <button mat-menu-item (click)="switchLanguage(currentLang === 'en' ? 'fr' : 'en')">
       <mat-icon>language</mat-icon>

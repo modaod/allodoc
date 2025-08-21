@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Move User to Different Organization</h2>
+
+<mat-dialog-content>
+  <p class="info-text">
+    Moving <strong>{{ data.user.firstName }} {{ data.user.lastName }}</strong> 
+    from <strong>{{ data.user.organization?.name || 'Unknown' }}</strong>
+  </p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Select New Organization</mat-label>
+    <mat-select [(ngModel)]="selectedOrganizationId">
+      <mat-option *ngFor="let org of organizations" 
+                  [value]="org.id" 
+                  [disabled]="org.id === data.user.organizationId">
+        {{ org.name }}
+        <span class="org-info" *ngIf="org.id === data.user.organizationId"> (current)</span>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-card class="warning-card">
+    <mat-card-content>
+      <mat-icon color="warn">warning</mat-icon>
+      <div>
+        <strong>Warning:</strong> Moving a user to a different organization will:
+        <ul>
+          <li>Remove access to all data in the current organization</li>
+          <li>Grant access to data in the new organization</li>
+          <li>Require the user to log in again</li>
+        </ul>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" 
+          [disabled]="!selectedOrganizationId || selectedOrganizationId === data.user.organizationId || loading"
+          (click)="onConfirm()">
+    <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+    <span *ngIf="!loading">Move User</span>
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,91 @@
+.system-users-list {
+  padding: 24px;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+  }
+
+  mat-card {
+    .search-field {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 16px;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: 48px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+
+      table {
+        width: 100%;
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+
+          strong {
+            font-size: 14px;
+          }
+
+          small {
+            color: #666;
+            font-size: 12px;
+          }
+        }
+
+        .roles-list {
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+
+          mat-chip {
+            font-size: 12px;
+            min-height: 24px;
+            padding: 2px 8px;
+          }
+        }
+
+        .no-data {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 48px;
+          color: #999;
+
+          mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            opacity: 0.3;
+          }
+
+          p {
+            margin-top: 16px;
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,113 @@
+.user-info {
+  margin-bottom: 20px;
+  
+  strong {
+    color: #333;
+  }
+  
+  small {
+    color: #666;
+    font-size: 13px;
+  }
+}
+
+.current-roles {
+  margin-bottom: 20px;
+  
+  h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .roles-display {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    
+    .no-roles {
+      color: #999;
+      font-style: italic;
+      font-size: 14px;
+    }
+  }
+}
+
+.role-selection {
+  margin: 20px 0;
+  
+  h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  mat-selection-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    
+    mat-list-option {
+      .role-option {
+        display: flex;
+        flex-direction: column;
+        
+        .role-name {
+          font-weight: 500;
+          font-size: 14px;
+        }
+        
+        .role-description {
+          font-size: 12px;
+          color: #666;
+          margin-top: 2px;
+        }
+      }
+      
+      .warning-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #ff9800;
+      }
+    }
+  }
+}
+
+.info-card {
+  margin-top: 16px;
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px !important;
+    
+    mat-icon {
+      color: #2196f3;
+    }
+    
+    span {
+      font-size: 13px;
+      color: #333;
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  
+  button {
+    margin-left: 8px;
+    
+    mat-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+}

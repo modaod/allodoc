@@ -1,0 +1,175 @@
+<div class="super-admin-dashboard">
+  <div class="dashboard-header">
+    <h1>
+      <mat-icon>admin_panel_settings</mat-icon>
+      System Administration Dashboard
+    </h1>
+    <button mat-raised-button color="primary" (click)="loadSystemStats()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading system statistics...</p>
+  </div>
+
+  <div class="dashboard-content" *ngIf="!loading && systemStats">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon primary">
+            <mat-icon>business</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalOrganizations }}</h3>
+            <p>Organizations</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon accent">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalUsers }}</h3>
+            <p>Total Users</p>
+            <small>{{ systemStats.activeUsers }} active</small>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon warn">
+            <mat-icon>personal_injury</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalPatients }}</h3>
+            <p>Patients</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon success">
+            <mat-icon>medical_services</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalConsultations }}</h3>
+            <p>Consultations</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon info">
+            <mat-icon>medication</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalPrescriptions }}</h3>
+            <p>Prescriptions</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon warning">
+            <mat-icon>event</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ systemStats.totalAppointments }}</h3>
+            <p>Appointments</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <!-- User Distribution by Role -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Users by Role</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="role-distribution">
+            <div *ngFor="let role of roleChartData" class="role-item">
+              <div class="role-bar-container">
+                <div class="role-label">{{ role.name }}</div>
+                <div class="role-bar">
+                  <div class="role-bar-fill" 
+                       [style.width.%]="(role.value / systemStats.totalUsers) * 100"
+                       [attr.data-count]="role.value">
+                  </div>
+                </div>
+                <div class="role-count">{{ role.value }}</div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Top Organizations -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Top Organizations</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="org-list">
+            <div *ngFor="let org of systemStats.topOrganizations; let i = index" class="org-item">
+              <div class="org-rank">#{{ i + 1 }}</div>
+              <div class="org-info">
+                <h4>{{ org.name }}</h4>
+                <div class="org-stats">
+                  <span class="stat-badge users">
+                    <mat-icon>people</mat-icon>
+                    {{ org.userCount }} users
+                  </span>
+                  <span class="stat-badge patients">
+                    <mat-icon>personal_injury</mat-icon>
+                    {{ org.patientCount }} patients
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <mat-card class="actions-card">
+      <mat-card-header>
+        <mat-card-title>Quick Actions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="action-buttons">
+          <button mat-raised-button routerLink="/super-admin/organizations">
+            <mat-icon>business</mat-icon>
+            Manage Organizations
+          </button>
+          <button mat-raised-button routerLink="/super-admin/users">
+            <mat-icon>people</mat-icon>
+            Manage Users
+          </button>
+          <button mat-raised-button routerLink="/super-admin/organizations/new">
+            <mat-icon>add_business</mat-icon>
+            Create Organization
+          </button>
+          <button mat-raised-button routerLink="/super-admin/audit">
+            <mat-icon>history</mat-icon>
+            View Audit Logs
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

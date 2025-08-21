@@ -101,4 +101,8 @@ export class AppComponent implements OnInit {
     this.translate.use(lang);
     localStorage.setItem('preferredLanguage', lang);
   }
+
+  isSuperAdmin(): boolean {
+    return this.currentUser?.roles?.includes('SUPER_ADMIN') || false;
+  }
 }
