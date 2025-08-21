@@ -20,6 +20,7 @@ import { ConsultationsModule } from './consultations/consultations.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AuditModule } from './audit/audit.module';
+import { SuperAdminModule } from './super-admin/super-admin.module';
 
 // Global Guards, Interceptors, Filters
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -78,6 +79,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
         PrescriptionsModule,
         DashboardModule,
         AuditModule,
+        SuperAdminModule,
     ],
     providers: [
         // Global Guards
