@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@
 import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
 import { RolesService } from '../../users/roles.service';
+import { RoleName } from '../../users/entities/role.entity';
 
 export const PERMISSIONS_KEY = 'permissions';
 export const Permissions = (...permissions: string[]) => SetMetadata(PERMISSIONS_KEY, permissions);
@@ -27,6 +28,11 @@ export class PermissionsGuard implements CanActivate {
 
         if (!user) {
             throw new ForbiddenException('User not authenticated');
+        }
+
+        // SUPER_ADMIN bypasses all permission checks
+        if (user.roles?.some((role: any) => role.name === RoleName.SUPER_ADMIN)) {
+            return true;
         }
 
         // Check each required permission
