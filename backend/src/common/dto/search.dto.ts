@@ -4,10 +4,6 @@ import { PaginationDto } from './pagination.dto';
 export class SearchDto extends PaginationDto {
     @IsOptional()
     @IsString()
-    search?: string; // General search
-
-    @IsOptional()
-    @IsString()
     sortBy?: string; // Sort field
 
     @IsOptional()

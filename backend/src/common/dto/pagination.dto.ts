@@ -1,4 +1,4 @@
-import { IsOptional, IsPositive, Max, Min } from 'class-validator';
+import { IsOptional, IsPositive, Max, Min, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationDto {
@@ -14,6 +14,10 @@ export class PaginationDto {
     @Min(1)
     @Max(100)
     limit?: number = 10;
+
+    @IsOptional()
+    @IsString()
+    search?: string;
 
     get skip(): number {
         const currentPage = this.page ?? 1;
