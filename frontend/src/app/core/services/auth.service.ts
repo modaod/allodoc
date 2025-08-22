@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, Subject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -9,7 +9,6 @@ import { PaginationStateService } from './pagination-state.service';
 export interface LoginRequest {
   email: string;
   password: string;
-  organizationId?: string;
 }
 
 export interface RegisterRequest {
@@ -60,9 +59,11 @@ export interface User {
 export class AuthService {
   private readonly API_URL = environment.apiUrl || 'http://localhost:3000';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private organizationChangedSubject = new Subject<string>();
   private tokenExpiryTimer: any;
 
   public currentUser$ = this.currentUserSubject.asObservable();
+  public organizationChanged$ = this.organizationChangedSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -89,8 +90,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, registerData)
       .pipe(
         map(response => {
-          // Create organizations array from user data for consistency
-          if (response.user.organizationId) {
+          // Only create organizations array for non-Super Admin users
+          // Super Admins will fetch their organizations separately
+          if (response.user.organizationId && !response.user.roles?.includes('SUPER_ADMIN')) {
             response.organizations = [{
               id: response.user.organizationId,
               name: this.getOrganizationName(response.user.organizationId),
@@ -107,19 +109,10 @@ export class AuthService {
 
   login(loginData: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, loginData).pipe(
-      map(response => {
-        // Create organizations array from user data for consistency
-        if (response.user.organizationId) {
-          response.organizations = [{
-            id: response.user.organizationId,
-            name: this.getOrganizationName(response.user.organizationId),
-            role: response.user.roles?.[0] || 'USER',
-            lastAccessed: new Date()
-          }];
-        }
-        return response;
+      tap(response => {
+        // Backend now returns organizations array for all users
+        this.handleAuthSuccess(response);
       }),
-      tap(response => this.handleAuthSuccess(response)),
       catchError(error => this.handleAuthError(error))
     );
   }
@@ -173,42 +166,72 @@ export class AuthService {
   }
 
   selectOrganization(organizationId: string): Observable<AuthResponse> {
-    const organization = this.currentUser?.organizations?.find(org => org.id === organizationId);
-    
-    if (!organization) {
-      return throwError('Organization not found');
-    }
-
-    // Update selected organization locally
-    const updatedUser = {
-      ...this.currentUser!,
-      selectedOrganization: organization,
-      organizationId: organization.id,
-      roles: [organization.role]
-    };
-
-    // Store selected organization
-    localStorage.setItem('selectedOrganizationId', organizationId);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    this.currentUserSubject.next(updatedUser);
-
-    // In a real implementation, this would call the backend
-    // return this.http.post<AuthResponse>(`${this.API_URL}/auth/select-organization`, { organizationId })
-    
-    // For now, return a mock response
-    return new Observable<AuthResponse>(observer => {
-      observer.next({
-        user: updatedUser,
-        accessToken: this.getAccessToken() || '',
-        refreshToken: this.getRefreshToken() || '',
-        expiresIn: 86400
-      });
-      observer.complete();
-    });
+    // Call backend to switch organization
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/switch-organization/${organizationId}`, {})
+      .pipe(
+        tap(response => {
+          // Update tokens with new organization context
+          this.handleAuthSuccess(response);
+          
+          // Update selected organization in current user
+          if (this.currentUser && response.user) {
+            const selectedOrg = this.currentUser.organizations?.find(
+              org => org.id === organizationId
+            );
+            
+            const updatedUser = {
+              ...this.currentUser,
+              organizationId: response.user.organizationId,
+              selectedOrganization: selectedOrg || undefined
+            };
+            
+            this.currentUserSubject.next(updatedUser);
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            localStorage.setItem('selectedOrganizationId', organizationId);
+            
+            // Emit organization change event
+            this.organizationChangedSubject.next(organizationId);
+          }
+        }),
+        catchError(error => {
+          // Don't call handleAuthError which triggers logout
+          // Just pass the error through for the component to handle
+          console.error('Organization switch error:', error);
+          return throwError(error);
+        })
+      );
   }
 
   getUserOrganizations(): Organization[] {
     return this.currentUser?.organizations || [];
+  }
+
+  fetchUserOrganizations(): Observable<Organization[]> {
+    return this.http.get<Organization[]>(`${this.API_URL}/auth/organizations/user`)
+      .pipe(
+        tap(organizations => {
+          // Update current user with fetched organizations
+          if (this.currentUser) {
+            const updatedUser = {
+              ...this.currentUser,
+              organizations: organizations
+            };
+            
+            // For Super Admin, if no selected organization, set the first one
+            if (this.currentUser.roles?.includes('SUPER_ADMIN') && 
+                !updatedUser.selectedOrganization && 
+                organizations.length > 0) {
+              updatedUser.selectedOrganization = organizations[0];
+              updatedUser.organizationId = organizations[0].id;
+              localStorage.setItem('selectedOrganizationId', organizations[0].id);
+            }
+            
+            this.currentUserSubject.next(updatedUser);
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          }
+        }),
+        catchError(error => this.handleAuthError(error))
+      );
   }
 
   private getOrganizationName(organizationId: string): string {
@@ -226,26 +249,30 @@ export class AuthService {
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
     
-    // Process user data with organizations
-    const user = response.user;
-    if (response.organizations) {
-      user.organizations = response.organizations;
-    }
+    // Process user data with organizations from backend
+    const user: User = {
+      ...response.user,
+      organizations: response.user.organizations || []
+    };
     
-    // If user has single organization, auto-select it
-    if (user.organizations && user.organizations.length === 1) {
-      const updatedUser = {
-        ...user,
-        selectedOrganization: user.organizations[0],
-        organizationId: user.organizations[0].id
-      };
-      localStorage.setItem('selectedOrganizationId', user.organizations[0].id);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-      this.currentUserSubject.next(updatedUser);
-      
-      // Set token expiry timer
-      this.setTokenExpiryTimer(response.expiresIn);
-      return;
+    // Auto-select organization based on number of organizations
+    if (user.organizations && user.organizations.length > 0) {
+      // If only one organization, auto-select it
+      if (user.organizations.length === 1) {
+        user.selectedOrganization = user.organizations[0];
+        user.organizationId = user.organizations[0].id;
+        localStorage.setItem('selectedOrganizationId', user.organizations[0].id);
+      } else {
+        // Multiple organizations - use the organizationId from JWT (backend sets this)
+        if (response.user.organizationId) {
+          const selectedOrg = user.organizations.find(org => org.id === response.user.organizationId);
+          if (selectedOrg) {
+            user.selectedOrganization = selectedOrg;
+            user.organizationId = response.user.organizationId;
+            localStorage.setItem('selectedOrganizationId', response.user.organizationId);
+          }
+        }
+      }
     }
     
     // Store user data
