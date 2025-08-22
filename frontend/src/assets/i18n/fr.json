@@ -32,7 +32,8 @@
     "date": "Date",
     "notes": "Notes",
     "createdDate": "Date de création",
-    "scheduleAppointment": "Planifier un rendez-vous"
+    "scheduleAppointment": "Planifier un rendez-vous",
+    "appointmentComingSoon": "La fonctionnalité de planification de rendez-vous arrive bientôt!"
   },
   "nav": {
     "dashboard": "Tableau de bord",

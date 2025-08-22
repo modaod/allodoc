@@ -32,7 +32,8 @@
     "date": "Date",
     "notes": "Notes",
     "createdDate": "Created Date",
-    "scheduleAppointment": "Schedule Appointment"
+    "scheduleAppointment": "Schedule Appointment",
+    "appointmentComingSoon": "Appointment scheduling feature coming soon!"
   },
   "nav": {
     "dashboard": "Dashboard",

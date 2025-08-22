@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService, User } from '../../core/services/auth.service';
 import { DashboardService, DashboardStats, ActivityItem } from '../../core/services/dashboard.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
+    private notificationService: NotificationService,
     private router: Router,
     private translate: TranslateService
   ) {}
@@ -177,6 +179,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   quickPrescription(): void {
     this.router.navigate(['/prescriptions/new']);
+  }
+
+  scheduleAppointment(): void {
+    this.notificationService.showInfo(this.translate.instant('common.appointmentComingSoon'));
   }
 
   navigateToActivity(activity: ActivityItem): void {

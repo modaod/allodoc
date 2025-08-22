@@ -121,7 +121,7 @@
             {{ 'dashboard.quickActions.quickPrescription' | translate }}
           </button>
 
-          <button mat-stroked-button class="action-button">
+          <button mat-stroked-button class="action-button" (click)="scheduleAppointment()">
             <mat-icon>event</mat-icon>
             {{ 'common.scheduleAppointment' | translate }}
           </button>
@@ -184,7 +184,7 @@
         <p class="empty-subtitle">
           {{ 'dashboard.scheduleFirstAppointment' | translate }}
         </p>
-        <button mat-raised-button color="primary">
+        <button mat-raised-button color="primary" (click)="scheduleAppointment()">
           <mat-icon>add</mat-icon>
           {{ 'common.scheduleAppointment' | translate }}
         </button>
