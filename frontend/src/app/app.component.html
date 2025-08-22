@@ -34,7 +34,7 @@
     <mat-divider *ngIf="isSuperAdmin()"></mat-divider>
     <button mat-menu-item routerLink="/dashboard" *ngIf="isSuperAdmin() && isInSuperAdminMode" (click)="toggleSuperAdminMode()">
       <mat-icon>arrow_back</mat-icon>
-      <span>Back to Regular Dashboard</span>
+      <span>Exit Admin</span>
     </button>
     <button mat-menu-item routerLink="/super-admin" *ngIf="isSuperAdmin() && !isInSuperAdminMode" (click)="toggleSuperAdminMode()">
       <mat-icon>admin_panel_settings</mat-icon>
@@ -58,7 +58,7 @@
   <span class="spacer"></span>
   
   <!-- Centered Organization Context -->
-  <div class="organization-context-center" *ngIf="getDisplayOrganization() || isSuperAdmin()">
+  <div class="organization-context-center" *ngIf="getDisplayOrganization() && !isInSuperAdminMode">
     <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button-center">
       <span class="org-name">{{ getDisplayOrganization()?.name || 'No Organization' }}</span>
     </button>
