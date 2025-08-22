@@ -14,8 +14,6 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   hidePassword = true;
-  organizations: any[] = [];
-  loadingOrganizations = true;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -25,8 +23,7 @@ export class LoginComponent implements OnInit {
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      organizationId: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
@@ -35,29 +32,6 @@ export class LoginComponent implements OnInit {
     if (this.authService.isAuthenticated) {
       this.router.navigate(['/dashboard']);
     }
-    
-    // Fetch organizations from backend
-    this.fetchOrganizations();
-  }
-
-  private fetchOrganizations(): void {
-    const apiUrl = environment.apiUrl || '/api/v1';
-    this.http.get<any[]>(`${apiUrl}/auth/organizations`).subscribe({
-      next: (orgs) => {
-        this.organizations = orgs;
-        this.loadingOrganizations = false;
-      },
-      error: (error) => {
-        console.error('Failed to fetch organizations:', error);
-        // Fallback to hardcoded organizations if API fails
-        this.organizations = [
-          { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Saint Mary Medical Center' },
-          { id: '550e8400-e29b-41d4-a716-446655440002', name: 'Downtown Family Clinic' },
-          { id: '550e8400-e29b-41d4-a716-446655440003', name: 'Pediatric Care Center' }
-        ];
-        this.loadingOrganizations = false;
-      }
-    });
   }
 
   onSubmit(): void {
@@ -67,9 +41,9 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    const { email, password, organizationId } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    this.authService.login({ email, password, organizationId }).subscribe({
+    this.authService.login({ email, password }).subscribe({
       next: (response) => {
         this.loading = false;
         
@@ -107,18 +81,17 @@ export class LoginComponent implements OnInit {
     
     if (control?.hasError('minlength')) {
       const minLength = control.errors?.['minlength'].requiredLength;
-      return `Password must be at least ${minLength} characters long`;
+      return `Password must be at least ${minLength} characters`;
     }
     
-    return '';
+    return 'Invalid field';
   }
 
   private getFieldDisplayName(fieldName: string): string {
-    const fieldNames: { [key: string]: string } = {
+    const displayNames: { [key: string]: string } = {
       email: 'Email',
-      password: 'Password',
-      organizationId: 'Organization'
+      password: 'Password'
     };
-    return fieldNames[fieldName] || fieldName;
+    return displayNames[fieldName] || fieldName;
   }
 }
