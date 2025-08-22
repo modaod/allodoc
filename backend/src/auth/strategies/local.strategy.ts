@@ -15,12 +15,10 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     }
 
     async validate(req: any, email: string, password: string): Promise<User> {
-        const organizationId = req.body.organizationId;
-
-        const user = await this.authService.validateUser(email, password, organizationId);
+        const user = await this.authService.validateUser(email, password);
 
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials or organization');
+            throw new UnauthorizedException('Invalid credentials');
         }
 
         if (!user.isActive) {
