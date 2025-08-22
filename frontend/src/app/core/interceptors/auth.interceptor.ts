@@ -50,7 +50,7 @@ export class AuthInterceptor implements HttpInterceptor {
         console.log(`=== END AUTH INTERCEPTOR ERROR ===`);
         
         // Handle 401 errors by attempting token refresh
-        if (error.status === 401 && !this.isAuthEndpoint(req.url)) {
+        if (error.status === 401 && !this.shouldSkip401Handling(req.url)) {
           return this.handle401Error(req, next);
         }
         
@@ -60,9 +60,15 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private isAuthEndpoint(url: string): boolean {
+    // Only these endpoints should skip auth header
     return url.includes('/auth/login') || 
            url.includes('/auth/register') || 
-           url.includes('/auth/refresh') ||
+           url.includes('/auth/refresh');
+  }
+  
+  private shouldSkip401Handling(url: string): boolean {
+    // These endpoints handle their own 401 errors
+    return this.isAuthEndpoint(url) || 
            url.includes('/auth/switch-organization');
   }
 
