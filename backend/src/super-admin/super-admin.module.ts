@@ -9,6 +9,7 @@ import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Role } from '../users/entities/role.entity';
+import { UserOrganization } from '../users/entities/user-organization.entity';
 import { UsersModule } from '../users/users.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 
@@ -22,6 +23,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
             Prescription,
             Appointment,
             Role,
+            UserOrganization,
         ]),
         UsersModule,
         OrganizationsModule,

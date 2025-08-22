@@ -3,6 +3,7 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
@@ -112,12 +113,24 @@ export class SuperAdminController {
         return await this.superAdminService.moveUserToOrganization(userId, moveUserDto);
     }
 
-    @Delete('users/:userId')
-    @ApiOperation({ summary: 'Delete (deactivate) a user' })
+    @Patch('users/:userId/toggle-status')
+    @ApiOperation({ summary: 'Toggle user active status' })
     @ApiParam({ name: 'userId', description: 'User ID' })
     @ApiResponse({
         status: 200,
-        description: 'User deleted successfully',
+        description: 'User status toggled successfully',
+        type: User,
+    })
+    async toggleUserStatus(@Param('userId') userId: string): Promise<User> {
+        return await this.superAdminService.toggleUserStatus(userId);
+    }
+
+    @Delete('users/:userId')
+    @ApiOperation({ summary: 'Deactivate a user (soft delete)' })
+    @ApiParam({ name: 'userId', description: 'User ID' })
+    @ApiResponse({
+        status: 200,
+        description: 'User deactivated successfully',
     })
     async deleteUser(@Param('userId') userId: string): Promise<void> {
         return await this.superAdminService.deleteUser(userId);

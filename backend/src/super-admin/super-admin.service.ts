@@ -16,6 +16,7 @@ import { PaginatedResult } from '../common/interfaces/pagination.interface';
 import { CreateOrganizationDto } from '../organizations/dto/create-organization.dto';
 import { UpdateOrganizationDto } from '../organizations/dto/update-organization.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UserOrganization } from '../users/entities/user-organization.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -35,6 +36,8 @@ export class SuperAdminService {
         private readonly appointmentRepository: Repository<Appointment>,
         @InjectRepository(Role)
         private readonly roleRepository: Repository<Role>,
+        @InjectRepository(UserOrganization)
+        private readonly userOrganizationRepository: Repository<UserOrganization>,
     ) {}
 
     // =============================
@@ -260,6 +263,29 @@ export class SuperAdminService {
         return await this.userRepository.save(user);
     }
 
+    async toggleUserStatus(userId: string): Promise<User> {
+        // First get the current user with relations
+        const user = await this.userRepository.findOne({ 
+            where: { id: userId },
+            relations: ['roles', 'organization']
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Update ONLY the isActive field to avoid corrupting password
+        // Using update() method to prevent @Exclude() decorator issues
+        await this.userRepository.update(
+            { id: userId },
+            { isActive: !user.isActive }
+        );
+
+        // Return the updated user object
+        user.isActive = !user.isActive;
+        return user;
+    }
+
     async deleteUser(userId: string): Promise<void> {
         const user = await this.userRepository.findOne({ where: { id: userId } });
 
@@ -267,9 +293,11 @@ export class SuperAdminService {
             throw new NotFoundException('User not found');
         }
 
-        // Soft delete by deactivating
-        user.isActive = false;
-        await this.userRepository.save(user);
+        // Soft delete by deactivating - using update() to avoid password corruption
+        await this.userRepository.update(
+            { id: userId },
+            { isActive: false }
+        );
     }
 
     // =============================
@@ -336,7 +364,70 @@ export class SuperAdminService {
             ...createOrganizationDto,
         });
 
-        return await this.organizationRepository.save(organization);
+        const savedOrganization = await this.organizationRepository.save(organization);
+
+        // Auto-assign the new organization to all Super Admin users
+        const superAdmins = await this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.roles', 'role')
+            .where('role.name = :roleName', { roleName: RoleName.SUPER_ADMIN })
+            .getMany();
+
+        for (const superAdmin of superAdmins) {
+            await this.assignOrganizationToUser(superAdmin.id, savedOrganization.id);
+        }
+
+        return savedOrganization;
+    }
+
+    // Helper method to assign organization to user
+    private async assignOrganizationToUser(userId: string, organizationId: string): Promise<void> {
+        // Check if the relationship already exists
+        const existing = await this.userOrganizationRepository.findOne({
+            where: { userId, organizationId },
+        });
+
+        if (!existing) {
+            const userOrganization = this.userOrganizationRepository.create({
+                userId,
+                organizationId,
+                joinedAt: new Date(),
+            });
+            await this.userOrganizationRepository.save(userOrganization);
+        }
+    }
+
+    // Get all organizations for a user (including Super Admins who get all orgs)
+    async getUserOrganizations(userId: string): Promise<Organization[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['roles'],
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check if user is Super Admin
+        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+
+        if (isSuperAdmin) {
+            // Return all active organizations for Super Admin
+            return await this.organizationRepository.find({
+                where: { isActive: true },
+                order: { name: 'ASC' },
+            });
+        } else {
+            // Return organizations associated with the user
+            const userOrgs = await this.userOrganizationRepository.find({
+                where: { userId },
+                relations: ['organization'],
+            });
+
+            return userOrgs
+                .map(uo => uo.organization)
+                .filter(org => org && org.isActive);
+        }
     }
 
     async updateOrganization(
