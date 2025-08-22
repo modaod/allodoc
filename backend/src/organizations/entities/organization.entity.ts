@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Patient } from '../../patients/entities/patient.entity';
+import { UserOrganization } from '../../users/entities/user-organization.entity';
 
 export enum OrganizationType {
     CLINIC = 'CLINIC',
@@ -56,4 +57,7 @@ export class Organization {
 
     @OneToMany(() => Patient, (patient) => patient.organization)
     patients: Patient[];
+
+    @OneToMany(() => UserOrganization, (userOrganization) => userOrganization.organization)
+    userOrganizations: UserOrganization[];
 }

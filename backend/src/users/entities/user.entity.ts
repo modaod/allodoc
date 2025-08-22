@@ -16,6 +16,7 @@ import { Role, RoleName } from './role.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Consultation } from '../../consultations/entities/consultation.entity';
 import { AuditableEntity } from '../../common/entities/auditable.entity';
+import { UserOrganization } from './user-organization.entity';
 
 @Entity('users')
 @Index(['email', 'organizationId'], { unique: true })
@@ -95,6 +96,9 @@ export class User extends AuditableEntity {
 
     @OneToMany(() => Consultation, (consultation) => consultation.doctor)
     consultations: Consultation[];
+
+    @OneToMany(() => UserOrganization, (userOrganization) => userOrganization.user)
+    userOrganizations: UserOrganization[];
 
     // =============================
     // UTILITY METHODS
