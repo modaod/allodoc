@@ -6,9 +6,9 @@
   
   <!-- App Menu -->
   <mat-menu #appMenu="matMenu" class="app-menu">
-    <button mat-menu-item routerLink="/dashboard">
+    <button mat-menu-item [routerLink]="isInSuperAdminMode && isSuperAdmin() ? '/super-admin' : '/dashboard'">
       <mat-icon>dashboard</mat-icon>
-      <span>{{ 'nav.dashboard' | translate }}</span>
+      <span>{{ isInSuperAdminMode && isSuperAdmin() ? 'System Dashboard' : ('nav.dashboard' | translate) }}</span>
     </button>
     <button mat-menu-item routerLink="/patients">
       <mat-icon>people</mat-icon>
@@ -32,7 +32,11 @@
       <span>{{ 'nav.quickPrescription' | translate }}</span>
     </button>
     <mat-divider *ngIf="isSuperAdmin()"></mat-divider>
-    <button mat-menu-item routerLink="/super-admin" *ngIf="isSuperAdmin()">
+    <button mat-menu-item routerLink="/dashboard" *ngIf="isSuperAdmin() && isInSuperAdminMode" (click)="toggleSuperAdminMode()">
+      <mat-icon>arrow_back</mat-icon>
+      <span>Back to Regular Dashboard</span>
+    </button>
+    <button mat-menu-item routerLink="/super-admin" *ngIf="isSuperAdmin() && !isInSuperAdminMode" (click)="toggleSuperAdminMode()">
       <mat-icon>admin_panel_settings</mat-icon>
       <span>Super Admin</span>
     </button>
@@ -44,42 +48,34 @@
   </mat-menu>
 
   <!-- Clickable Logo -->
-  <a routerLink="/dashboard" class="app-logo-link">
+  <a [routerLink]="isInSuperAdminMode && isSuperAdmin() ? '/super-admin' : '/dashboard'" class="app-logo-link">
     <div class="app-logo">
       <span class="logo-text">AD</span>
     </div>
-    <span class="app-title">AlloDoc</span>
+    <span class="app-title">{{ isInSuperAdminMode && isSuperAdmin() ? 'AlloDoc Admin' : 'AlloDoc' }}</span>
   </a>
   
   <span class="spacer"></span>
   
   <!-- Centered Organization Context -->
-  <div class="organization-context-center" *ngIf="getCurrentOrganization()">
+  <div class="organization-context-center" *ngIf="getDisplayOrganization() || isSuperAdmin()">
     <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-button-center">
-      <span class="org-name">{{ getCurrentOrganization()?.name }}</span>
+      <span class="org-name">{{ getDisplayOrganization()?.name || 'No Organization' }}</span>
     </button>
     <mat-menu #orgMenu="matMenu" class="org-menu">
-      <div class="org-menu-header">
-        <span>Organization</span>
-      </div>
-      <mat-divider></mat-divider>
       <button 
         mat-menu-item 
         *ngFor="let org of getUserOrganizations()" 
         (click)="switchOrganization(org.id)"
-        [class.current]="org.id === getCurrentOrganization()?.id">
+        [class.current]="org.id === getDisplayOrganization()?.id">
         <div class="org-menu-item">
           <div class="org-info">
             <span class="org-name">{{ org.name }}</span>
             <span class="org-role">{{ getUserRole(org) }}</span>
           </div>
-          <mat-icon *ngIf="org.id === getCurrentOrganization()?.id" class="check-icon">check</mat-icon>
+          <mat-icon *ngIf="org.id === getDisplayOrganization()?.id" class="check-icon">check</mat-icon>
         </div>
       </button>
-      <div *ngIf="getUserOrganizations().length === 1" class="single-org-info">
-        <mat-icon>info</mat-icon>
-        <span>You belong to this organization only</span>
-      </div>
     </mat-menu>
   </div>
   
