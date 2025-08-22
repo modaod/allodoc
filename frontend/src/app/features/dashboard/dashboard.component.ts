@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService, User } from '../../core/services/auth.service';
 import { DashboardService, DashboardStats, ActivityItem } from '../../core/services/dashboard.service';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   loading = true;
+  private destroy$ = new Subject<void>();
   
   statistics: DashboardStats = {
     totalPatients: 0,
@@ -31,19 +34,36 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      if (user) {
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.currentUser = user;
+        if (user) {
+          this.loadDashboardData();
+        }
+      });
+    
+    // Reload data when organization changes
+    this.authService.organizationChanged$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Organization changed, reloading dashboard data...');
         this.loadDashboardData();
-      }
-    });
+      });
     
     // Subscribe to language changes and update activity titles
-    this.translate.onLangChange.subscribe(() => {
-      if (this.originalActivities.length > 0) {
-        this.updateActivityTitles();
-      }
-    });
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.originalActivities.length > 0) {
+          this.updateActivityTitles();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private loadDashboardData(): void {

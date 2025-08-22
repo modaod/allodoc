@@ -136,11 +136,13 @@ export class SuperAdminService {
     return this.http.put<SystemUser>(`${this.apiUrl}/users/${userId}`, userData);
   }
 
-  toggleUserStatus(userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
+  toggleUserStatus(userId: string): Observable<SystemUser> {
+    // Uses PATCH endpoint to toggle user status
+    return this.http.patch<SystemUser>(`${this.apiUrl}/users/${userId}/toggle-status`, {});
   }
 
   deleteUser(userId: string): Observable<void> {
+    // Soft delete - deactivates the user
     return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
   }
 }

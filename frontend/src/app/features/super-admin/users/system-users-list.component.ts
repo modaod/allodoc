@@ -123,13 +123,20 @@ export class SystemUsersListComponent implements OnInit {
     
     if (confirm(confirmMessage)) {
       this.superAdminService.toggleUserStatus(user.id).subscribe({
-        next: () => {
+        next: (updatedUser) => {
+          // Update the user in the local data
+          const index = this.dataSource.data.findIndex(u => u.id === user.id);
+          if (index !== -1) {
+            this.dataSource.data[index] = updatedUser;
+            this.dataSource.data = [...this.dataSource.data]; // Trigger change detection
+          }
           this.notificationService.showSuccess(`User ${action}d successfully`);
-          this.loadUsers();
         },
         error: (error) => {
           console.error(`Error ${action}ing user:`, error);
           this.notificationService.showError(`Failed to ${action} user`);
+          // Reload to ensure UI is in sync
+          this.loadUsers();
         }
       });
     }
@@ -149,17 +156,25 @@ export class SystemUsersListComponent implements OnInit {
   }
 
   deleteUser(user: SystemUser): void {
-    const confirmMessage = `Are you sure you want to permanently delete ${user.firstName} ${user.lastName}? This action cannot be undone.`;
+    // Soft delete - just deactivates the user
+    const confirmMessage = `Are you sure you want to deactivate ${user.firstName} ${user.lastName}?\n\nThe user account will be disabled but data will be preserved.`;
     
     if (confirm(confirmMessage)) {
       this.superAdminService.deleteUser(user.id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('User deleted successfully');
-          this.loadUsers();
+          // Update user status in local data
+          const index = this.dataSource.data.findIndex(u => u.id === user.id);
+          if (index !== -1) {
+            this.dataSource.data[index].isActive = false;
+            this.dataSource.data = [...this.dataSource.data]; // Trigger change detection
+          }
+          this.notificationService.showSuccess('User deactivated successfully');
         },
         error: (error) => {
-          console.error('Error deleting user:', error);
-          this.notificationService.showError(error.error?.message || 'Failed to delete user');
+          console.error('Error deactivating user:', error);
+          this.notificationService.showError(error.error?.message || 'Failed to deactivate user');
+          // Reload to ensure UI is in sync
+          this.loadUsers();
         }
       });
     }
