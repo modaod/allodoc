@@ -12,9 +12,11 @@ import { Role } from '../users/entities/role.entity';
 import { UserOrganization } from '../users/entities/user-organization.entity';
 import { UsersModule } from '../users/users.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
     imports: [
+        CommonModule,
         TypeOrmModule.forFeature([
             User,
             Organization,

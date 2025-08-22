@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { AuditService } from './services/audit.service';
+import { AuthorizationService } from './services/authorization.service';
 import { AuditInterceptor } from './interceptors/audit.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -11,6 +12,7 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
     providers: [
         // Services
         AuditService,
+        AuthorizationService,
 
         // Interceptors
         AuditInterceptor,
@@ -25,6 +27,7 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
     ],
     exports: [
         AuditService,
+        AuthorizationService,
         AuditInterceptor,
         HttpExceptionFilter,
         JwtAuthGuard,

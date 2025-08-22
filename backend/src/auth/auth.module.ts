@@ -14,9 +14,13 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { UserOrganization } from '../users/entities/user-organization.entity';
 import { UsersModule } from '../users/users.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
     imports: [
+        // Common module for shared services
+        CommonModule,
+
         // Passport configuration
         PassportModule.register({ defaultStrategy: 'jwt' }),
 

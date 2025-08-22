@@ -17,6 +17,7 @@ import { CreateOrganizationDto } from '../organizations/dto/create-organization.
 import { UpdateOrganizationDto } from '../organizations/dto/update-organization.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserOrganization } from '../users/entities/user-organization.entity';
+import { AuthorizationService } from '../common/services/authorization.service';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -38,6 +39,7 @@ export class SuperAdminService {
         private readonly roleRepository: Repository<Role>,
         @InjectRepository(UserOrganization)
         private readonly userOrganizationRepository: Repository<UserOrganization>,
+        private readonly authorizationService: AuthorizationService,
     ) {}
 
     // =============================
@@ -409,7 +411,7 @@ export class SuperAdminService {
         }
 
         // Check if user is Super Admin
-        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+        const isSuperAdmin = this.authorizationService.isSuperAdmin(user);
 
         if (isSuperAdmin) {
             // Return all active organizations for Super Admin

@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './services/token.service';
 import { OrganizationsService } from '../organizations/organizations.service';
+import { AuthorizationService } from '../common/services/authorization.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponse } from './interfaces/auth-response.interface';
@@ -27,6 +28,7 @@ export class AuthService {
         private usersService: UsersService,
         private tokenService: TokenService,
         private organizationsService: OrganizationsService,
+        private authorizationService: AuthorizationService,
         @InjectRepository(UserOrganization)
         private userOrganizationRepository: Repository<UserOrganization>,
         @InjectRepository(User)
@@ -288,8 +290,8 @@ export class AuthService {
             throw new UnauthorizedException('User not found');
         }
 
-        // Check if user is Super Admin
-        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+        // Check if user is Super Admin - using centralized check
+        const isSuperAdmin = this.authorizationService.isSuperAdmin(user);
 
         if (!isSuperAdmin) {
             // For non-Super Admin users, check if they have access to this organization
@@ -376,8 +378,8 @@ export class AuthService {
             throw new UnauthorizedException('User not found');
         }
 
-        // Check if user is Super Admin
-        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+        // Check if user is Super Admin - using centralized check
+        const isSuperAdmin = this.authorizationService.isSuperAdmin(user);
 
         if (isSuperAdmin) {
             // Return all active organizations for Super Admin

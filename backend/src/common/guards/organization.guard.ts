@@ -1,27 +1,29 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RoleName } from '../../users/entities/role.entity';
+import { AuthorizationService } from '../services/authorization.service';
 
 @Injectable()
 export class OrganizationAccessGuard implements CanActivate {
     private readonly logger = new Logger(OrganizationAccessGuard.name);
     
-    constructor(private reflector: Reflector) {}
+    constructor(
+        private reflector: Reflector,
+        private authorizationService: AuthorizationService
+    ) {}
 
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
 
         this.logger.debug(`OrganizationAccessGuard: user object keys: ${Object.keys(user || {})}`);
-        this.logger.debug(`OrganizationAccessGuard: user.hasRole exists: ${typeof user?.hasRole === 'function'}`);
-        this.logger.debug(`OrganizationAccessGuard: user.roles: ${JSON.stringify(user?.roles)}`);
+        this.logger.debug(`OrganizationAccessGuard: user roles: ${JSON.stringify(user?.roles)}`);
 
         if (!user) {
             throw new ForbiddenException('User not authenticated');
         }
 
-        // Super admins can access all organizations - check if hasRole method exists
-        if (typeof user.hasRole === 'function' && user.hasRole(RoleName.SUPER_ADMIN)) {
+        // Super admins can access all organizations - using centralized check
+        if (this.authorizationService.isSuperAdmin(user)) {
             return true;
         }
 
