@@ -1,5 +1,5 @@
-import { Controller, Post, Body, UseGuards, Get, Req, HttpStatus, Patch } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, Get, Req, HttpStatus, Patch, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -142,5 +142,41 @@ export class AuthController {
     ): Promise<{ message: string }> {
         await this.authService.changePassword(user.id, body.currentPassword, body.newPassword);
         return { message: 'Password successfully changed. Please log in again.' };
+    }
+
+    @ApiBearerAuth('JWT-auth')
+    @Post('switch-organization/:organizationId')
+    @ApiOperation({ summary: 'Switch to a different organization' })
+    @ApiParam({ name: 'organizationId', description: 'Organization ID to switch to' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully switched organization',
+        type: AuthResponseDto,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: 'User does not have access to this organization',
+    })
+    async switchOrganization(
+        @CurrentUser() user: User,
+        @Param('organizationId') organizationId: string,
+        @Req() req: Request,
+    ): Promise<AuthResponse> {
+        const ipAddress = req.ip;
+        const userAgent = req.get('User-Agent');
+        
+        return await this.authService.switchOrganization(user.id, organizationId, ipAddress, userAgent);
+    }
+
+    @ApiBearerAuth('JWT-auth')
+    @Get('organizations/user')
+    @ApiOperation({ summary: 'Get all organizations for the current user' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'List of user organizations',
+        type: [Organization],
+    })
+    async getUserOrganizations(@CurrentUser() user: User): Promise<Organization[]> {
+        return await this.authService.getUserOrganizations(user.id);
     }
 }
