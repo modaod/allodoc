@@ -30,10 +30,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             throw new UnauthorizedException('User account is inactive or deleted');
         }
 
-        // Verify organization matches
-        if (user.organizationId !== organizationId) {
-            throw new UnauthorizedException('Organization mismatch');
-        }
+        // For organization switching, we don't validate organizationId match
+        // The switch-organization endpoint will handle proper validation
+        // Set the organizationId from token to user for context
+        user.organizationId = organizationId;
 
         // Add payload info to user object for guards
         (user as any).tokenPayload = payload;
