@@ -6,6 +6,7 @@ export interface AuthResponse {
         lastName: string;
         roles: string[];
         organizationId: string;
+        organizations?: any[]; // Array of user organizations
     };
     accessToken: string;
     refreshToken: string;
