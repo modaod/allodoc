@@ -9,6 +9,9 @@ import { TokenService } from './services/token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { User } from '../users/entities/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
+import { UserOrganization } from '../users/entities/user-organization.entity';
 import { UsersModule } from '../users/users.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 
@@ -29,8 +32,8 @@ import { OrganizationsModule } from '../organizations/organizations.module';
             }),
         }),
 
-        // TypeORM for refresh tokens
-        TypeOrmModule.forFeature([RefreshToken]),
+        // TypeORM for auth-related entities
+        TypeOrmModule.forFeature([RefreshToken, User, Organization, UserOrganization]),
 
         // Forward reference to avoid circular dependency
         forwardRef(() => UsersModule),

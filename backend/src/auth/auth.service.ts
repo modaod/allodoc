@@ -3,7 +3,12 @@ import {
     UnauthorizedException,
     ConflictException,
     BadRequestException,
+    ForbiddenException,
+    Inject,
+    forwardRef,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './services/token.service';
 import { OrganizationsService } from '../organizations/organizations.service';
@@ -13,6 +18,7 @@ import { AuthResponse } from './interfaces/auth-response.interface';
 import { User } from '../users/entities/user.entity';
 import { RoleName } from '../users/entities/role.entity';
 import { Organization } from '../organizations/entities/organization.entity';
+import { UserOrganization } from '../users/entities/user-organization.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -21,39 +27,53 @@ export class AuthService {
         private usersService: UsersService,
         private tokenService: TokenService,
         private organizationsService: OrganizationsService,
+        @InjectRepository(UserOrganization)
+        private userOrganizationRepository: Repository<UserOrganization>,
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
+        @InjectRepository(Organization)
+        private organizationRepository: Repository<Organization>,
     ) {}
 
     // Validate user credentials (used by LocalStrategy)
     async validateUser(
         email: string,
         password: string,
-        organizationId?: string,
     ): Promise<User | null> {
         try {
-            // If no organizationId provided, try to find user by email
-            let user: User | null = null;
-
-            if (organizationId) {
-                user = await this.usersService.findByEmail(email, organizationId);
-            } else {
-                // When no organizationId is provided, search through all users
-                const users = await this.usersService.findAll();
-                user = users.find((u) => u.email === email) || null;
-            }
+            // Find user by email with roles (organization is optional)
+            const user = await this.userRepository.findOne({
+                where: { email },
+                relations: ['roles'],
+            });
 
             if (!user) {
                 return null;
             }
-            
-            // Verify password
+
+            // Validate password
             const isPasswordValid = await bcrypt.compare(password, user.password);
             
             if (!isPasswordValid) {
                 return null;
             }
 
+            if (!user.isActive) {
+                return null;
+            }
+
+            // Try to load organization relation if user has organizationId
+            if (user.organizationId) {
+                const userWithOrg = await this.userRepository.findOne({
+                    where: { id: user.id },
+                    relations: ['roles', 'organization'],
+                });
+                return userWithOrg || user;
+            }
+
             return user;
         } catch (error) {
+            console.error('Error validating user:', error);
             return null;
         }
     }
@@ -63,7 +83,6 @@ export class AuthService {
         const user = await this.validateUser(
             loginDto.email,
             loginDto.password,
-            loginDto.organizationId,
         );
 
         if (!user) {
@@ -77,7 +96,24 @@ export class AuthService {
         // Update last login
         await this.usersService.updateLastLogin(user.id);
 
-        // Generate tokens
+        // Get all organizations for the user
+        const userOrganizations = await this.getUserOrganizations(user.id);
+        
+        // Determine the selected organization
+        let selectedOrganization = user.organization;
+        let selectedOrganizationId = user.organizationId;
+        
+        // If user has organizations from junction table, use the first or last accessed
+        if (userOrganizations.length > 0) {
+            selectedOrganization = userOrganizations[0];
+            selectedOrganizationId = userOrganizations[0].id;
+            
+            // Update user's primary organization for token generation
+            user.organizationId = selectedOrganizationId;
+            user.organization = selectedOrganization;
+        }
+
+        // Generate tokens with organization context
         const tokens = await this.tokenService.generateTokens(user, ipAddress, userAgent);
 
         return {
@@ -87,7 +123,8 @@ export class AuthService {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 roles: user.roles.map((role) => role.name),
-                organizationId: user.organizationId,
+                organizationId: selectedOrganizationId,
+                organizations: userOrganizations, // Include all user organizations
             },
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
@@ -152,6 +189,9 @@ export class AuthService {
             // For simplicity, let's decode the access token (in production, consider caching user data)
             const payload = this.tokenService.verifyToken(tokens.accessToken);
             const user = await this.usersService.findById(payload.sub);
+            
+            // Get all organizations for the user
+            const userOrganizations = await this.getUserOrganizations(user.id);
 
             return {
                 user: {
@@ -161,6 +201,7 @@ export class AuthService {
                     lastName: user.lastName,
                     roles: user.roles.map((role) => role.name),
                     organizationId: user.organizationId,
+                    organizations: userOrganizations,
                 },
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken,
@@ -229,5 +270,143 @@ export class AuthService {
             id: org.id,
             name: org.name,
         }));
+    }
+
+    // Switch user to a different organization
+    async switchOrganization(
+        userId: string,
+        organizationId: string,
+        ipAddress?: string,
+        userAgent?: string,
+    ): Promise<AuthResponse> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['roles'],
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        // Check if user is Super Admin
+        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+
+        if (!isSuperAdmin) {
+            // For non-Super Admin users, check if they have access to this organization
+            const userOrg = await this.userOrganizationRepository.findOne({
+                where: { userId, organizationId },
+            });
+
+            if (!userOrg) {
+                throw new ForbiddenException('You do not have access to this organization');
+            }
+        }
+
+        // Verify organization exists
+        const organization = await this.organizationRepository.findOne({
+            where: { id: organizationId },
+        });
+
+        if (!organization || !organization.isActive) {
+            throw new BadRequestException('Organization not found or inactive');
+        }
+
+        // Update last accessed timestamp
+        if (!isSuperAdmin) {
+            await this.userOrganizationRepository.update(
+                { userId, organizationId },
+                { lastAccessedAt: new Date() },
+            );
+        } else {
+            // For Super Admin, create or update the user-organization relationship
+            const existingRelation = await this.userOrganizationRepository.findOne({
+                where: { userId, organizationId },
+            });
+
+            if (existingRelation) {
+                await this.userOrganizationRepository.update(
+                    { userId, organizationId },
+                    { lastAccessedAt: new Date() },
+                );
+            } else {
+                const newRelation = this.userOrganizationRepository.create({
+                    userId,
+                    organizationId,
+                    joinedAt: new Date(),
+                    lastAccessedAt: new Date(),
+                });
+                await this.userOrganizationRepository.save(newRelation);
+            }
+        }
+
+        // Update user's primary organization
+        user.organizationId = organizationId;
+        user.organization = organization;
+
+        // Generate new tokens with updated organization context
+        const tokens = await this.tokenService.generateTokens(user, ipAddress, userAgent);
+
+        // Get all organizations for the user
+        const organizations = await this.getUserOrganizations(user.id);
+        
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                roles: user.roles.map((role) => role.name),
+                organizationId: organizationId, // Use the new organization ID
+                organizations: organizations, // Include all user organizations
+            },
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            expiresIn: tokens.expiresIn,
+        };
+    }
+
+    // Get all organizations for a user
+    async getUserOrganizations(userId: string): Promise<Organization[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['roles'],
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        // Check if user is Super Admin
+        const isSuperAdmin = user.roles?.some(role => role.name === RoleName.SUPER_ADMIN);
+
+        if (isSuperAdmin) {
+            // Return all active organizations for Super Admin
+            return await this.organizationRepository.find({
+                where: { isActive: true },
+                order: { name: 'ASC' },
+            });
+        } else {
+            // Return organizations associated with the user
+            const userOrgs = await this.userOrganizationRepository.find({
+                where: { userId },
+                relations: ['organization'],
+            });
+
+            // Also include the user's primary organization if not already in the list
+            const primaryOrg = await this.organizationRepository.findOne({
+                where: { id: user.organizationId },
+            });
+
+            const organizations = userOrgs
+                .map(uo => uo.organization)
+                .filter(org => org && org.isActive);
+
+            // Add primary organization if not in the list
+            if (primaryOrg && !organizations.find(org => org.id === primaryOrg.id)) {
+                organizations.push(primaryOrg);
+            }
+
+            return organizations.sort((a, b) => a.name.localeCompare(b.name));
+        }
     }
 }
