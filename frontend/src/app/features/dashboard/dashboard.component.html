@@ -95,43 +95,33 @@
             mat-raised-button
             color="primary"
             class="action-button"
-            matTooltip="Add a new patient to the system"
-            matTooltipPosition="above"
             (click)="addNewPatient()"
           >
             <mat-icon>person_add</mat-icon>
             {{ 'dashboard.quickActions.addPatient' | translate }}
           </button>
 
-          <span 
-            [matTooltip]="!canCreateConsultation() ? 'Doctor access required' : ''"
-            matTooltipPosition="above">
-            <button
-              mat-raised-button
-              color="accent"
-              class="action-button"
-              [disabled]="!canCreateConsultation()"
-              (click)="newConsultation()"
-            >
-              <mat-icon>medical_services</mat-icon>
-              {{ 'dashboard.quickActions.newConsultation' | translate }}
-            </button>
-          </span>
+          <button
+            mat-raised-button
+            color="accent"
+            class="action-button"
+            [disabled]="!canCreateConsultation()"
+            (click)="newConsultation()"
+          >
+            <mat-icon>medical_services</mat-icon>
+            {{ 'dashboard.quickActions.newConsultation' | translate }}
+          </button>
 
-          <span 
-            [matTooltip]="!canCreatePrescription() ? 'Doctor access required' : ''"
-            matTooltipPosition="above">
-            <button
-              mat-raised-button
-              color="accent"
-              class="action-button"
-              [disabled]="!canCreatePrescription()"
-              (click)="quickPrescription()"
-            >
-              <mat-icon>medication</mat-icon>
-              {{ 'dashboard.quickActions.quickPrescription' | translate }}
-            </button>
-          </span>
+          <button
+            mat-raised-button
+            color="accent"
+            class="action-button"
+            [disabled]="!canCreatePrescription()"
+            (click)="quickPrescription()"
+          >
+            <mat-icon>medication</mat-icon>
+            {{ 'dashboard.quickActions.quickPrescription' | translate }}
+          </button>
 
           <button mat-stroked-button class="action-button" (click)="scheduleAppointment()">
             <mat-icon>event</mat-icon>
