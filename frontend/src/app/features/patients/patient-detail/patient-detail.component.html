@@ -14,15 +14,27 @@
       </button>
       
       <div class="action-buttons">
-        <button mat-raised-button color="accent" (click)="newConsultation()">
+        <button 
+          *ngIf="canCreateConsultation()"
+          mat-raised-button 
+          color="accent" 
+          (click)="newConsultation()">
           <mat-icon>medical_services</mat-icon>
           New Consultation
         </button>
-        <button mat-raised-button color="accent" (click)="newPrescription()">
+        <button 
+          *ngIf="canCreatePrescription()"
+          mat-raised-button 
+          color="accent" 
+          (click)="newPrescription()">
           <mat-icon>medication</mat-icon>
           New Prescription
         </button>
-        <button mat-raised-button color="primary" (click)="editPatient()">
+        <button 
+          *ngIf="canEditPatient()"
+          mat-raised-button 
+          color="primary" 
+          (click)="editPatient()">
           <mat-icon>edit</mat-icon>
           Edit Patient
         </button>
@@ -204,7 +216,11 @@
               <div *ngIf="medicalTimeline.length === 0" class="no-data">
                 <mat-icon>timeline</mat-icon>
                 <p>No medical history available</p>
-                <button mat-raised-button color="accent" (click)="newConsultation()">
+                <button 
+                  *ngIf="canCreateConsultation()"
+                  mat-raised-button 
+                  color="accent" 
+                  (click)="newConsultation()">
                   Schedule First Consultation
                 </button>
               </div>
@@ -263,7 +279,11 @@
               <div *ngIf="consultations.length === 0" class="no-data">
                 <mat-icon>medical_services</mat-icon>
                 <p>No consultations recorded</p>
-                <button mat-raised-button color="accent" (click)="newConsultation()">
+                <button 
+                  *ngIf="canCreateConsultation()"
+                  mat-raised-button 
+                  color="accent" 
+                  (click)="newConsultation()">
                   Schedule Consultation
                 </button>
               </div>
@@ -299,7 +319,11 @@
               <div *ngIf="prescriptions.length === 0" class="no-data">
                 <mat-icon>medication</mat-icon>
                 <p>No prescriptions issued</p>
-                <button mat-raised-button color="accent" (click)="newPrescription()">
+                <button 
+                  *ngIf="canCreatePrescription()"
+                  mat-raised-button 
+                  color="accent" 
+                  (click)="newPrescription()">
                   Create Prescription
                 </button>
               </div>

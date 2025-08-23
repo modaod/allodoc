@@ -11,6 +11,7 @@ import { Consultation, ConsultationSearchParams, ConsultationStatus, Consultatio
 import { ConsultationsService } from '../services/consultations.service';
 import { PaginationStateService } from '../../../core/services/pagination-state.service';
 import { DateFormatterService } from '../../../core/utils/date-formatter';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-consultations-list',
@@ -56,7 +57,8 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private paginationState: PaginationStateService,
     private translate: TranslateService,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -365,5 +367,9 @@ export class ConsultationsListComponent implements OnInit, OnDestroy {
   
   formatEnumValue(value: string): string {
     return value.replace(/_/g, ' ');
+  }
+
+  canCreateConsultation(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
   }
 }

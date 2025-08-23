@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { PrescriptionsListComponent } from './prescriptions-list/prescriptions-list.component';
 import { PrescriptionFormComponent } from './prescription-form/prescription-form.component';
 import { PrescriptionDetailComponent } from './prescription-detail/prescription-detail.component';
+import { RoleGuard } from '../../core/guards/role.guard';
 
 const routes: Routes = [
   {
@@ -12,7 +13,9 @@ const routes: Routes = [
   },
   {
     path: 'new',
-    component: PrescriptionFormComponent
+    component: PrescriptionFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['DOCTOR', 'ADMIN'] }
   },
   {
     path: ':id',
@@ -20,7 +23,9 @@ const routes: Routes = [
   },
   {
     path: ':id/edit',
-    component: PrescriptionFormComponent
+    component: PrescriptionFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['DOCTOR', 'ADMIN'] }
   }
 ];
 

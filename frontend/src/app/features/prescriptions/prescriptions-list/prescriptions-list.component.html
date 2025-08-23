@@ -82,7 +82,11 @@
           <span>{{ totalPrescriptions }} {{ 'prescriptions.prescriptionsFound' | translate }}</span>
         </div>
         
-        <button mat-raised-button color="primary" (click)="addPrescription()">
+        <button 
+          *ngIf="canCreatePrescription()"
+          mat-raised-button 
+          color="primary" 
+          (click)="addPrescription()">
           <mat-icon>add</mat-icon>
           {{ 'prescriptions.newPrescription' | translate }}
         </button>

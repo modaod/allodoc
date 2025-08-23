@@ -8,6 +8,7 @@ import { PrescriptionsService } from '../../prescriptions/services/prescriptions
 import { Consultation } from '../../consultations/models/consultation.model';
 import { Prescription } from '../../prescriptions/models/prescription.model';
 import { DateFormatterService } from '../../../core/utils/date-formatter';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface MedicalTimelineEvent {
   id: string;
@@ -41,7 +42,8 @@ export class PatientDetailComponent implements OnInit {
     private patientsService: PatientsService,
     private consultationsService: ConsultationsService,
     private prescriptionsService: PrescriptionsService,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -282,5 +284,18 @@ export class PatientDetailComponent implements OnInit {
   viewAllPrescriptions(): void {
     // Navigate to patient-specific prescriptions list
     this.router.navigate(['/patients', this.patientId, 'prescriptions']);
+  }
+
+  // Role-based access control methods
+  canCreateConsultation(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
+
+  canCreatePrescription(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
+
+  canEditPatient(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'NURSE']);
   }
 }

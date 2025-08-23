@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ConsultationsListComponent } from './consultations-list/consultations-list.component';
 import { ConsultationFormComponent } from './consultation-form/consultation-form.component';
 import { ConsultationDetailComponent } from './consultation-detail/consultation-detail.component';
+import { RoleGuard } from '../../core/guards/role.guard';
 
 const routes: Routes = [
   {
@@ -11,7 +12,9 @@ const routes: Routes = [
   },
   {
     path: 'new',
-    component: ConsultationFormComponent
+    component: ConsultationFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['DOCTOR', 'ADMIN'] }
   },
   {
     path: ':id',
@@ -19,7 +22,9 @@ const routes: Routes = [
   },
   {
     path: ':id/edit',
-    component: ConsultationFormComponent
+    component: ConsultationFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['DOCTOR', 'ADMIN'] }
   }
 ];
 

@@ -13,6 +13,7 @@ import {
 } from '../models/prescription.model';
 import { PrescriptionsService } from '../services/prescriptions.service';
 import { DateFormatterService } from '../../../core/utils/date-formatter';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-prescriptions-list',
@@ -53,7 +54,8 @@ export class PrescriptionsListComponent implements OnInit {
   constructor(
     private prescriptionsService: PrescriptionsService,
     private router: Router,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -311,5 +313,9 @@ export class PrescriptionsListComponent implements OnInit {
     const today = new Date();
     const expiryDate = new Date(validUntil);
     return expiryDate < today;
+  }
+
+  canCreatePrescription(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
   }
 }

@@ -14,7 +14,11 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         
-        <button mat-raised-button color="primary" (click)="newConsultation()">
+        <button 
+          *ngIf="canCreateConsultation()"
+          mat-raised-button 
+          color="primary" 
+          (click)="newConsultation()">
           <mat-icon>add</mat-icon>
           {{ 'consultations.newConsultation' | translate }}
         </button>
