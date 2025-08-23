@@ -95,6 +95,8 @@
             mat-raised-button
             color="primary"
             class="action-button"
+            matTooltip="Add a new patient to the system"
+            matTooltipPosition="above"
             (click)="addNewPatient()"
           >
             <mat-icon>person_add</mat-icon>
@@ -106,7 +108,8 @@
             color="accent"
             class="action-button"
             [disabled]="!canCreateConsultation()"
-            [matTooltip]="('dashboard.tooltips.doctorAccessRequired' | translate)"
+            matTooltip="Doctor access required"
+            matTooltipPosition="above"
             [matTooltipDisabled]="canCreateConsultation()"
             (click)="newConsultation()"
           >
@@ -119,7 +122,8 @@
             color="accent"
             class="action-button"
             [disabled]="!canCreatePrescription()"
-            [matTooltip]="('dashboard.tooltips.doctorAccessRequired' | translate)"
+            matTooltip="Doctor access required"
+            matTooltipPosition="above"
             [matTooltipDisabled]="canCreatePrescription()"
             (click)="quickPrescription()"
           >
