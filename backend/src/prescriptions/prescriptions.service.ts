@@ -1,5 +1,4 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { Between } from 'typeorm';
 import { PrescriptionsRepository } from './prescriptions.repository';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
@@ -173,20 +172,8 @@ export class PrescriptionsService {
     }
 
     private async generatePrescriptionNumber(organizationId: string): Promise<string> {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        
-        // Get the count of prescriptions for this organization this month
-        const startOfMonth = new Date(year, date.getMonth(), 1);
-        const endOfMonth = new Date(year, date.getMonth() + 1, 0);
-        
-        const count = await this.prescriptionsRepository.count({
-            organizationId,
-            prescribedDate: Between(startOfMonth, endOfMonth) as any,
-        });
-        
-        const sequence = String(count + 1).padStart(4, '0');
-        return `RX-${year}${month}-${sequence}`;
+        // Use PostgreSQL sequence to get guaranteed unique prescription number
+        // The database function handles formatting as RX-YYYYMM-XXXX
+        return await this.prescriptionsRepository.getNextPrescriptionNumber();
     }
 }
