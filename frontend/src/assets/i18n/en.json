@@ -448,6 +448,9 @@
       "viewPatients": "View All Patients",
       "viewConsultations": "View All Consultations"
     },
+    "tooltips": {
+      "doctorAccessRequired": "Doctor access required"
+    },
     "todaySchedule": "Today's Schedule",
     "noAppointmentsToday": "No appointments scheduled for today",
     "scheduleFirstAppointment": "Schedule your first appointment to get started"

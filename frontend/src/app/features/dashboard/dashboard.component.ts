@@ -205,4 +205,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.warn('Unknown activity type:', activity.type);
     }
   }
+
+  // Role-based access control methods
+  canCreateConsultation(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
+
+  canCreatePrescription(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
 }

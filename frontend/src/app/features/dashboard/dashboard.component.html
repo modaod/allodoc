@@ -105,6 +105,8 @@
             mat-raised-button
             color="accent"
             class="action-button"
+            [disabled]="!canCreateConsultation()"
+            [matTooltip]="!canCreateConsultation() ? ('dashboard.tooltips.doctorAccessRequired' | translate) : ''"
             (click)="newConsultation()"
           >
             <mat-icon>medical_services</mat-icon>
@@ -115,6 +117,8 @@
             mat-stroked-button
             color="primary"
             class="action-button"
+            [disabled]="!canCreatePrescription()"
+            [matTooltip]="!canCreatePrescription() ? ('dashboard.tooltips.doctorAccessRequired' | translate) : ''"
             (click)="quickPrescription()"
           >
             <mat-icon>medication</mat-icon>

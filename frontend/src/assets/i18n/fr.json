@@ -448,6 +448,9 @@
       "viewPatients": "Voir tous les patients",
       "viewConsultations": "Voir toutes les consultations"
     },
+    "tooltips": {
+      "doctorAccessRequired": "Accès médecin requis"
+    },
     "todaySchedule": "Programme d'aujourd'hui",
     "noAppointmentsToday": "Aucun rendez-vous prévu pour aujourd'hui",
     "scheduleFirstAppointment": "Planifiez votre premier rendez-vous pour commencer"
