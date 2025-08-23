@@ -296,6 +296,6 @@ export class PatientDetailComponent implements OnInit {
   }
 
   canEditPatient(): boolean {
-    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'NURSE']);
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'NURSE', 'SECRETARY', 'RECEPTIONIST']);
   }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Consultation, ConsultationStatus, ConsultationType } from '../models/consultation.model';
 import { ConsultationsService } from '../services/consultations.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-consultation-detail',
@@ -18,7 +19,8 @@ export class ConsultationDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private consultationsService: ConsultationsService
+    private consultationsService: ConsultationsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -283,5 +285,19 @@ export class ConsultationDetailComponent implements OnInit {
     }
     // Fallback to organizationId if organization object not populated
     return this.consultation?.organizationId || '';
+  }
+
+  // Role-based access control methods
+  canEditConsultation(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
+
+  canCreatePrescription(): boolean {
+    return this.authService.hasAnyRole(['DOCTOR', 'ADMIN', 'SUPER_ADMIN']);
+  }
+
+  canViewPatient(): boolean {
+    // All authenticated users can view patient details
+    return true;
   }
 }

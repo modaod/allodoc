@@ -15,15 +15,15 @@
       </button>
       
       <div class="action-buttons">
-        <button mat-raised-button (click)="viewPatientDetail()">
+        <button mat-raised-button (click)="viewPatientDetail()" *ngIf="canViewPatient()">
           <mat-icon>person</mat-icon>
           View Patient
         </button>
-        <button mat-raised-button color="primary" (click)="editConsultation()">
+        <button mat-raised-button color="primary" (click)="editConsultation()" *ngIf="canEditConsultation()">
           <mat-icon>edit</mat-icon>
           Edit Consultation
         </button>
-        <button mat-raised-button color="accent" (click)="createPrescription()">
+        <button mat-raised-button color="accent" (click)="createPrescription()" *ngIf="canCreatePrescription()">
           <mat-icon>medication</mat-icon>
           Create Prescription
         </button>
