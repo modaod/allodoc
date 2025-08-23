@@ -206,24 +206,18 @@ export class AppComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.notificationService.showSuccess('Organization switched successfully');
         
-        // Check if we're in super admin area and switching organizations
+        // Always navigate to dashboard when switching organizations
+        // This ensures we don't show stale data from the previous organization
+        // (detail pages reference specific IDs that won't exist in the new organization)
+        
+        // Exit super admin mode if we were in it
         if (this.isInSuperAdminMode) {
-          // Exit super admin mode when switching organizations
           this.isInSuperAdminMode = false;
-          this.router.navigate(['/dashboard']);
-        } else {
-          // Reload current route to refresh data
-          const currentUrl = this.router.url;
-          if (currentUrl === '/dashboard' || currentUrl.startsWith('/dashboard')) {
-            // For dashboard, just navigate to trigger reload
-            this.router.navigate(['/dashboard']);
-          } else {
-            // For other routes, use the skip location trick
-            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-              this.router.navigate([currentUrl]);
-            });
-          }
+          localStorage.setItem('superAdminModeEnabled', 'false');
         }
+        
+        // Navigate to the dashboard for the new organization
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         // Handle error without disrupting the UI
