@@ -2,10 +2,14 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { AuthorizationService } from '../services/authorization.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-    constructor(private reflector: Reflector) {}
+    constructor(
+        private reflector: Reflector,
+        private authorizationService: AuthorizationService,
+    ) {}
 
     canActivate(context: ExecutionContext): boolean {
         // Check if the route is public
@@ -32,6 +36,11 @@ export class RolesGuard implements CanActivate {
 
         if (!user) {
             throw new ForbiddenException('User not authenticated');
+        }
+
+        // SUPER_ADMIN bypasses all role checks - using centralized check
+        if (this.authorizationService.isSuperAdmin(user)) {
+            return true;
         }
 
         const hasRole = requiredRoles.some((role) =>
