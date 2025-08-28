@@ -1,6 +1,8 @@
 import { Module, Global } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AuditService } from './services/audit.service';
 import { AuthorizationService } from './services/authorization.service';
+import { CacheService } from './services/cache.service';
 import { AuditInterceptor } from './interceptors/audit.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -9,10 +11,18 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
 
 @Global()
 @Module({
+    imports: [
+        // Cache configuration
+        CacheModule.register({
+            ttl: 5 * 60 * 1000, // 5 minutes default TTL in milliseconds
+            max: 100, // maximum number of items in cache
+        }),
+    ],
     providers: [
         // Services
         AuditService,
         AuthorizationService,
+        CacheService,
 
         // Interceptors
         AuditInterceptor,
@@ -28,6 +38,7 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
     exports: [
         AuditService,
         AuthorizationService,
+        CacheService,
         AuditInterceptor,
         HttpExceptionFilter,
         JwtAuthGuard,
