@@ -1,28 +1,45 @@
-# Dockerfile.dev
-FROM node:20-alpine
+# Development Dockerfile
+# Optimized for development with hot-reload and debugging
 
-# Create application directory
-WORKDIR /app
+FROM node:18-alpine
 
-# Install system dependencies
+# Install additional tools for development
 RUN apk add --no-cache \
+    bash \
+    curl \
+    git \
+    vim \
     python3 \
     make \
     g++ \
     postgresql-client
 
-# Copy configuration files
+WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install all dependencies (including devDependencies)
+RUN npm ci && \
+    npm cache clean --force
 
-# Copy source code
+# Install nest CLI globally for development convenience
+RUN npm install -g @nestjs/cli
+
+# Copy application code
+# In development, we typically mount the source as a volume for hot-reload
 COPY . .
 
-# Expose port
+# Create necessary directories
+RUN mkdir -p /app/logs
+
+# Expose application port and debugger port
 EXPOSE 3000 9229
 
-# Default command
+# Development health check (simpler)
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Default command for development with watch mode
 CMD ["npm", "run", "start:dev"]

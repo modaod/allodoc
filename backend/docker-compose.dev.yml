@@ -1,0 +1,135 @@
+services:
+  # PostgreSQL Database for Development
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: allodoc_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dev_db
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password_123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./src/database/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - '5432:5432'
+    networks:
+      - medical_dev_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dev_user -d dev_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching/sessions (optional but recommended)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: allodoc_redis_dev
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - medical_dev_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # pgAdmin for database management (development only)
+  pgadmin-dev:
+    image: dpage/pgadmin4:latest
+    container_name: allodoc_pgadmin_dev
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@allodoc.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - medical_dev_network
+    depends_on:
+      - postgres-dev
+
+  # Backend application (always runs in Docker for development)
+  backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: allodoc_backend_dev
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+      - '9229:9229' # Debug port for VS Code/Chrome DevTools
+    volumes:
+      - .:/app                    # Mount source code for hot-reload
+      - /app/node_modules         # Preserve node_modules from container
+    environment:
+      # Override database host to use container name
+      - DATABASE_HOST=postgres-dev
+      - REDIS_HOST=redis-dev
+      - NODE_ENV=development
+    env_file:
+      - .env.development
+    networks:
+      - medical_dev_network
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    command: npm run start:dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend application (Angular)
+  frontend-dev:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    container_name: allodoc_frontend_dev
+    restart: unless-stopped
+    ports:
+      - '4200:4200'
+      - '49153:49153'  # Angular CLI websocket for live reload
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules     # Preserve node_modules from container
+      - /app/.angular         # Preserve Angular cache
+    environment:
+      - NODE_ENV=development
+    networks:
+      - medical_dev_network
+    depends_on:
+      - backend-dev
+    command: ng serve --host 0.0.0.0 --proxy-config proxy.conf.docker.json --poll=2000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4200']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  pgadmin_dev_data:
+    driver: local
+
+networks:
+  medical_dev_network:
+    driver: bridge
+    name: medical_dev_network
