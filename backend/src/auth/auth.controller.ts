@@ -1,5 +1,6 @@
 import { Controller, Post, Body, UseGuards, Get, Req, HttpStatus, Patch, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -22,6 +23,7 @@ export class AuthController {
     @Public()
     @UseGuards(LocalAuthGuard)
     @Post('login')
+    @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
     @ApiOperation({ summary: 'Login user' })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -45,6 +47,7 @@ export class AuthController {
 
     @Public()
     @Post('register')
+    @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 registration attempts per minute
     @ApiOperation({ summary: 'Register new user' })
     @ApiResponse({
         status: HttpStatus.CREATED,
@@ -73,6 +76,7 @@ export class AuthController {
 
     @Public()
     @Post('refresh')
+    @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 refresh attempts per minute
     @ApiOperation({ summary: 'Refresh access token' })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -127,6 +131,7 @@ export class AuthController {
 
     @ApiBearerAuth('JWT-auth')
     @Patch('change-password')
+    @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 password change attempts per minute
     @ApiOperation({ summary: 'Change user password' })
     @ApiResponse({
         status: HttpStatus.OK,
