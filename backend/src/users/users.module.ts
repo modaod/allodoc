@@ -8,11 +8,13 @@ import { UsersRepository } from './users.repository';
 import { RolesService } from './roles.service';
 import { RolesRepository } from './roles.repository';
 import { OrganizationsModule } from '../organizations/organizations.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([User, Role]),
         forwardRef(() => OrganizationsModule), // Avoid circular dependency
+        CommonModule, // Import CommonModule to access CacheService
     ],
     controllers: [UsersController],
     providers: [UsersService, UsersRepository, RolesService, RolesRepository],
