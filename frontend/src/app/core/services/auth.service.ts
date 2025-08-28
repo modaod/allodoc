@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, Subject, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -79,7 +79,9 @@ export class AuthService {
   }
 
   get isAuthenticated(): boolean {
-    return !!this.currentUser && !!this.getAccessToken();
+    // Since tokens are in httpOnly cookies, we can't check them directly
+    // Instead, rely on the presence of currentUser data
+    return !!this.currentUser;
   }
 
   get hasSelectedOrganization(): boolean {
@@ -140,14 +142,9 @@ export class AuthService {
   }
 
   refreshToken(): Observable<AuthResponse> {
-    const refreshToken = this.getRefreshToken();
-    
-    if (!refreshToken) {
-      this.handleLogout();
-      return throwError('No refresh token available');
-    }
-
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/refresh`, { refreshToken }, { withCredentials: true })
+    // Refresh token is sent via httpOnly cookie automatically
+    // No need to send it in the body
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/refresh`, {}, { withCredentials: true })
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
         catchError(error => {
@@ -245,9 +242,8 @@ export class AuthService {
   }
 
   private handleAuthSuccess(response: AuthResponse): void {
-    // Tokens are now stored in httpOnly cookies by the backend
-    // We keep the tokens in memory for backward compatibility only
-    // TODO: Remove token storage once fully migrated to cookies
+    // Tokens are now stored ONLY in httpOnly cookies by the backend
+    // No localStorage storage for security - prevents XSS attacks
     
     // Process user data with organizations from backend
     const user: User = {
@@ -284,12 +280,9 @@ export class AuthService {
   }
 
   private handleLogout(): void {
-    // Clear localStorage (user data only, tokens are in cookies)
+    // Clear localStorage (user data only, tokens are in httpOnly cookies)
     localStorage.removeItem('currentUser');
     localStorage.removeItem('selectedOrganizationId');
-    // Legacy token removal (for backward compatibility)
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     
     // Clear user state
     this.currentUserSubject.next(null);
@@ -325,25 +318,15 @@ export class AuthService {
 
   private loadStoredUser(): void {
     const storedUser = localStorage.getItem('currentUser');
-    const accessToken = localStorage.getItem('accessToken');
     
-    if (storedUser && accessToken) {
+    if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
         this.currentUserSubject.next(user);
         
-        // Check if token is still valid (basic check)
-        const tokenPayload = this.parseJwtPayload(accessToken);
-        if (tokenPayload && tokenPayload.exp * 1000 > Date.now()) {
-          // Token is still valid, set expiry timer
-          const expiresIn = tokenPayload.exp * 1000 - Date.now();
-          this.setTokenExpiryTimer(Math.floor(expiresIn / 1000));
-        } else {
-          // Token expired, try to refresh
-          this.refreshToken().subscribe({
-            error: () => this.handleLogout()
-          });
-        }
+        // Tokens are in httpOnly cookies, we can't check expiry from JavaScript
+        // The backend will handle token validation and refresh
+        // If the user's session has expired, the next API call will fail with 401
       } catch (error) {
         // Invalid stored data, clear it
         this.handleLogout();
@@ -375,15 +358,15 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    // Tokens are now in httpOnly cookies, not accessible from JS
-    // Return null as cookies are sent automatically
+    // Tokens are in httpOnly cookies, not accessible from JavaScript
+    // Cookies are sent automatically with requests via withCredentials: true
     return null;
   }
 
   getRefreshToken(): string | null {
-    // Refresh token is also in httpOnly cookie
-    // For now, check localStorage for backward compatibility
-    return localStorage.getItem('refreshToken');
+    // Refresh token is in httpOnly cookie, not accessible from JavaScript
+    // Cookies are sent automatically with requests via withCredentials: true
+    return null;
   }
 
   hasRole(role: string): boolean {

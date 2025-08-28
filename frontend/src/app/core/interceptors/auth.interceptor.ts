@@ -18,27 +18,13 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Skip auth header for auth endpoints
-    if (this.isAuthEndpoint(req.url)) {
-      // Add credentials for cookie support
-      req = req.clone({ withCredentials: true });
-      return next.handle(req);
-    }
-
-    // For cookie-based auth, we don't need to add Authorization header
-    // The browser will automatically send cookies
-    // But we still need withCredentials for CORS
+    // Always add withCredentials for cookie-based authentication
+    // The browser will automatically send httpOnly cookies with every request
     req = req.clone({ withCredentials: true });
-    
-    // For backward compatibility, also add Authorization header if token exists
-    const authToken = this.getAuthService().getAccessToken();
-    if (authToken) {
-      req = this.addAuthHeader(req, authToken);
-    }
 
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Handle 401 errors by attempting token refresh
+        // Handle 401 errors - session might have expired
         if (error.status === 401 && !this.shouldSkip401Handling(req.url)) {
           return this.handle401Error(req, next);
         }
@@ -49,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private isAuthEndpoint(url: string): boolean {
-    // Only these endpoints should skip auth header
+    // Auth endpoints that handle their own errors
     return url.includes('/auth/login') || 
            url.includes('/auth/register') || 
            url.includes('/auth/refresh');
@@ -61,24 +47,13 @@ export class AuthInterceptor implements HttpInterceptor {
            url.includes('/auth/switch-organization');
   }
 
-  private addAuthHeader(req: HttpRequest<any>, token: string): HttpRequest<any> {
-    return req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
 
   private handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Try to refresh the session using the refresh token cookie
     return this.getAuthService().refreshToken().pipe(
       switchMap(() => {
-        // Retry the original request with new token
-        const newToken = this.getAuthService().getAccessToken();
-        if (newToken) {
-          const newReq = this.addAuthHeader(req, newToken);
-          return next.handle(newReq);
-        }
-        return throwError('Token refresh failed');
+        // Retry the original request - cookies will be automatically sent
+        return next.handle(req);
       }),
       catchError((error) => {
         // Refresh failed, logout user

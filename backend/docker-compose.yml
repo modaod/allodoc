@@ -79,13 +79,13 @@ services:
             - '4200:4200'
         volumes:
             - ../frontend:/app
-            - /app/node_modules  # Anonymous volume to prevent node_modules conflicts
+            - /app/node_modules # Anonymous volume to prevent node_modules conflicts
         environment:
             - NODE_ENV=development
         networks:
             - medical_network
         depends_on:
-            - app  # Frontend depends on backend API
+            - app # Frontend depends on backend API
         command: ng serve --host 0.0.0.0 --proxy-config proxy.conf.docker.json --poll=2000
 
     # PgAdmin for database administration (optional)

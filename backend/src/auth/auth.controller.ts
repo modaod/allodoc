@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -21,7 +21,6 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Public()
-    @UseGuards(LocalAuthGuard)
     @Post('login')
     @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
     @ApiOperation({ summary: 'Login user' })
@@ -38,7 +37,6 @@ export class AuthController {
         @Body() loginDto: LoginDto,
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-        @CurrentUser() user: User,
     ): Promise<AuthResponse> {
         const ipAddress = req.ip;
         const userAgent = req.get('User-Agent');
@@ -98,7 +96,14 @@ export class AuthController {
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
     ): Promise<AuthResponse> {
-        const authResponse = await this.authService.refreshToken(refreshTokenDto.refreshToken, req.ip);
+        // Try to get refresh token from cookie first, fallback to body for backward compatibility
+        const refreshToken = req.cookies?.refresh_token || refreshTokenDto.refreshToken;
+        
+        if (!refreshToken) {
+            throw new UnauthorizedException('Refresh token not provided');
+        }
+        
+        const authResponse = await this.authService.refreshToken(refreshToken, req.ip);
         
         // Set new httpOnly cookies for tokens
         this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
@@ -115,12 +120,16 @@ export class AuthController {
     })
     async logout(
         @Body() refreshTokenDto: RefreshTokenDto,
+        @Req() req: Request,
         @CurrentUser() user: User,
         @Res({ passthrough: true }) res: Response,
     ): Promise<{ message: string }> {
+        // Try to get refresh token from cookie first, fallback to body for backward compatibility
+        const refreshToken = req.cookies?.refresh_token || refreshTokenDto.refreshToken;
+        
         // Get JTI from current token to blacklist it
         const tokenPayload = (user as any).tokenPayload;
-        await this.authService.logout(refreshTokenDto.refreshToken, tokenPayload?.jti, user.id);
+        await this.authService.logout(refreshToken, tokenPayload?.jti, user.id);
         
         // Clear cookies
         this.clearTokenCookies(res);
