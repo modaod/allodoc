@@ -3,6 +3,10 @@
 !README.md
 !**/README.md
 
+# Script files
+*.sh
+*.bash
+
 # IDE files
 .vscode/
 .idea/
