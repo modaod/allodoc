@@ -32,8 +32,8 @@ export class TokenService {
         refreshToken: string;
         expiresIn: number;
     }> {
-        // Get user permissions
-        const permissions = await this.rolesService.getPermissionsForUser(user.roles);
+        // Get user permissions (with caching)
+        const permissions = await this.rolesService.getPermissionsForUser(user.roles, user.id);
 
         // Create JWT payload with unique JTI for tracking
         const jti = uuidv4();

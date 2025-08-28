@@ -2,6 +2,7 @@ import { INestApplicationContext } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Role, RoleName } from '../../../users/entities/role.entity';
+import { PermissionValidator } from '../../../common/validators/permission.validator';
 
 const roleData = [
     {
@@ -62,7 +63,23 @@ const roleData = [
 
 export async function seedRoles(app: INestApplicationContext): Promise<void> {
     const roleRepository = app.get<Repository<Role>>(getRepositoryToken(Role));
+    const permissionValidator = new PermissionValidator();
 
+    // Validate all permissions before seeding
+    console.log('  🔍 Validating permissions...');
+    for (const data of roleData) {
+        try {
+            permissionValidator.validatePermissions(data.permissions);
+            // Normalize permissions (convert deprecated formats)
+            data.permissions = permissionValidator.normalizePermissions(data.permissions);
+            console.log(`    ✅ Validated permissions for ${data.displayName}`);
+        } catch (error) {
+            console.error(`    ❌ Invalid permissions for ${data.displayName}:`, error.message);
+            throw error;
+        }
+    }
+
+    // Seed roles with validated permissions
     for (const data of roleData) {
         const existingRole = await roleRepository.findOne({
             where: { name: data.name },
@@ -76,7 +93,14 @@ export async function seedRoles(app: INestApplicationContext): Promise<void> {
             await roleRepository.save(role);
             console.log(`  ✅ Created role: ${data.displayName}`);
         } else {
-            console.log(`  ⏭️  Role already exists: ${data.displayName}`);
+            // Update permissions if role exists but permissions changed
+            if (JSON.stringify(existingRole.permissions) !== JSON.stringify(data.permissions)) {
+                existingRole.permissions = data.permissions;
+                await roleRepository.save(existingRole);
+                console.log(`  🔄 Updated permissions for: ${data.displayName}`);
+            } else {
+                console.log(`  ⏭️  Role already exists: ${data.displayName}`);
+            }
         }
     }
 }
