@@ -7,6 +7,12 @@ import helmet from 'helmet';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 
+// Fix for crypto module in Node.js 18 with TypeORM
+import { webcrypto } from 'crypto';
+if (!globalThis.crypto) {
+    globalThis.crypto = webcrypto as any;
+}
+
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 

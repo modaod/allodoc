@@ -41,19 +41,53 @@ import { ThrottlerGuard } from '@nestjs/throttler';
         // Database Configuration
         TypeOrmModule.forRootAsync({
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                type: 'postgres',
-                host: configService.get('database.host'),
-                port: configService.get('database.port'),
-                username: configService.get('database.username'),
-                password: configService.get('database.password'),
-                database: configService.get('database.name'),
-                entities: [__dirname + '/**/*.entity{.ts,.js}'],
-                synchronize: configService.get('app.nodeEnv') === 'development',
-                logging: configService.get('app.nodeEnv') === 'development',
-                migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-                migrationsRun: false,
-            }),
+            useFactory: (configService: ConfigService) => {
+                const isProduction = configService.get('app.nodeEnv') === 'production';
+                const isDevelopment = configService.get('app.nodeEnv') === 'development';
+
+                return {
+                    type: 'postgres',
+                    host: configService.get('database.host'),
+                    port: configService.get('database.port'),
+                    username: configService.get('database.username'),
+                    password: configService.get('database.password'),
+                    database: configService.get('database.name'),
+                    
+                    // Entity loading
+                    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+                    autoLoadEntities: configService.get('database.autoLoadEntities'),
+                    
+                    // CRITICAL: Synchronization settings
+                    synchronize: configService.get('database.synchronize'),
+                    
+                    // Logging configuration
+                    logging: configService.get('database.logging'),
+                    maxQueryExecutionTime: configService.get('database.maxQueryExecutionTime'),
+                    
+                    // Migration settings
+                    migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+                    migrationsTableName: configService.get('database.migrationsTableName'),
+                    migrationsRun: configService.get('database.migrationsRun'),
+                    
+                    // SSL Configuration for production
+                    ssl: isProduction && configService.get('database.ssl')
+                        ? { rejectUnauthorized: configService.get('database.sslRejectUnauthorized') }
+                        : false,
+                    
+                    // Connection pool configuration
+                    extra: {
+                        max: configService.get('database.poolSize'),
+                        connectionTimeoutMillis: configService.get('database.connectionTimeout'),
+                        idleTimeoutMillis: configService.get('database.idleTimeout'),
+                        statement_timeout: configService.get('database.statementTimeout'),
+                    },
+                    
+                    // Retry configuration
+                    retryAttempts: configService.get('database.retryAttempts'),
+                    retryDelay: configService.get('database.retryDelay'),
+                    keepConnectionAlive: configService.get('database.keepConnectionAlive'),
+                };
+            },
         }),
 
         // Rate Limiting
