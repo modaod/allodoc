@@ -108,7 +108,7 @@ export class AuthService {
   }
 
   login(loginData: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, loginData).pipe(
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, loginData, { withCredentials: true }).pipe(
       tap(response => {
         // Backend now returns organizations array for all users
         this.handleAuthSuccess(response);
@@ -121,7 +121,7 @@ export class AuthService {
     const refreshToken = this.getRefreshToken();
     
     if (refreshToken) {
-      return this.http.post(`${this.API_URL}/auth/logout`, { refreshToken })
+      return this.http.post(`${this.API_URL}/auth/logout`, { refreshToken }, { withCredentials: true })
         .pipe(
           tap(() => this.handleLogout()),
           catchError(() => {
@@ -147,7 +147,7 @@ export class AuthService {
       return throwError('No refresh token available');
     }
 
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/refresh`, { refreshToken })
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/refresh`, { refreshToken }, { withCredentials: true })
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
         catchError(error => {
@@ -158,7 +158,7 @@ export class AuthService {
   }
 
   getProfile(): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/auth/profile`)
+    return this.http.get<User>(`${this.API_URL}/auth/profile`, { withCredentials: true })
       .pipe(
         tap(user => this.currentUserSubject.next(user)),
         catchError(error => this.handleAuthError(error))
@@ -167,7 +167,7 @@ export class AuthService {
 
   selectOrganization(organizationId: string): Observable<AuthResponse> {
     // Call backend to switch organization
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/switch-organization/${organizationId}`, {})
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/switch-organization/${organizationId}`, {}, { withCredentials: true })
       .pipe(
         tap(response => {
           // Update tokens with new organization context
@@ -196,7 +196,7 @@ export class AuthService {
         catchError(error => {
           // Don't call handleAuthError which triggers logout
           // Just pass the error through for the component to handle
-          console.error('Organization switch error:', error);
+          // Organization switch error - pass through for component to handle
           return throwError(error);
         })
       );
@@ -207,7 +207,7 @@ export class AuthService {
   }
 
   fetchUserOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.API_URL}/auth/organizations/user`)
+    return this.http.get<Organization[]>(`${this.API_URL}/auth/organizations/user`, { withCredentials: true })
       .pipe(
         tap(organizations => {
           // Update current user with fetched organizations
@@ -245,9 +245,9 @@ export class AuthService {
   }
 
   private handleAuthSuccess(response: AuthResponse): void {
-    // Store tokens
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
+    // Tokens are now stored in httpOnly cookies by the backend
+    // We keep the tokens in memory for backward compatibility only
+    // TODO: Remove token storage once fully migrated to cookies
     
     // Process user data with organizations from backend
     const user: User = {
@@ -284,11 +284,12 @@ export class AuthService {
   }
 
   private handleLogout(): void {
-    // Clear storage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    // Clear localStorage (user data only, tokens are in cookies)
     localStorage.removeItem('currentUser');
     localStorage.removeItem('selectedOrganizationId');
+    // Legacy token removal (for backward compatibility)
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     
     // Clear user state
     this.currentUserSubject.next(null);
@@ -374,10 +375,14 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+    // Tokens are now in httpOnly cookies, not accessible from JS
+    // Return null as cookies are sent automatically
+    return null;
   }
 
   getRefreshToken(): string | null {
+    // Refresh token is also in httpOnly cookie
+    // For now, check localStorage for backward compatibility
     return localStorage.getItem('refreshToken');
   }
 

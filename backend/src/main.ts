@@ -5,6 +5,7 @@ import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nes
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -31,13 +32,17 @@ async function bootstrap() {
     // Security
     app.use(helmet());
     app.use(compression());
+    
+    // Cookie parser for handling cookies
+    app.use(cookieParser(configService.get<string>('app.cookieSecret')));
 
-    // CORS
+    // CORS - ensure credentials are properly configured
     app.enableCors({
         origin: corsOrigin,
-        credentials: corsCredentials,
+        credentials: true, // Always true for cookie support
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Organization-Id', 'X-CSRF-Token'],
+        exposedHeaders: ['X-CSRF-Token'], // Expose CSRF token header
     });
 
     // Global validation

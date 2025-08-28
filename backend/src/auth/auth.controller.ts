@@ -1,7 +1,7 @@
-import { Controller, Post, Body, UseGuards, Get, Req, HttpStatus, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -37,12 +37,18 @@ export class AuthController {
     async login(
         @Body() loginDto: LoginDto,
         @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
         @CurrentUser() user: User,
     ): Promise<AuthResponse> {
         const ipAddress = req.ip;
         const userAgent = req.get('User-Agent');
 
-        return await this.authService.login(loginDto, ipAddress, userAgent);
+        const authResponse = await this.authService.login(loginDto, ipAddress, userAgent);
+        
+        // Set httpOnly cookies for tokens
+        this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
+        
+        return authResponse;
     }
 
     @Public()
@@ -90,8 +96,14 @@ export class AuthController {
     async refresh(
         @Body() refreshTokenDto: RefreshTokenDto,
         @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<AuthResponse> {
-        return await this.authService.refreshToken(refreshTokenDto.refreshToken, req.ip);
+        const authResponse = await this.authService.refreshToken(refreshTokenDto.refreshToken, req.ip);
+        
+        // Set new httpOnly cookies for tokens
+        this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
+        
+        return authResponse;
     }
 
     @ApiBearerAuth('JWT-auth')
@@ -101,8 +113,15 @@ export class AuthController {
         status: HttpStatus.OK,
         description: 'User successfully logged out',
     })
-    async logout(@Body() refreshTokenDto: RefreshTokenDto): Promise<{ message: string }> {
+    async logout(
+        @Body() refreshTokenDto: RefreshTokenDto,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<{ message: string }> {
         await this.authService.logout(refreshTokenDto.refreshToken);
+        
+        // Clear cookies
+        this.clearTokenCookies(res);
+        
         return { message: 'Successfully logged out' };
     }
 
@@ -166,11 +185,17 @@ export class AuthController {
         @CurrentUser() user: User,
         @Param('organizationId') organizationId: string,
         @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<AuthResponse> {
         const ipAddress = req.ip;
         const userAgent = req.get('User-Agent');
         
-        return await this.authService.switchOrganization(user.id, organizationId, ipAddress, userAgent);
+        const authResponse = await this.authService.switchOrganization(user.id, organizationId, ipAddress, userAgent);
+        
+        // Set new httpOnly cookies for tokens with new organization context
+        this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
+        
+        return authResponse;
     }
 
     @ApiBearerAuth('JWT-auth')
@@ -183,5 +208,38 @@ export class AuthController {
     })
     async getUserOrganizations(@CurrentUser() user: User): Promise<Organization[]> {
         return await this.authService.getUserOrganizations(user.id);
+    }
+    
+    /**
+     * Helper method to set httpOnly cookies for tokens
+     */
+    private setTokenCookies(res: Response, accessToken: string, refreshToken: string): void {
+        const isProduction = process.env.NODE_ENV === 'production';
+        
+        // Set access token cookie (short-lived)
+        res.cookie('access_token', accessToken, {
+            httpOnly: true,
+            secure: isProduction, // HTTPS only in production
+            sameSite: 'lax', // CSRF protection
+            maxAge: 15 * 60 * 1000, // 15 minutes
+            path: '/',
+        });
+        
+        // Set refresh token cookie (long-lived)
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/',
+        });
+    }
+    
+    /**
+     * Helper method to clear token cookies
+     */
+    private clearTokenCookies(res: Response): void {
+        res.clearCookie('access_token', { path: '/' });
+        res.clearCookie('refresh_token', { path: '/' });
     }
 }
