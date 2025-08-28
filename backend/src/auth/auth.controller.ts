@@ -115,9 +115,12 @@ export class AuthController {
     })
     async logout(
         @Body() refreshTokenDto: RefreshTokenDto,
+        @CurrentUser() user: User,
         @Res({ passthrough: true }) res: Response,
     ): Promise<{ message: string }> {
-        await this.authService.logout(refreshTokenDto.refreshToken);
+        // Get JTI from current token to blacklist it
+        const tokenPayload = (user as any).tokenPayload;
+        await this.authService.logout(refreshTokenDto.refreshToken, tokenPayload?.jti, user.id);
         
         // Clear cookies
         this.clearTokenCookies(res);

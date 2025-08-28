@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThan } from 'typeorm';
 import { RefreshToken } from '../entities/refresh-token.entity';
+import { TokenBlacklist } from '../entities/token-blacklist.entity';
 import { User } from '../../users/entities/user.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { RolesService } from '../../users/roles.service';
 import * as crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class TokenService {
@@ -17,6 +19,8 @@ export class TokenService {
         private rolesService: RolesService,
         @InjectRepository(RefreshToken)
         private refreshTokenRepository: Repository<RefreshToken>,
+        @InjectRepository(TokenBlacklist)
+        private tokenBlacklistRepository: Repository<TokenBlacklist>,
     ) {}
 
     async generateTokens(
@@ -31,13 +35,15 @@ export class TokenService {
         // Get user permissions
         const permissions = await this.rolesService.getPermissionsForUser(user.roles);
 
-        // Create JWT payload
+        // Create JWT payload with unique JTI for tracking
+        const jti = uuidv4();
         const payload: JwtPayload = {
             sub: user.id,
             email: user.email,
             organizationId: user.organizationId,
             roles: user.roles.map((role) => role.name),
             permissions,
+            jti,
         };
 
         // Generate access token (short-lived)
@@ -153,5 +159,47 @@ export class TokenService {
         } catch (error) {
             throw new Error('Invalid token');
         }
+    }
+
+    async isTokenBlacklisted(jti: string): Promise<boolean> {
+        const blacklistedToken = await this.tokenBlacklistRepository.findOne({
+            where: { jti },
+        });
+        return !!blacklistedToken;
+    }
+
+    async blacklistToken(
+        jti: string,
+        userId: string,
+        expiresAt: Date,
+        reason?: string,
+    ): Promise<void> {
+        // Check if already blacklisted
+        const existing = await this.tokenBlacklistRepository.findOne({
+            where: { jti },
+        });
+        
+        if (!existing) {
+            const blacklistEntry = this.tokenBlacklistRepository.create({
+                jti,
+                userId,
+                expiresAt,
+                reason,
+            });
+            await this.tokenBlacklistRepository.save(blacklistEntry);
+        }
+    }
+
+    async blacklistUserTokens(userId: string, reason: string = 'logout'): Promise<void> {
+        // This would require storing JTIs with refresh tokens
+        // For now, we'll revoke all refresh tokens
+        await this.revokeAllUserTokens(userId);
+    }
+
+    async cleanupExpiredBlacklistEntries(): Promise<void> {
+        const now = new Date();
+        await this.tokenBlacklistRepository.delete({
+            expiresAt: MoreThan(now) as any,
+        });
     }
 }

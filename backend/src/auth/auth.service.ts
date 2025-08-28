@@ -214,14 +214,25 @@ export class AuthService {
         }
     }
 
-    // Logout user (revoke refresh token)
-    async logout(refreshToken: string): Promise<void> {
+    // Logout user (revoke refresh token and blacklist access token)
+    async logout(refreshToken: string, jti?: string, userId?: string): Promise<void> {
+        // Revoke refresh token
         await this.tokenService.revokeRefreshToken(refreshToken);
+        
+        // Blacklist current access token if JTI is provided
+        if (jti && userId) {
+            // Calculate token expiration (15 minutes from now as a safe default)
+            const expiresAt = new Date();
+            expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+            
+            await this.tokenService.blacklistToken(jti, userId, expiresAt, 'logout');
+        }
     }
 
     // Logout from all devices (revoke all user tokens)
     async logoutAll(userId: string): Promise<void> {
         await this.tokenService.revokeAllUserTokens(userId);
+        // Note: We could also blacklist all active JTIs for this user if we track them
     }
 
     // Change password
@@ -237,6 +248,9 @@ export class AuthService {
 
         // Revoke all tokens to force re-login with new password
         await this.tokenService.revokeAllUserTokens(userId);
+        
+        // Also blacklist all tokens for this user (security measure)
+        await this.tokenService.blacklistUserTokens(userId, 'password_change');
     }
 
     // Get user profile from token

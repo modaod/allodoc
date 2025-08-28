@@ -3,12 +3,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TokenService } from './services/token.service';
+import { TokenCleanupService } from './services/token-cleanup.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { TokenBlacklist } from './entities/token-blacklist.entity';
 import { User } from '../users/entities/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { UserOrganization } from '../users/entities/user-organization.entity';
@@ -20,6 +23,9 @@ import { CommonModule } from '../common/common.module';
     imports: [
         // Common module for shared services
         CommonModule,
+
+        // Schedule module for cleanup jobs
+        ScheduleModule.forRoot(),
 
         // Passport configuration
         PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -37,7 +43,7 @@ import { CommonModule } from '../common/common.module';
         }),
 
         // TypeORM for auth-related entities
-        TypeOrmModule.forFeature([RefreshToken, User, Organization, UserOrganization]),
+        TypeOrmModule.forFeature([RefreshToken, TokenBlacklist, User, Organization, UserOrganization]),
 
         // Forward reference to avoid circular dependency
         forwardRef(() => UsersModule),
@@ -46,7 +52,7 @@ import { CommonModule } from '../common/common.module';
         OrganizationsModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService, TokenService, JwtStrategy, LocalStrategy],
+    providers: [AuthService, TokenService, TokenCleanupService, JwtStrategy, LocalStrategy],
     exports: [AuthService, TokenService, JwtModule, PassportModule],
 })
 export class AuthModule {}

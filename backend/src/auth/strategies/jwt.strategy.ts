@@ -4,6 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
+import { TokenService } from '../services/token.service';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { User } from '../../users/entities/user.entity';
 
@@ -12,6 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(
         private configService: ConfigService,
         private usersService: UsersService,
+        private tokenService: TokenService,
     ) {
         super({
             // Extract JWT from either Authorization header or cookies
@@ -34,7 +36,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     async validate(payload: JwtPayload): Promise<User> {
         // Extract user info from JWT payload
-        const { sub: userId, email, organizationId } = payload;
+        const { sub: userId, email, organizationId, jti } = payload;
+
+        // Check if token is blacklisted
+        if (jti) {
+            const isBlacklisted = await this.tokenService.isTokenBlacklisted(jti);
+            if (isBlacklisted) {
+                throw new UnauthorizedException('Token has been revoked');
+            }
+        }
 
         // Verify user still exists and is active
         const user = await this.usersService.findById(userId);
