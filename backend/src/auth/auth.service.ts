@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './services/token.service';
+import { RedisSessionService } from './services/redis-session.service';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { AuthorizationService } from '../common/services/authorization.service';
 import { LoginDto } from './dto/login.dto';
@@ -27,6 +28,7 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private tokenService: TokenService,
+        private redisSessionService: RedisSessionService,
         private organizationsService: OrganizationsService,
         private authorizationService: AuthorizationService,
         @InjectRepository(UserOrganization)
@@ -215,9 +217,14 @@ export class AuthService {
     }
 
     // Logout user (revoke refresh token and blacklist access token)
-    async logout(refreshToken: string, jti?: string, userId?: string): Promise<void> {
+    async logout(refreshToken: string, jti?: string, userId?: string, sessionId?: string): Promise<void> {
         // Revoke refresh token
         await this.tokenService.revokeRefreshToken(refreshToken);
+        
+        // Invalidate Redis session if sessionId is provided
+        if (sessionId) {
+            await this.redisSessionService.invalidateSession(sessionId);
+        }
         
         // Blacklist current access token if JTI is provided
         if (jti && userId) {
@@ -231,6 +238,10 @@ export class AuthService {
 
     // Logout from all devices (revoke all user tokens)
     async logoutAll(userId: string): Promise<void> {
+        // Invalidate all Redis sessions
+        await this.redisSessionService.invalidateAllUserSessions(userId);
+        
+        // Also revoke database tokens for consistency
         await this.tokenService.revokeAllUserTokens(userId);
         // Note: We could also blacklist all active JTIs for this user if we track them
     }
@@ -424,5 +435,33 @@ export class AuthService {
 
             return organizations.sort((a, b) => a.name.localeCompare(b.name));
         }
+    }
+
+    // Get all active sessions for a user
+    async getUserSessions(userId: string): Promise<any[]> {
+        const sessions = await this.redisSessionService.getUserSessionDetails(userId);
+        
+        // Transform to a user-friendly format
+        return sessions.map(session => ({
+            id: session.deviceId,
+            deviceName: session.deviceName,
+            ipAddress: session.ipAddress,
+            lastActivity: session.lastActivity,
+            createdAt: session.createdAt,
+            isCurrent: false, // Could be determined by comparing with current session
+        }));
+    }
+
+    // Terminate a specific session
+    async terminateSession(userId: string, sessionId: string): Promise<void> {
+        // Check if session belongs to user
+        const userSessions = await this.redisSessionService.getUserSessions(userId);
+        
+        if (!userSessions.includes(sessionId)) {
+            throw new ForbiddenException('Session does not belong to this user');
+        }
+        
+        // Invalidate the session
+        await this.redisSessionService.invalidateSession(sessionId);
     }
 }

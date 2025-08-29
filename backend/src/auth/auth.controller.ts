@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param, Delete, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -127,9 +127,10 @@ export class AuthController {
         // Try to get refresh token from cookie first, fallback to body for backward compatibility
         const refreshToken = req.cookies?.refresh_token || refreshTokenDto.refreshToken;
         
-        // Get JTI from current token to blacklist it
+        // Get JTI and sessionId from current token to blacklist it
         const tokenPayload = (user as any).tokenPayload;
-        await this.authService.logout(refreshToken, tokenPayload?.jti, user.id);
+        const sessionId = (user as any).sessionId || tokenPayload?.sessionId;
+        await this.authService.logout(refreshToken, tokenPayload?.jti, user.id, sessionId);
         
         // Clear cookies
         this.clearTokenCookies(res);
@@ -147,6 +148,33 @@ export class AuthController {
     async logoutAll(@CurrentUser() user: User): Promise<{ message: string }> {
         await this.authService.logoutAll(user.id);
         return { message: 'Successfully logged out from all devices' };
+    }
+
+    @ApiBearerAuth('JWT-auth')
+    @Get('sessions')
+    @ApiOperation({ summary: 'Get all active sessions for current user' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'List of active sessions',
+    })
+    async getSessions(@CurrentUser() user: User): Promise<any[]> {
+        return await this.authService.getUserSessions(user.id);
+    }
+
+    @ApiBearerAuth('JWT-auth')
+    @Delete('sessions/:sessionId')
+    @ApiOperation({ summary: 'Terminate a specific session' })
+    @ApiParam({ name: 'sessionId', description: 'Session ID to terminate' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Session terminated successfully',
+    })
+    async terminateSession(
+        @CurrentUser() user: User,
+        @Param('sessionId') sessionId: string,
+    ): Promise<{ message: string }> {
+        await this.authService.terminateSession(user.id, sessionId);
+        return { message: 'Session terminated successfully' };
     }
 
     @ApiBearerAuth('JWT-auth')
