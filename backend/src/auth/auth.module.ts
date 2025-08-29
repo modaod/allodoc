@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TokenService } from './services/token.service';
 import { TokenCleanupService } from './services/token-cleanup.service';
+import { RedisSessionService } from './services/redis-session.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
@@ -18,11 +19,15 @@ import { UserOrganization } from '../users/entities/user-organization.entity';
 import { UsersModule } from '../users/users.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { CommonModule } from '../common/common.module';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
     imports: [
-        // Common module for shared services
+        // Common module for shared services (includes CacheModule)
         CommonModule,
+        
+        // Redis module for session management
+        RedisModule,
 
         // Schedule module for cleanup jobs
         ScheduleModule.forRoot(),
@@ -52,7 +57,14 @@ import { CommonModule } from '../common/common.module';
         OrganizationsModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService, TokenService, TokenCleanupService, JwtStrategy, LocalStrategy],
-    exports: [AuthService, TokenService, JwtModule, PassportModule],
+    providers: [
+        AuthService, 
+        TokenService, 
+        TokenCleanupService, 
+        RedisSessionService,
+        JwtStrategy, 
+        LocalStrategy
+    ],
+    exports: [AuthService, TokenService, RedisSessionService, JwtModule, PassportModule],
 })
 export class AuthModule {}

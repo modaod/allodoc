@@ -8,6 +8,7 @@ import { TokenBlacklist } from '../entities/token-blacklist.entity';
 import { User } from '../../users/entities/user.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { RolesService } from '../../users/roles.service';
+import { RedisSessionService } from './redis-session.service';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,6 +18,7 @@ export class TokenService {
         private jwtService: JwtService,
         private configService: ConfigService,
         private rolesService: RolesService,
+        private redisSessionService: RedisSessionService,
         @InjectRepository(RefreshToken)
         private refreshTokenRepository: Repository<RefreshToken>,
         @InjectRepository(TokenBlacklist)
@@ -35,7 +37,15 @@ export class TokenService {
         // Get user permissions (with caching)
         const permissions = await this.rolesService.getPermissionsForUser(user.roles, user.id);
 
-        // Create JWT payload with unique JTI for tracking
+        // Create session in Redis
+        const { sessionId, refreshToken } = await this.redisSessionService.createSession(
+            user,
+            permissions,
+            ipAddress,
+            userAgent,
+        );
+
+        // Create JWT payload with session ID and unique JTI for tracking
         const jti = uuidv4();
         const payload: JwtPayload = {
             sub: user.id,
@@ -44,6 +54,7 @@ export class TokenService {
             roles: user.roles.map((role) => role.name),
             permissions,
             jti,
+            sessionId, // Add session ID to JWT
         };
 
         // Generate access token (short-lived)
@@ -52,21 +63,19 @@ export class TokenService {
             expiresIn: this.configService.get<string>('jwt.accessExpiration'),
         });
 
-        // Generate refresh token (long-lived)
-        const refreshTokenString = this.generateRefreshToken();
+        // Also save to database for audit trail (optional)
         const refreshTokenExpiry = new Date();
         refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days
 
-        // Save refresh token to database
-        const refreshToken = this.refreshTokenRepository.create({
-            token: refreshTokenString,
+        const refreshTokenEntity = this.refreshTokenRepository.create({
+            token: refreshToken,
             userId: user.id,
             expiresAt: refreshTokenExpiry,
             ipAddress,
             userAgent,
         });
 
-        await this.refreshTokenRepository.save(refreshToken);
+        await this.refreshTokenRepository.save(refreshTokenEntity);
 
         // Calculate expires in seconds
         const expiresIn = this.parseExpiration(
@@ -75,7 +84,7 @@ export class TokenService {
 
         return {
             accessToken,
-            refreshToken: refreshTokenString,
+            refreshToken,
             expiresIn,
         };
     }
@@ -88,7 +97,45 @@ export class TokenService {
         refreshToken: string;
         expiresIn: number;
     }> {
-        // Find and validate refresh token
+        // Try Redis first
+        const redisRefresh = await this.redisSessionService.refreshSession(refreshTokenString);
+        
+        if (redisRefresh) {
+            // Get session data for new token
+            const session = await this.redisSessionService.getSession(redisRefresh.sessionId);
+            if (!session) {
+                throw new Error('Session not found');
+            }
+
+            // Create new JWT with existing session
+            const jti = uuidv4();
+            const payload: JwtPayload = {
+                sub: session.userId,
+                email: session.email,
+                organizationId: session.organizationId,
+                roles: session.roles,
+                permissions: session.permissions,
+                jti,
+                sessionId: redisRefresh.sessionId,
+            };
+
+            const accessToken = this.jwtService.sign(payload, {
+                secret: this.configService.get<string>('jwt.accessSecret'),
+                expiresIn: this.configService.get<string>('jwt.accessExpiration'),
+            });
+
+            const expiresIn = this.parseExpiration(
+                this.configService.get<string>('jwt.accessExpiration') ?? '15m',
+            );
+
+            return {
+                accessToken,
+                refreshToken: redisRefresh.newRefreshToken,
+                expiresIn,
+            };
+        }
+
+        // Fallback to database (for backward compatibility)
         const refreshToken = await this.refreshTokenRepository.findOne({
             where: { token: refreshTokenString },
             relations: ['user', 'user.roles'],
@@ -162,6 +209,13 @@ export class TokenService {
     }
 
     async isTokenBlacklisted(jti: string): Promise<boolean> {
+        // Check Redis first (faster)
+        const redisBlacklisted = await this.redisSessionService.isTokenBlacklisted(jti);
+        if (redisBlacklisted) {
+            return true;
+        }
+
+        // Fallback to database
         const blacklistedToken = await this.tokenBlacklistRepository.findOne({
             where: { jti },
         });
@@ -174,7 +228,10 @@ export class TokenService {
         expiresAt: Date,
         reason?: string,
     ): Promise<void> {
-        // Check if already blacklisted
+        // Add to Redis blacklist for fast checking
+        await this.redisSessionService.blacklistToken(jti, expiresAt);
+        
+        // Also save to database for audit
         const existing = await this.tokenBlacklistRepository.findOne({
             where: { jti },
         });
