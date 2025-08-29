@@ -57,6 +57,11 @@ export class UsersController {
         return this.usersService.getOrganizationStats(organizationId);
     }
 
+    @Get('profile')
+    async getProfile(@CurrentUser() user: User) {
+        return this.usersService.findById(user.id);
+    }
+
     @Get(':id')
     async findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.findById(id);

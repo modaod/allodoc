@@ -1,5 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { redisStore } from 'cache-manager-redis-yet';
 import { AuditService } from './services/audit.service';
 import { AuthorizationService } from './services/authorization.service';
 import { CacheService } from './services/cache.service';
@@ -12,10 +14,19 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
 @Global()
 @Module({
     imports: [
-        // Cache configuration
-        CacheModule.register({
-            ttl: 5 * 60 * 1000, // 5 minutes default TTL in milliseconds
-            max: 100, // maximum number of items in cache
+        // Redis Cache configuration
+        CacheModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+                store: await redisStore({
+                    socket: {
+                        host: process.env.REDIS_HOST || '172.18.0.3',
+                        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+                    },
+                    ttl: 5 * 60 * 1000, // 5 minutes default TTL in milliseconds
+                }),
+            }),
         }),
     ],
     providers: [
@@ -39,6 +50,7 @@ import { OrganizationAccessGuard } from './guards/organization.guard';
         AuditService,
         AuthorizationService,
         CacheService,
+        CacheModule, // Export CacheModule so CACHE_MANAGER is available
         AuditInterceptor,
         HttpExceptionFilter,
         JwtAuthGuard,

@@ -11,6 +11,8 @@ import { appConfig } from './config/app.config';
 
 // Feature Modules
 import { CommonModule } from './common/common.module';
+import { RedisModule } from './redis/redis.module';
+import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { UsersModule } from './users/users.module';
@@ -102,6 +104,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 
         // Common Module (Global utilities)
         CommonModule,
+        RedisModule,
+        HealthModule,
 
         // Feature Modules
         AuthModule,
