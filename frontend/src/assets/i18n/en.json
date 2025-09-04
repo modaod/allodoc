@@ -28,6 +28,7 @@
     "select": "Select",
     "all": "All",
     "none": "None",
+    "never": "Never",
     "optional": "Optional",
     "date": "Date",
     "notes": "Notes",
@@ -37,6 +38,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "systemDashboard": "System Dashboard",
     "patients": "Patients",
     "consultations": "Consultations",
     "prescriptions": "Prescriptions",
@@ -46,7 +48,9 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout",
-    "language": "Language"
+    "language": "Language",
+    "superAdmin": "Super Admin",
+    "exitAdmin": "Exit Admin"
   },
   "auth": {
     "login": "Login",
@@ -291,6 +295,59 @@
       "createFirstConsultation": "Start by creating your first consultation.",
       "createFirstConsultationButton": "Create First Consultation",
       "loadError": "Failed to load consultations"
+    },
+    "cards": {
+      "backToPatient": "Back to",
+      "consultationsFor": "Consultations for",
+      "loadingConsultations": "Loading consultations...",
+      "noConsultationsFound": "No Consultations Found",
+      "scheduleFirstConsultation": "Schedule First Consultation",
+      "consultation": "Consultation",
+      "reason": "Reason",
+      "diagnosis": "Diagnosis",
+      "doctor": "Dr.",
+      "medicationsPrescribed": "medication(s) prescribed",
+      "medicalHistoryTimeline": "Medical History & Timeline",
+      "timeline": "Timeline",
+      "noMedicalHistory": "No medical history available",
+      "thisPatientHasNo": "This patient has no consultation records yet.",
+      "surgeries": "Surgeries",
+      "currentMedications": "Current Medications",
+      "familyHistory": "Family History",
+      "additionalNotes": "Additional Notes",
+      "hospital": "Hospital",
+      "frequency": "Frequency",
+      "started": "Started",
+      "until": "Until"
+    },
+    "detail": {
+      "backToPatientConsultations": "Back to Patient Consultations",
+      "backToConsultations": "Back to Consultations",
+      "viewPatient": "View Patient",
+      "editConsultation": "Edit Consultation",
+      "createPrescription": "Create Prescription",
+      "print": "Print",
+      "patient": "Patient",
+      "doctor": "Doctor",
+      "specialty": "Specialty",
+      "type": "Type",
+      "status": "Status",
+      "duration": "Duration",
+      "fee": "Fee",
+      "reasonAndHistory": "Reason & History",
+      "reasonForVisit": "Reason for Visit",
+      "symptoms": "Symptoms",
+      "vitalSigns": "Vital Signs",
+      "temperature": "Temperature",
+      "bloodPressure": "Blood Pressure",
+      "heartRate": "Heart Rate",
+      "respiratoryRate": "Respiratory Rate",
+      "physicalExamination": "Physical Examination",
+      "diagnosis": "Diagnosis",
+      "treatmentPlan": "Treatment Plan",
+      "followUpInstructions": "Follow-up Instructions",
+      "notes": "Notes",
+      "minutes": "minutes"
     }
   },
   "prescriptions": {
@@ -416,6 +473,38 @@
       "view": "View Prescription",
       "edit": "Edit Prescription",
       "print": "Print Prescription"
+    },
+    "detail": {
+      "editPrescription": "Edit Prescription",
+      "print": "Print",
+      "patient": "Patient",
+      "doctor": "Doctor",
+      "prescriptionDate": "Prescription Date",
+      "numberOfMedications": "Number of Medications",
+      "instructions": "Instructions",
+      "prescribedMedications": "Prescribed Medications",
+      "frequency": "Frequency",
+      "duration": "Duration",
+      "quantity": "Quantity",
+      "generalInstructions": "General Instructions",
+      "notes": "Notes",
+      "backToConsultation": "Back to Consultation",
+      "backToPatientPrescriptions": "Back to Patient Prescriptions",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "cards": {
+      "backToPatient": "Back to",
+      "prescriptionsFor": "Prescriptions for",
+      "newPrescription": "New Prescription",
+      "loadingPrescriptions": "Loading prescriptions...",
+      "noPrescriptionsFound": "No Prescriptions Found",
+      "createFirstPrescription": "Create First Prescription",
+      "thisPatientHasNo": "This patient has no prescription records yet.",
+      "prescription": "Prescription",
+      "medications": "Medications",
+      "medicationCount": "medication(s)",
+      "validUntil": "Valid until",
+      "prescribedDuringConsultation": "Prescribed during consultation"
     }
   },
   "dashboard": {
@@ -542,5 +631,151 @@
     "cm": "cm",
     "ft": "ft",
     "percent": "%"
+  },
+  "superAdmin": {
+    "title": "Super Admin",
+    "dashboard": {
+      "title": "System Administration Dashboard",
+      "subtitle": "System-wide administration and management",
+      "refresh": "Refresh",
+      "loadingStats": "Loading system statistics...",
+      "statistics": {
+        "organizations": "Organizations",
+        "totalUsers": "Total Users",
+        "active": "active",
+        "patients": "Patients",
+        "consultations": "Consultations",
+        "prescriptions": "Prescriptions",
+        "appointments": "Appointments"
+      },
+      "charts": {
+        "usersByRole": "Users by Role",
+        "topOrganizations": "Top Organizations",
+        "users": "users",
+        "patients": "patients"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "manageOrganizations": "Manage Organizations",
+        "manageUsers": "Manage Users",
+        "viewAuditLogs": "View Audit Logs"
+      }
+    },
+    "organizations": {
+      "title": "Organizations Management",
+      "subtitle": "Manage healthcare organizations in the system",
+      "searchPlaceholder": "Search organizations",
+      "searchByName": "Search by name...",
+      "createOrganization": "Create Organization",
+      "createNew": "Create New Organization",
+      "editOrganization": "Edit Organization",
+      "noOrganizations": "No organizations found",
+      "fields": {
+        "name": "Organization Name",
+        "type": "Organization Type",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "registrationNumber": "Registration Number",
+        "description": "Description",
+        "users": "Users",
+        "patients": "Patients",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "types": {
+        "CLINIC": "Clinic",
+        "HOSPITAL": "Hospital",
+        "MEDICAL_CENTER": "Medical Center"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "placeholders": {
+        "organizationName": "Enter organization name",
+        "address": "Enter full address",
+        "phone": "Enter phone number",
+        "email": "Enter email address",
+        "registrationNumber": "Enter registration number (optional)",
+        "description": "Enter description (optional)"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMinLength": "Name must be at least 2 characters",
+        "typeRequired": "Type is required",
+        "addressRequired": "Address is required",
+        "addressMinLength": "Address must be at least 10 characters",
+        "phoneMinLength": "Phone must be at least 8 characters",
+        "invalidEmail": "Invalid email format"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "users": {
+      "title": "System Users Management",
+      "subtitle": "Manage all users across organizations",
+      "searchPlaceholder": "Search users",
+      "searchByNameOrEmail": "Search by name or email...",
+      "createUser": "Create User",
+      "createNew": "Create New User",
+      "editUser": "Edit User",
+      "noUsers": "No users found",
+      "basicInformation": "Basic Information",
+      "fields": {
+        "name": "Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "organization": "Organization",
+        "selectOrganization": "Select Organization",
+        "roles": "Roles",
+        "status": "Status",
+        "lastLogin": "Last Login",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "placeholders": {
+        "firstName": "Enter first name",
+        "lastName": "Enter last name",
+        "email": "Enter email address",
+        "password": "Enter password",
+        "confirmPassword": "Confirm password"
+      },
+      "validation": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "emailRequired": "Email is required",
+        "invalidEmail": "Invalid email format",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Please confirm password",
+        "passwordMismatch": "Passwords do not match",
+        "organizationRequired": "Organization is required"
+      },
+      "roles": {
+        "SUPER_ADMIN": "Super Admin",
+        "ADMIN": "Admin",
+        "DOCTOR": "Doctor",
+        "NURSE": "Nurse",
+        "RECEPTIONIST": "Receptionist"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "edit": "Edit",
+        "changeRole": "Change Role",
+        "move": "Move Organization",
+        "activate": "Activate",
+        "deactivate": "Deactivate"
+      }
+    }
   }
 }

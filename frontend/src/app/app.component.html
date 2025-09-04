@@ -8,7 +8,7 @@
   <mat-menu #appMenu="matMenu" class="app-menu">
     <button mat-menu-item [routerLink]="isInSuperAdminMode && isSuperAdmin() ? '/super-admin' : '/dashboard'">
       <mat-icon>dashboard</mat-icon>
-      <span>{{ isInSuperAdminMode && isSuperAdmin() ? 'System Dashboard' : ('nav.dashboard' | translate) }}</span>
+      <span>{{ isInSuperAdminMode && isSuperAdmin() ? ('nav.systemDashboard' | translate) : ('nav.dashboard' | translate) }}</span>
     </button>
     <button mat-menu-item routerLink="/patients">
       <mat-icon>people</mat-icon>
@@ -34,11 +34,11 @@
     <mat-divider *ngIf="isSuperAdmin()"></mat-divider>
     <button mat-menu-item routerLink="/dashboard" *ngIf="isSuperAdmin() && isInSuperAdminMode" (click)="toggleSuperAdminMode()">
       <mat-icon>arrow_back</mat-icon>
-      <span>Exit Admin</span>
+      <span>{{ 'nav.exitAdmin' | translate }}</span>
     </button>
     <button mat-menu-item routerLink="/super-admin" *ngIf="isSuperAdmin() && !isInSuperAdminMode" (click)="toggleSuperAdminMode()">
       <mat-icon>admin_panel_settings</mat-icon>
-      <span>Super Admin</span>
+      <span>{{ 'nav.superAdmin' | translate }}</span>
     </button>
     <mat-divider></mat-divider>
     <button mat-menu-item (click)="switchLanguage(currentLang === 'en' ? 'fr' : 'en')">
