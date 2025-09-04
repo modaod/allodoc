@@ -50,7 +50,7 @@ export class PatientsRepository extends BaseRepository<Patient> {
             .getRawOne();
 
         if (!organization) {
-            throw new Error('Organisation non trouvée');
+            throw new Error('Organization not found');
         }
 
         // Generate organization code (first 3 letters)

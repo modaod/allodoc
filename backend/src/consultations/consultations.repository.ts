@@ -143,7 +143,7 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
             .leftJoinAndSelect('consultation.doctor', 'doctor')
             .where('consultation.organizationId = :organizationId', { organizationId });
 
-        // Recherche générale
+        // General search
         if (searchDto.search) {
             qb.andWhere(
                 '(patient.firstName ILIKE :search OR patient.lastName ILIKE :search OR ' +

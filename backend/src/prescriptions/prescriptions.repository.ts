@@ -102,7 +102,7 @@ export class PrescriptionsRepository extends BaseRepository<Prescription> {
             .innerJoinAndSelect('consultation.doctor', 'doctor')
             .where('prescription.organizationId = :organizationId', { organizationId });
 
-        // Recherche générale
+        // General search
         if (searchDto.search) {
             qb.andWhere(
                 '(patient.firstName ILIKE :search OR patient.lastName ILIKE :search OR ' +

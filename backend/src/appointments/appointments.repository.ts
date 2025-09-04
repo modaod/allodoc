@@ -182,7 +182,7 @@ export class AppointmentsRepository extends BaseRepository<Appointment> {
             .leftJoinAndSelect('appointment.doctor', 'doctor')
             .where('appointment.organizationId = :organizationId', { organizationId });
 
-        // Recherche générale
+        // General search
         if (searchDto.search) {
             qb.andWhere(
                 '(patient.firstName ILIKE :search OR patient.lastName ILIKE :search OR ' +
