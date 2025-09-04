@@ -32,10 +32,10 @@ export abstract class AuditableEntity {
     }
 
     getCreatedByName(): string {
-        return this.createdBy ? this.createdBy.fullName : 'Système';
+        return this.createdBy ? this.createdBy.fullName : 'System';
     }
 
     getUpdatedByName(): string {
-        return this.updatedBy ? this.updatedBy.fullName : 'Système';
+        return this.updatedBy ? this.updatedBy.fullName : 'System';
     }
 }

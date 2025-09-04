@@ -5,7 +5,7 @@ import { AuditableEntity } from '../entities/auditable.entity';
 @Injectable()
 export class AuditService {
     /**
-     * Prépare les données d'audit pour une création d'entité
+     * Prepares audit data for entity creation
      */
     prepareForCreation<T extends AuditableEntity>(
         entity: Partial<T>,
@@ -19,7 +19,7 @@ export class AuditService {
     }
 
     /**
-     * Prépare les données d'audit pour une mise à jour d'entité
+     * Prepares audit data for entity update
      */
     prepareForUpdate<T extends AuditableEntity>(
         updateData: Partial<T>,
@@ -32,7 +32,7 @@ export class AuditService {
     }
 
     /**
-     * Génère un rapport d'audit pour une entité
+     * Generates an audit report for an entity
      */
     generateAuditReport(entity: AuditableEntity): {
         createdAt: Date;
@@ -54,31 +54,31 @@ export class AuditService {
     }
 
     /**
-     * Vérifie qui peut modifier une entité selon les règles d'audit
+     * Checks who can modify an entity according to audit rules
      */
     canModify(entity: AuditableEntity, currentUser: User): boolean {
-        // Règles d'autorisation basiques
-        // Les super admins peuvent tout modifier
+        // Basic authorization rules
+        // Super admins can modify everything
         if (currentUser.hasRole('SUPER_ADMIN' as any)) {
             return true;
         }
 
-        // Les admins peuvent modifier dans leur organisation
+        // Admins can modify within their organization
         if (currentUser.hasRole('ADMIN' as any)) {
             return (entity as any).organizationId === currentUser.organizationId;
         }
 
-        // Les utilisateurs peuvent modifier leurs propres créations récentes
+        // Users can modify their own recent creations
         if (entity.createdById === currentUser.id) {
             const hoursSinceCreation = this.getHoursDifference(entity.createdAt, new Date());
-            return hoursSinceCreation <= 24; // Modifiable pendant 24h
+            return hoursSinceCreation <= 24; // Modifiable for 24 hours
         }
 
         return false;
     }
 
     /**
-     * Détecte les changements entre deux versions d'une entité
+     * Detects changes between two versions of an entity
      */
     detectChanges<T>(
         oldEntity: T,
@@ -107,21 +107,21 @@ export class AuditService {
     }
 
     // =============================
-    // MÉTHODES UTILITAIRES PRIVÉES
+    // PRIVATE UTILITY METHODS
     // =============================
     private getTimeDifference(date1: Date, date2: Date): string {
         const diffInMinutes = Math.floor((date2.getTime() - date1.getTime()) / (1000 * 60));
 
         if (diffInMinutes < 1) {
-            return "À l'instant";
+            return "Just now";
         } else if (diffInMinutes < 60) {
-            return `Il y a ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
+            return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
         } else if (diffInMinutes < 1440) {
             const hours = Math.floor(diffInMinutes / 60);
-            return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
         } else {
             const days = Math.floor(diffInMinutes / 1440);
-            return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+            return `${days} day${days > 1 ? 's' : ''} ago`;
         }
     }
 
