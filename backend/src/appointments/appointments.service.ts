@@ -109,7 +109,7 @@ export class AppointmentsService {
 
             if (!isAvailable) {
                 throw new ConflictException(
-                    "Le médecin n'est pas disponible à cette nouvelle heure",
+                    "Doctor is not available at this new time",
                 );
             }
 
@@ -152,7 +152,7 @@ export class AppointmentsService {
 
         if (!this.isToday(appointment)) {
             throw new BadRequestException(
-                'Le patient ne peut être enregistré que le jour du rendez-vous',
+                'Patient can only be checked in on the appointment day',
             );
         }
 
@@ -224,7 +224,7 @@ export class AppointmentsService {
 
         const appointments = await this.findByDoctor(doctorId, startOfDay, endOfDay);
 
-        // Générer les créneaux disponibles
+        // Generate available time slots
         const doctor = await this.usersService.findById(doctorId);
 
         return { appointments };

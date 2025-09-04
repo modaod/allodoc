@@ -25,7 +25,7 @@ export class PatientsService {
         // Calculate age for validation
         const age = this.calculateAge(new Date(createPatientDto.dateOfBirth));
         if (age < 0 || age > 150) {
-            throw new BadRequestException('Date de naissance invalide');
+            throw new BadRequestException('Invalid date of birth');
         }
 
         // Prepare data
@@ -57,7 +57,7 @@ export class PatientsService {
         // Validate changes
         await this.validatePatientUpdate(updatePatientDto, existingPatient);
 
-        // Conversion de la date si nécessaire
+        // Convert date if necessary
         let updateData: Partial<Patient> = {
             ...updatePatientDto,
             dateOfBirth: updatePatientDto.dateOfBirth
@@ -70,7 +70,7 @@ export class PatientsService {
         if (updatePatientDto.dateOfBirth) {
             const age = this.calculateAge(new Date(updatePatientDto.dateOfBirth));
             if (age < 0 || age > 150) {
-                throw new BadRequestException('Date de naissance invalide');
+                throw new BadRequestException('Invalid date of birth');
             }
         }
 
@@ -245,7 +245,7 @@ export class PatientsService {
             attempts++;
         }
 
-        throw new Error('Impossible de générer un numéro patient unique');
+        throw new Error('Unable to generate a unique patient number');
     }
 
     private async validatePatientCreation(
@@ -261,7 +261,7 @@ export class PatientsService {
 
             if (emailExists) {
                 throw new ConflictException(
-                    'Un patient avec cet email existe déjà dans cette organisation',
+                    'A patient with this email already exists in this organization',
                 );
             }
         }
@@ -275,7 +275,7 @@ export class PatientsService {
 
             if (phoneExists) {
                 throw new ConflictException(
-                    'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+                    'A patient with this phone number already exists in this organization',
                 );
             }
         }
@@ -295,7 +295,7 @@ export class PatientsService {
 
             if (emailExists) {
                 throw new ConflictException(
-                    'Un patient avec cet email existe déjà dans cette organisation',
+                    'A patient with this email already exists in this organization',
                 );
             }
         }
@@ -309,7 +309,7 @@ export class PatientsService {
 
             if (phoneExists && phoneExists.id !== existingPatient.id) {
                 throw new ConflictException(
-                    'Un patient avec ce numéro de téléphone existe déjà dans cette organisation',
+                    'A patient with this phone number already exists in this organization',
                 );
             }
         }

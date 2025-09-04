@@ -114,13 +114,13 @@ export class PrescriptionsService {
                 severity: 'high' as const,
             },
             {
-                drugs: ['metformine', 'contraste iodé'],
-                message: "Risque d'acidose lactique",
+                drugs: ['metformin', 'iodinated contrast'],
+                message: "Risk of lactic acidosis",
                 severity: 'critical' as const,
             },
             {
-                drugs: ['digoxine', 'furosémide'],
-                message: 'Surveillance de la kaliémie recommandée',
+                drugs: ['digoxin', 'furosemide'],
+                message: 'Potassium monitoring recommended',
                 severity: 'medium' as const,
             },
         ];

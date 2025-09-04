@@ -25,7 +25,7 @@ export class ConsultationsService {
         organizationId: string,
         currentUser?: User,
     ): Promise<Consultation> {
-        // Validation des données
+        // Validate data
         await this.validateConsultationCreation(createConsultationDto, organizationId, currentUser);
 
         // Always use authenticated user as doctor for security
@@ -34,9 +34,9 @@ export class ConsultationsService {
         }
         const doctorId = currentUser.id;
 
-        // Calcul automatique de l'IMC si height et weight fournis
+        // Automatically calculate BMI if height and weight are provided
         if (createConsultationDto.vitalSigns?.height && createConsultationDto.vitalSigns?.weight) {
-            const height = createConsultationDto.vitalSigns.height / 100; // en mètres
+            const height = createConsultationDto.vitalSigns.height / 100; // in meters
             const weight = createConsultationDto.vitalSigns.weight;
             const bmi = Number((weight / (height * height)).toFixed(2));
             createConsultationDto.vitalSigns.bmi = bmi;
@@ -73,10 +73,10 @@ export class ConsultationsService {
             );
         }
 
-        // Mettre à jour la dernière visite du patient
+        // Update patient's last visit
         await this.patientsService.updateLastVisit(createConsultationDto.patientId);
 
-        // Si lié à un rendez-vous, marquer le rendez-vous comme terminé
+        // If linked to an appointment, mark appointment as completed
         if (createConsultationDto.appointmentId) {
             await this.appointmentsService.complete(
                 createConsultationDto.appointmentId,
@@ -269,16 +269,16 @@ export class ConsultationsService {
             throw new BadRequestException('Consultation date cannot be more than 1 year in the past');
         }
 
-        // Vérifier que le patient existe et appartient à l'organisation
+        // Verify that patient exists and belongs to the organization
         const patient = await this.patientsService.findById(createConsultationDto.patientId);
         if (patient.organizationId !== organizationId) {
-            throw new BadRequestException("Le patient n'appartient pas à cette organisation");
+            throw new BadRequestException("Patient does not belong to this organization");
         }
 
-        // Vérifier que le médecin existe et appartient à l'organisation
-        // Cette validation sera ajoutée quand UsersService sera injecté
+        // Verify that doctor exists and belongs to the organization
+        // This validation will be added when UsersService is injected
 
-        // Vérifier que le rendez-vous existe (si fourni)
+        // Verify that appointment exists (if provided)
         if (createConsultationDto.appointmentId) {
             const appointment = await this.appointmentsService.findById(
                 createConsultationDto.appointmentId,
@@ -288,11 +288,11 @@ export class ConsultationsService {
             }
             // Check appointment doctor matches current authenticated user
             if (appointment.doctorId !== currentUser?.id) {
-                throw new BadRequestException('Le rendez-vous ne correspond pas au médecin authentifié');
+                throw new BadRequestException('The appointment does not match the authenticated doctor');
             }
         }
 
-        // Valider les signes vitaux
+        // Validate vital signs
         if (createConsultationDto.vitalSigns) {
             this.validateVitalSigns(createConsultationDto.vitalSigns);
         }
@@ -303,17 +303,17 @@ export class ConsultationsService {
             vitalSigns.temperature &&
             (vitalSigns.temperature < 30 || vitalSigns.temperature > 45)
         ) {
-            throw new BadRequestException('Température invalide');
+            throw new BadRequestException('Invalid temperature');
         }
 
         if (vitalSigns.heartRate && (vitalSigns.heartRate < 30 || vitalSigns.heartRate > 250)) {
-            throw new BadRequestException('Fréquence cardiaque invalide');
+            throw new BadRequestException('Invalid heart rate');
         }
 
         if (vitalSigns.bloodPressure) {
             const { systolic, diastolic } = vitalSigns.bloodPressure;
             if (systolic < 60 || systolic > 250 || diastolic < 30 || diastolic > 150) {
-                throw new BadRequestException('Tension artérielle invalide');
+                throw new BadRequestException('Invalid blood pressure');
             }
         }
 
@@ -321,15 +321,15 @@ export class ConsultationsService {
             vitalSigns.oxygenSaturation &&
             (vitalSigns.oxygenSaturation < 50 || vitalSigns.oxygenSaturation > 100)
         ) {
-            throw new BadRequestException('Saturation en oxygène invalide');
+            throw new BadRequestException('Invalid oxygen saturation');
         }
 
         if (vitalSigns.weight && (vitalSigns.weight < 0.5 || vitalSigns.weight > 500)) {
-            throw new BadRequestException('Poids invalide');
+            throw new BadRequestException('Invalid weight');
         }
 
         if (vitalSigns.height && (vitalSigns.height < 30 || vitalSigns.height > 250)) {
-            throw new BadRequestException('Taille invalide');
+            throw new BadRequestException('Invalid height');
         }
     }
 }
