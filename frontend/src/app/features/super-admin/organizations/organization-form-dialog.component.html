@@ -1,86 +1,86 @@
-<h2 mat-dialog-title>{{ data.mode === 'create' ? 'Create New Organization' : 'Edit Organization' }}</h2>
+<h2 mat-dialog-title>{{ data.mode === 'create' ? ('superAdmin.organizations.createNew' | translate) : ('superAdmin.organizations.editOrganization' | translate) }}</h2>
 
 <form [formGroup]="organizationForm" (ngSubmit)="onSubmit()">
   <mat-dialog-content>
     <div class="form-container">
       <!-- Organization Name -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Organization Name</mat-label>
-        <input matInput formControlName="name" placeholder="Enter organization name">
+        <mat-label>{{ 'superAdmin.organizations.fields.name' | translate }}</mat-label>
+        <input matInput formControlName="name" [placeholder]="'superAdmin.organizations.placeholders.organizationName' | translate">
         <mat-error *ngIf="organizationForm.get('name')?.hasError('required')">
-          Name is required
+          {{ 'superAdmin.organizations.validation.nameRequired' | translate }}
         </mat-error>
         <mat-error *ngIf="organizationForm.get('name')?.hasError('minlength')">
-          Name must be at least 2 characters
+          {{ 'superAdmin.organizations.validation.nameMinLength' | translate }}
         </mat-error>
       </mat-form-field>
 
       <!-- Organization Type -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Organization Type</mat-label>
+        <mat-label>{{ 'superAdmin.organizations.fields.type' | translate }}</mat-label>
         <mat-select formControlName="type">
-          <mat-option value="CLINIC">Clinic</mat-option>
-          <mat-option value="HOSPITAL">Hospital</mat-option>
-          <mat-option value="MEDICAL_CENTER">Medical Center</mat-option>
+          <mat-option value="CLINIC">{{ 'superAdmin.organizations.types.CLINIC' | translate }}</mat-option>
+          <mat-option value="HOSPITAL">{{ 'superAdmin.organizations.types.HOSPITAL' | translate }}</mat-option>
+          <mat-option value="MEDICAL_CENTER">{{ 'superAdmin.organizations.types.MEDICAL_CENTER' | translate }}</mat-option>
         </mat-select>
         <mat-error *ngIf="organizationForm.get('type')?.hasError('required')">
-          Type is required
+          {{ 'superAdmin.organizations.validation.typeRequired' | translate }}
         </mat-error>
       </mat-form-field>
 
       <!-- Address -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Address</mat-label>
-        <textarea matInput formControlName="address" rows="2" placeholder="Enter full address"></textarea>
+        <mat-label>{{ 'superAdmin.organizations.fields.address' | translate }}</mat-label>
+        <textarea matInput formControlName="address" rows="2" [placeholder]="'superAdmin.organizations.placeholders.address' | translate"></textarea>
         <mat-error *ngIf="organizationForm.get('address')?.hasError('required')">
-          Address is required
+          {{ 'superAdmin.organizations.validation.addressRequired' | translate }}
         </mat-error>
         <mat-error *ngIf="organizationForm.get('address')?.hasError('minlength')">
-          Address must be at least 10 characters
+          {{ 'superAdmin.organizations.validation.addressMinLength' | translate }}
         </mat-error>
       </mat-form-field>
 
       <!-- Phone and Email Row -->
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Phone</mat-label>
-          <input matInput formControlName="phone" placeholder="Enter phone number">
+          <mat-label>{{ 'superAdmin.organizations.fields.phone' | translate }}</mat-label>
+          <input matInput formControlName="phone" [placeholder]="'superAdmin.organizations.placeholders.phone' | translate">
           <mat-icon matPrefix>phone</mat-icon>
           <mat-error *ngIf="organizationForm.get('phone')?.hasError('minlength')">
-            Phone must be at least 8 characters
+            {{ 'superAdmin.organizations.validation.phoneMinLength' | translate }}
           </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" placeholder="Enter email address">
+          <mat-label>{{ 'superAdmin.organizations.fields.email' | translate }}</mat-label>
+          <input matInput formControlName="email" [placeholder]="'superAdmin.organizations.placeholders.email' | translate">
           <mat-icon matPrefix>email</mat-icon>
           <mat-error *ngIf="organizationForm.get('email')?.hasError('email')">
-            Invalid email format
+            {{ 'superAdmin.organizations.validation.invalidEmail' | translate }}
           </mat-error>
         </mat-form-field>
       </div>
 
       <!-- Registration Number -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Registration Number</mat-label>
-        <input matInput formControlName="registrationNumber" placeholder="Enter registration number (optional)">
+        <mat-label>{{ 'superAdmin.organizations.fields.registrationNumber' | translate }}</mat-label>
+        <input matInput formControlName="registrationNumber" [placeholder]="'superAdmin.organizations.placeholders.registrationNumber' | translate">
         <mat-icon matPrefix>badge</mat-icon>
       </mat-form-field>
 
       <!-- Description -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" rows="3" placeholder="Enter description (optional)"></textarea>
+        <mat-label>{{ 'superAdmin.organizations.fields.description' | translate }}</mat-label>
+        <textarea matInput formControlName="description" rows="3" [placeholder]="'superAdmin.organizations.placeholders.description' | translate"></textarea>
       </mat-form-field>
     </div>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-button type="button" (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
     <button mat-raised-button color="primary" type="submit" [disabled]="!organizationForm.valid || loading">
       <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-      <span *ngIf="!loading">{{ data.mode === 'create' ? 'Create' : 'Update' }}</span>
+      <span *ngIf="!loading">{{ data.mode === 'create' ? ('common.create' | translate) : ('common.update' | translate) }}</span>
     </button>
   </mat-dialog-actions>
 </form>

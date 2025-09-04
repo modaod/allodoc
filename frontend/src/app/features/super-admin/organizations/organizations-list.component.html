@@ -2,11 +2,11 @@
   <div class="page-header">
     <h1>
       <mat-icon>business</mat-icon>
-      Organizations Management
+      {{ 'superAdmin.organizations.title' | translate }}
     </h1>
     <button mat-raised-button color="primary" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
-      Create Organization
+      {{ 'superAdmin.organizations.createOrganization' | translate }}
     </button>
   </div>
 
@@ -14,8 +14,8 @@
     <mat-card-content>
       <!-- Search Bar -->
       <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search organizations</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Search by name...">
+        <mat-label>{{ 'superAdmin.organizations.searchPlaceholder' | translate }}</mat-label>
+        <input matInput (keyup)="applyFilter($event)" [placeholder]="'superAdmin.organizations.searchByName' | translate">
         <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
 
@@ -30,7 +30,7 @@
           
           <!-- Name Column -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'superAdmin.organizations.fields.name' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               <div class="org-name">
                 <strong>{{ org.name }}</strong>
@@ -41,7 +41,7 @@
 
           <!-- Type Column -->
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'superAdmin.organizations.fields.type' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               <mat-chip [color]="getTypeColor(org.type)" selected>
                 {{ org.type }}
@@ -51,7 +51,7 @@
 
           <!-- User Count Column -->
           <ng-container matColumnDef="userCount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Users</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'superAdmin.organizations.fields.users' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               <div class="count-badge users">
                 <mat-icon>people</mat-icon>
@@ -62,7 +62,7 @@
 
           <!-- Patient Count Column -->
           <ng-container matColumnDef="patientCount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Patients</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'superAdmin.organizations.fields.patients' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               <div class="count-badge patients">
                 <mat-icon>personal_injury</mat-icon>
@@ -73,17 +73,17 @@
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'superAdmin.organizations.fields.status' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               <mat-chip [color]="org.isActive ? 'primary' : 'warn'" selected>
-                {{ org.isActive ? 'Active' : 'Inactive' }}
+                {{ org.isActive ? ('superAdmin.organizations.status.active' | translate) : ('superAdmin.organizations.status.inactive' | translate) }}
               </mat-chip>
             </td>
           </ng-container>
 
           <!-- Created At Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'superAdmin.organizations.fields.created' | translate }}</th>
             <td mat-cell *matCellDef="let org">
               {{ org.createdAt | date:'short' }}
             </td>
@@ -91,19 +91,19 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'superAdmin.organizations.fields.actions' | translate }}</th>
             <td mat-cell *matCellDef="let org">
-              <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Actions">
+              <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'common.actions' | translate">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="openEditDialog(org)">
                   <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
+                  <span>{{ 'superAdmin.organizations.actions.edit' | translate }}</span>
                 </button>
                 <button mat-menu-item [disabled]="org.userCount > 0" (click)="deleteOrganization(org)">
                   <mat-icon>delete</mat-icon>
-                  <span>Delete</span>
+                  <span>{{ 'superAdmin.organizations.actions.delete' | translate }}</span>
                 </button>
               </mat-menu>
             </td>
@@ -117,7 +117,7 @@
             <td class="mat-cell" colspan="7">
               <div class="no-data">
                 <mat-icon>business_off</mat-icon>
-                <p>No organizations found</p>
+                <p>{{ 'superAdmin.organizations.noOrganizations' | translate }}</p>
               </div>
             </td>
           </tr>

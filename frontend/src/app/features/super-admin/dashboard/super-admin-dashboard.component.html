@@ -2,17 +2,17 @@
   <div class="dashboard-header">
     <h1>
       <mat-icon>admin_panel_settings</mat-icon>
-      System Administration Dashboard
+      {{ 'superAdmin.dashboard.title' | translate }}
     </h1>
     <button mat-raised-button color="primary" (click)="loadSystemStats()">
       <mat-icon>refresh</mat-icon>
-      Refresh
+      {{ 'superAdmin.dashboard.refresh' | translate }}
     </button>
   </div>
 
   <div class="loading-container" *ngIf="loading">
     <mat-spinner></mat-spinner>
-    <p>Loading system statistics...</p>
+    <p>{{ 'superAdmin.dashboard.loadingStats' | translate }}</p>
   </div>
 
   <div class="dashboard-content" *ngIf="!loading && systemStats">
@@ -25,7 +25,7 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalOrganizations }}</h3>
-            <p>Organizations</p>
+            <p>{{ 'superAdmin.dashboard.statistics.organizations' | translate }}</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -37,8 +37,8 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalUsers }}</h3>
-            <p>Total Users</p>
-            <small>{{ systemStats.activeUsers }} active</small>
+            <p>{{ 'superAdmin.dashboard.statistics.totalUsers' | translate }}</p>
+            <small>{{ systemStats.activeUsers }} {{ 'superAdmin.dashboard.statistics.active' | translate }}</small>
           </div>
         </mat-card-content>
       </mat-card>
@@ -50,7 +50,7 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalPatients }}</h3>
-            <p>Patients</p>
+            <p>{{ 'superAdmin.dashboard.statistics.patients' | translate }}</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -62,7 +62,7 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalConsultations }}</h3>
-            <p>Consultations</p>
+            <p>{{ 'superAdmin.dashboard.statistics.consultations' | translate }}</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -74,7 +74,7 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalPrescriptions }}</h3>
-            <p>Prescriptions</p>
+            <p>{{ 'superAdmin.dashboard.statistics.prescriptions' | translate }}</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -86,7 +86,7 @@
           </div>
           <div class="stat-info">
             <h3>{{ systemStats.totalAppointments }}</h3>
-            <p>Appointments</p>
+            <p>{{ 'superAdmin.dashboard.statistics.appointments' | translate }}</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -97,7 +97,7 @@
       <!-- User Distribution by Role -->
       <mat-card class="chart-card">
         <mat-card-header>
-          <mat-card-title>Users by Role</mat-card-title>
+          <mat-card-title>{{ 'superAdmin.dashboard.charts.usersByRole' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="role-distribution">
@@ -120,7 +120,7 @@
       <!-- Top Organizations -->
       <mat-card class="chart-card">
         <mat-card-header>
-          <mat-card-title>Top Organizations</mat-card-title>
+          <mat-card-title>{{ 'superAdmin.dashboard.charts.topOrganizations' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="org-list">
@@ -131,11 +131,11 @@
                 <div class="org-stats">
                   <span class="stat-badge users">
                     <mat-icon>people</mat-icon>
-                    {{ org.userCount }} users
+                    {{ org.userCount }} {{ 'superAdmin.dashboard.charts.users' | translate }}
                   </span>
                   <span class="stat-badge patients">
                     <mat-icon>personal_injury</mat-icon>
-                    {{ org.patientCount }} patients
+                    {{ org.patientCount }} {{ 'superAdmin.dashboard.charts.patients' | translate }}
                   </span>
                 </div>
               </div>
@@ -148,21 +148,21 @@
     <!-- Quick Actions -->
     <mat-card class="actions-card">
       <mat-card-header>
-        <mat-card-title>Quick Actions</mat-card-title>
+        <mat-card-title>{{ 'superAdmin.dashboard.quickActions.title' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="action-buttons">
           <button mat-raised-button routerLink="/super-admin/organizations">
             <mat-icon>business</mat-icon>
-            Manage Organizations
+            {{ 'superAdmin.dashboard.quickActions.manageOrganizations' | translate }}
           </button>
           <button mat-raised-button routerLink="/super-admin/users">
             <mat-icon>people</mat-icon>
-            Manage Users
+            {{ 'superAdmin.dashboard.quickActions.manageUsers' | translate }}
           </button>
           <button mat-raised-button routerLink="/super-admin/audit">
             <mat-icon>history</mat-icon>
-            View Audit Logs
+            {{ 'superAdmin.dashboard.quickActions.viewAuditLogs' | translate }}
           </button>
         </div>
       </mat-card-content>
