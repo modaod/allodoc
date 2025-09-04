@@ -4,18 +4,18 @@
     <div class="breadcrumb">
       <button mat-button (click)="goBackToPatient()">
         <mat-icon>arrow_back</mat-icon>
-        Back to {{ patient?.firstName }} {{ patient?.lastName }}
+        {{ 'consultations.cards.backToPatient' | translate }} {{ patient?.firstName }} {{ patient?.lastName }}
       </button>
     </div>
     
     <div class="header-content">
       <h1>
         <mat-icon>medical_services</mat-icon>
-        Consultations for {{ patient?.firstName }} {{ patient?.lastName }}
+        {{ 'consultations.cards.consultationsFor' | translate }} {{ patient?.firstName }} {{ patient?.lastName }}
       </h1>
       <button mat-raised-button color="primary" (click)="newConsultation()">
         <mat-icon>add</mat-icon>
-        New Consultation
+        {{ 'consultations.newConsultation' | translate }}
       </button>
     </div>
   </div>
@@ -23,17 +23,17 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Loading consultations...</p>
+    <p>{{ 'consultations.cards.loadingConsultations' | translate }}</p>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!loading && consultations.length === 0" class="empty-state">
     <mat-icon>medical_services</mat-icon>
-    <h3>No Consultations Found</h3>
-    <p>This patient has no consultation records yet.</p>
+    <h3>{{ 'consultations.cards.noConsultationsFound' | translate }}</h3>
+    <p>{{ 'consultations.cards.thisPatientHasNo' | translate }}</p>
     <button mat-raised-button color="primary" (click)="newConsultation()">
       <mat-icon>add</mat-icon>
-      Schedule First Consultation
+      {{ 'consultations.cards.scheduleFirstConsultation' | translate }}
     </button>
   </div>
 
@@ -50,7 +50,7 @@
           <mat-icon>assignment</mat-icon>
         </div>
         <mat-card-title>
-          Consultation {{ consultation.consultationNumber || '#' + consultation.id?.substring(0, 8) }}
+          {{ 'consultations.cards.consultation' | translate }} {{ consultation.consultationNumber || '#' + consultation.id?.substring(0, 8) }}
         </mat-card-title>
         <mat-card-subtitle>
           {{ formatDate(consultation.consultationDate) }}
@@ -71,26 +71,26 @@
 
         <!-- Chief Complaint / Reason -->
         <div class="consultation-reason" *ngIf="consultation.reason">
-          <strong>Reason:</strong>
+          <strong>{{ 'consultations.cards.reason' | translate }}:</strong>
           <p>{{ consultation.reason }}</p>
         </div>
 
         <!-- Diagnosis -->
         <div class="consultation-diagnosis" *ngIf="consultation.diagnosis">
-          <strong>Diagnosis:</strong>
+          <strong>{{ 'consultations.cards.diagnosis' | translate }}:</strong>
           <p>{{ consultation.diagnosis }}</p>
         </div>
 
         <!-- Doctor Info -->
         <div class="consultation-doctor" *ngIf="consultation.doctor">
           <mat-icon>person</mat-icon>
-          <span>Dr. {{ consultation.doctor.firstName }} {{ consultation.doctor.lastName }}</span>
+          <span>{{ 'consultations.cards.doctor' | translate }} {{ consultation.doctor.firstName }} {{ consultation.doctor.lastName }}</span>
         </div>
 
         <!-- Prescription Indicator -->
         <div class="prescription-indicator" *ngIf="hasPrescriptions(consultation)">
           <mat-icon>medication</mat-icon>
-          <span>{{ getPrescriptionCount(consultation) }} medication(s) prescribed</span>
+          <span>{{ getPrescriptionCount(consultation) }} {{ 'consultations.cards.medicationsPrescribed' | translate }}</span>
         </div>
       </mat-card-content>
     </mat-card>

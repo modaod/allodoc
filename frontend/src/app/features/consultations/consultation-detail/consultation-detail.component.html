@@ -11,25 +11,25 @@
     <div class="header-actions">
       <button mat-button (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
-        {{ isPatientContext ? 'Back to Patient Consultations' : 'Back to Consultations' }}
+        {{ isPatientContext ? ('consultations.detail.backToPatientConsultations' | translate) : ('consultations.detail.backToConsultations' | translate) }}
       </button>
       
       <div class="action-buttons">
         <button mat-raised-button (click)="viewPatientDetail()" *ngIf="canViewPatient()">
           <mat-icon>person</mat-icon>
-          View Patient
+          {{ 'consultations.detail.viewPatient' | translate }}
         </button>
         <button mat-raised-button color="primary" (click)="editConsultation()" *ngIf="canEditConsultation()">
           <mat-icon>edit</mat-icon>
-          Edit Consultation
+          {{ 'consultations.detail.editConsultation' | translate }}
         </button>
         <button mat-raised-button color="accent" (click)="createPrescription()" *ngIf="canCreatePrescription()">
           <mat-icon>medication</mat-icon>
-          Create Prescription
+          {{ 'consultations.detail.createPrescription' | translate }}
         </button>
         <button mat-button (click)="printConsultation()">
           <mat-icon>print</mat-icon>
-          Print
+          {{ 'consultations.detail.print' | translate }}
         </button>
       </div>
     </div>
@@ -40,29 +40,29 @@
         <div mat-card-avatar class="consultation-avatar">
           <mat-icon>medical_services</mat-icon>
         </div>
-        <mat-card-title>Consultation {{ consultation.consultationNumber }}</mat-card-title>
+        <mat-card-title>{{ 'consultations.cards.consultation' | translate }} {{ consultation.consultationNumber }}</mat-card-title>
         <mat-card-subtitle>{{ formatDateTime(consultation.consultationDate) }}</mat-card-subtitle>
       </mat-card-header>
       
       <mat-card-content>
         <div class="info-grid">
           <div class="info-item">
-            <span class="label">Patient:</span>
+            <span class="label">{{ 'consultations.detail.patient' | translate }}:</span>
             <span class="value">{{ getPatientName() }}</span>
           </div>
           
           <div class="info-item">
-            <span class="label">Doctor:</span>
+            <span class="label">{{ 'consultations.detail.doctor' | translate }}:</span>
             <span class="value">{{ getDoctorName() }}</span>
           </div>
           
           <div class="info-item" *ngIf="getDoctorSpecialty()">
-            <span class="label">Specialty:</span>
+            <span class="label">{{ 'consultations.detail.specialty' | translate }}:</span>
             <span class="value">{{ getDoctorSpecialty() }}</span>
           </div>
           
           <div class="info-item" *ngIf="consultation.type">
-            <span class="label">Type:</span>
+            <span class="label">{{ 'consultations.detail.type' | translate }}:</span>
             <span class="value">
               <span class="type-badge" [ngClass]="getTypeClass(consultation.type)">
                 {{ consultation.type.replace('_', ' ') | titlecase }}
@@ -71,7 +71,7 @@
           </div>
           
           <div class="info-item" *ngIf="consultation.status">
-            <span class="label">Status:</span>
+            <span class="label">{{ 'consultations.detail.status' | translate }}:</span>
             <span class="value">
               <span class="status-badge" [ngClass]="getStatusClass(consultation.status)">
                 {{ consultation.status.replace('_', ' ') | titlecase }}
@@ -80,12 +80,12 @@
           </div>
 
           <div class="info-item" *ngIf="consultation.duration">
-            <span class="label">Duration:</span>
-            <span class="value">{{ consultation.duration }} minutes</span>
+            <span class="label">{{ 'consultations.detail.duration' | translate }}:</span>
+            <span class="value">{{ consultation.duration }} {{ 'consultations.detail.minutes' | translate }}</span>
           </div>
 
           <div class="info-item" *ngIf="consultation.fee">
-            <span class="label">Fee:</span>
+            <span class="label">{{ 'consultations.detail.fee' | translate }}:</span>
             <span class="value">${{ consultation.fee }}</span>
           </div>
         </div>
@@ -95,17 +95,17 @@
     <!-- Reason & History Card -->
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>Reason & History</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.reasonAndHistory' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
         <div class="content-section">
-          <h4>Reason for Visit</h4>
+          <h4>{{ 'consultations.detail.reasonForVisit' | translate }}</h4>
           <p class="complaint-text">{{ getReason() }}</p>
         </div>
 
         <div class="content-section" *ngIf="consultation.symptoms">
-          <h4>Symptoms</h4>
+          <h4>{{ 'consultations.detail.symptoms' | translate }}</h4>
           <p class="symptoms-text">{{ consultation.symptoms }}</p>
         </div>
       </mat-card-content>
@@ -114,7 +114,7 @@
     <!-- Vital Signs Card -->
     <mat-card class="info-card" *ngIf="hasVitalSigns()">
       <mat-card-header>
-        <mat-card-title>Vital Signs</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.vitalSigns' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
@@ -122,7 +122,7 @@
           <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.temperature">
             <mat-icon>device_thermostat</mat-icon>
             <div class="vital-info">
-              <span class="vital-label">Temperature</span>
+              <span class="vital-label">{{ 'consultations.detail.temperature' | translate }}</span>
               <span class="vital-value">{{ consultation.vitalSigns?.temperature }}°C</span>
             </div>
           </div>
@@ -130,7 +130,7 @@
           <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.bloodPressure">
             <mat-icon>favorite</mat-icon>
             <div class="vital-info">
-              <span class="vital-label">Blood Pressure</span>
+              <span class="vital-label">{{ 'consultations.detail.bloodPressure' | translate }}</span>
               <span class="vital-value">
                 {{ consultation.vitalSigns?.bloodPressure?.systolic }}/{{ consultation.vitalSigns?.bloodPressure?.diastolic }} mmHg
               </span>
@@ -140,7 +140,7 @@
           <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.heartRate">
             <mat-icon>monitor_heart</mat-icon>
             <div class="vital-info">
-              <span class="vital-label">Heart Rate</span>
+              <span class="vital-label">{{ 'consultations.detail.heartRate' | translate }}</span>
               <span class="vital-value">{{ consultation.vitalSigns?.heartRate }} BPM</span>
             </div>
           </div>
@@ -148,7 +148,7 @@
           <div class="vital-sign-item" *ngIf="consultation.vitalSigns?.respiratoryRate">
             <mat-icon>air</mat-icon>
             <div class="vital-info">
-              <span class="vital-label">Respiratory Rate</span>
+              <span class="vital-label">{{ 'consultations.detail.respiratoryRate' | translate }}</span>
               <span class="vital-value">{{ consultation.vitalSigns?.respiratoryRate }}/min</span>
             </div>
           </div>
@@ -193,7 +193,7 @@
     <!-- Physical Examination Card -->
     <mat-card class="info-card" *ngIf="consultation.physicalExamination">
       <mat-card-header>
-        <mat-card-title>Physical Examination</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.physicalExamination' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
@@ -204,7 +204,7 @@
     <!-- Diagnosis Card -->
     <mat-card class="info-card" *ngIf="getDiagnosisText()">
       <mat-card-header>
-        <mat-card-title>Diagnosis</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.diagnosis' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
@@ -215,7 +215,7 @@
     <!-- Treatment Plan Card -->
     <mat-card class="info-card" *ngIf="consultation.treatmentPlan">
       <mat-card-header>
-        <mat-card-title>Treatment Plan</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.treatmentPlan' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
@@ -226,7 +226,7 @@
     <!-- Prescriptions Card -->
     <mat-card class="info-card" *ngIf="hasPrescriptions()">
       <mat-card-header>
-        <mat-card-title>Prescriptions</mat-card-title>
+        <mat-card-title>{{ 'prescriptions.title' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>
@@ -286,7 +286,7 @@
     <!-- Follow-up Instructions Card -->
     <mat-card class="info-card" *ngIf="consultation.followUpInstructions">
       <mat-card-header>
-        <mat-card-title>Follow-up Instructions</mat-card-title>
+        <mat-card-title>{{ 'consultations.detail.followUpInstructions' | translate }}</mat-card-title>
       </mat-card-header>
       
       <mat-card-content>

@@ -4,18 +4,18 @@
     <div class="breadcrumb">
       <button mat-button (click)="goBackToPatient()">
         <mat-icon>arrow_back</mat-icon>
-        Back to {{ patient?.firstName }} {{ patient?.lastName }}
+        {{ 'prescriptions.cards.backToPatient' | translate }} {{ patient?.firstName }} {{ patient?.lastName }}
       </button>
     </div>
     
     <div class="header-content">
       <h1>
         <mat-icon>medication</mat-icon>
-        Prescriptions for {{ patient?.firstName }} {{ patient?.lastName }}
+        {{ 'prescriptions.cards.prescriptionsFor' | translate }} {{ patient?.firstName }} {{ patient?.lastName }}
       </h1>
       <button mat-raised-button color="primary" (click)="newPrescription()">
         <mat-icon>add</mat-icon>
-        New Prescription
+        {{ 'prescriptions.cards.newPrescription' | translate }}
       </button>
     </div>
   </div>
@@ -23,17 +23,17 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Loading prescriptions...</p>
+    <p>{{ 'prescriptions.cards.loadingPrescriptions' | translate }}</p>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!loading && prescriptions.length === 0" class="empty-state">
     <mat-icon>medication</mat-icon>
-    <h3>No Prescriptions Found</h3>
-    <p>This patient has no prescription records yet.</p>
+    <h3>{{ 'prescriptions.cards.noPrescriptionsFound' | translate }}</h3>
+    <p>{{ 'prescriptions.cards.thisPatientHasNo' | translate }}</p>
     <button mat-raised-button color="primary" (click)="newPrescription()">
       <mat-icon>add</mat-icon>
-      Create First Prescription
+      {{ 'prescriptions.cards.createFirstPrescription' | translate }}
     </button>
   </div>
 
@@ -50,7 +50,7 @@
           <mat-icon>assignment</mat-icon>
         </div>
         <mat-card-title>
-          Prescription {{ prescription.prescriptionNumber || '#' + prescription.id?.substring(0, 8) }}
+          {{ 'prescriptions.cards.prescription' | translate }} {{ prescription.prescriptionNumber || '#' + prescription.id?.substring(0, 8) }}
         </mat-card-title>
         <mat-card-subtitle>
           {{ formatDate(getPrescriptionDate(prescription)) }}
@@ -72,11 +72,11 @@
 
         <!-- Medications List -->
         <div class="prescription-medications">
-          <strong>Medications:</strong>
+          <strong>{{ 'prescriptions.cards.medications' | translate }}:</strong>
           <p>{{ getMedicationNames(prescription) }}</p>
           <div class="medication-count">
             <mat-icon>pills</mat-icon>
-            <span>{{ getMedicationCount(prescription) }} medication(s)</span>
+            <span>{{ getMedicationCount(prescription) }} {{ 'prescriptions.cards.medicationCount' | translate }}</span>
           </div>
         </div>
 
@@ -89,13 +89,13 @@
         <!-- Valid Until -->
         <div class="prescription-validity" *ngIf="prescription.validUntil">
           <mat-icon>event</mat-icon>
-          <span>Valid until: {{ formatDate(prescription.validUntil) }}</span>
+          <span>{{ 'prescriptions.cards.validUntil' | translate }}: {{ formatDate(prescription.validUntil) }}</span>
         </div>
 
         <!-- Consultation Indicator for linked prescriptions -->
         <div class="consultation-indicator" *ngIf="isLinkedToConsultation(prescription)">
           <mat-icon>medical_services</mat-icon>
-          <span>Prescribed during consultation</span>
+          <span>{{ 'prescriptions.cards.prescribedDuringConsultation' | translate }}</span>
         </div>
       </mat-card-content>
     </mat-card>
