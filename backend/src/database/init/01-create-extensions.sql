@@ -34,6 +34,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Create sequences for consultation and prescription numbering
+CREATE SEQUENCE IF NOT EXISTS consultation_number_seq START 1 INCREMENT 1;
+CREATE SEQUENCE IF NOT EXISTS prescription_number_seq START 1 INCREMENT 1;
+
+-- Function to generate consultation numbers (concurrency-safe using sequences)
+CREATE OR REPLACE FUNCTION get_next_consultation_number()
+RETURNS TEXT AS $$
+BEGIN
+    -- Use nextval() which is atomic and thread-safe
+    RETURN 'CONS-' || LPAD(nextval('consultation_number_seq')::TEXT, 6, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to generate prescription numbers (concurrency-safe using sequences)
+CREATE OR REPLACE FUNCTION get_next_prescription_number()
+RETURNS TEXT AS $$
+BEGIN
+    -- Use nextval() which is atomic and thread-safe
+    RETURN 'RX-' || LPAD(nextval('prescription_number_seq')::TEXT, 6, '0');
+END;
+$$ LANGUAGE plpgsql;
+
 -- Function for automatic audit
 CREATE OR REPLACE FUNCTION audit_trigger_function()
 RETURNS TRIGGER AS $$
