@@ -19,6 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { SuperAdminRoutingModule } from './super-admin-routing.module';
 import { SuperAdminDashboardComponent } from './dashboard/super-admin-dashboard.component';
@@ -44,6 +45,7 @@ import { MoveUserDialogComponent } from './users/move-user-dialog/move-user-dial
     SuperAdminRoutingModule,
     ReactiveFormsModule,
     FormsModule,
+    TranslateModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Prescription, PrescriptionStatus } from '../models/prescription.model';
 import { PrescriptionsService } from '../services/prescriptions.service';
 
@@ -19,7 +20,8 @@ export class PrescriptionDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private prescriptionsService: PrescriptionsService
+    private prescriptionsService: PrescriptionsService,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -125,11 +127,11 @@ export class PrescriptionDetailComponent implements OnInit {
 
   getBackButtonText(): string {
     if (this.fromConsultationId) {
-      return 'Back to Consultation';
+      return this.translateService.instant('prescriptions.detail.backToConsultation');
     } else if (this.isPatientContext) {
-      return 'Back to Patient Prescriptions';
+      return this.translateService.instant('prescriptions.detail.backToPatientPrescriptions');
     } else {
-      return 'Back to Dashboard';
+      return this.translateService.instant('prescriptions.detail.backToDashboard');
     }
   }
 
