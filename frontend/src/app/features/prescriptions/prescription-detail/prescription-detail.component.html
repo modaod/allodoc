@@ -16,11 +16,11 @@
       <div class="action-buttons">
         <button mat-raised-button color="primary" (click)="editPrescription()">
           <mat-icon>edit</mat-icon>
-          Edit Prescription
+          {{ 'prescriptions.detail.editPrescription' | translate }}
         </button>
         <button mat-button (click)="printPrescription()">
           <mat-icon>print</mat-icon>
-          Print
+          {{ 'prescriptions.detail.print' | translate }}
         </button>
       </div>
     </div>
@@ -31,34 +31,34 @@
         <div mat-card-avatar class="prescription-avatar">
           <mat-icon>medication</mat-icon>
         </div>
-        <mat-card-title>Prescription {{ getPrescriptionNumber() }}</mat-card-title>
+        <mat-card-title>{{ 'prescriptions.cards.prescription' | translate }} {{ getPrescriptionNumber() }}</mat-card-title>
         <mat-card-subtitle>{{ getPrescriptionDate() }}</mat-card-subtitle>
       </mat-card-header>
       
       <mat-card-content>
         <div class="info-grid">
           <div class="info-item">
-            <span class="label">Patient:</span>
+            <span class="label">{{ 'prescriptions.detail.patient' | translate }}:</span>
             <span class="value">{{ getPatientName() }}</span>
           </div>
           
           <div class="info-item">
-            <span class="label">Doctor:</span>
+            <span class="label">{{ 'prescriptions.detail.doctor' | translate }}:</span>
             <span class="value">{{ getDoctorName() }}</span>
           </div>
           
           <div class="info-item">
-            <span class="label">Prescription Date:</span>
+            <span class="label">{{ 'prescriptions.detail.prescriptionDate' | translate }}:</span>
             <span class="value">{{ getPrescriptionDate() }}</span>
           </div>
           
           <div class="info-item">
-            <span class="label">Number of Medications:</span>
+            <span class="label">{{ 'prescriptions.detail.numberOfMedications' | translate }}:</span>
             <span class="value">{{ getMedicationsCount() }}</span>
           </div>
           
           <div class="info-item" *ngIf="getInstructions()">
-            <span class="label">Instructions:</span>
+            <span class="label">{{ 'prescriptions.detail.instructions' | translate }}:</span>
             <span class="value">{{ getInstructions() }}</span>
           </div>
         </div>
@@ -70,7 +70,7 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>medication</mat-icon>
-          Prescribed Medications ({{ getTotalMedications() }})
+          {{ 'prescriptions.detail.prescribedMedications' | translate }} ({{ getTotalMedications() }})
         </mat-card-title>
       </mat-card-header>
       
@@ -90,19 +90,19 @@
             <div class="medication-details">
               <div class="detail-item">
                 <mat-icon>schedule</mat-icon>
-                <span class="detail-label">Frequency:</span>
+                <span class="detail-label">{{ 'prescriptions.detail.frequency' | translate }}:</span>
                 <span class="detail-value">{{ medication.frequency }}</span>
               </div>
 
               <div class="detail-item">
                 <mat-icon>timelapse</mat-icon>
-                <span class="detail-label">Duration:</span>
+                <span class="detail-label">{{ 'prescriptions.detail.duration' | translate }}:</span>
                 <span class="detail-value">{{ medication.duration }}</span>
               </div>
 
               <div class="detail-item">
                 <mat-icon>inventory</mat-icon>
-                <span class="detail-label">Quantity:</span>
+                <span class="detail-label">{{ 'prescriptions.detail.quantity' | translate }}:</span>
                 <span class="detail-value">{{ medication.quantity }}</span>
               </div>
 
@@ -112,7 +112,7 @@
             <div class="medication-instructions" *ngIf="medication.instructions">
               <mat-icon>info_outline</mat-icon>
               <div class="instructions-content">
-                <strong>Instructions:</strong>
+                <strong>{{ 'prescriptions.detail.instructions' | translate }}:</strong>
                 <p>{{ medication.instructions }}</p>
               </div>
             </div>
@@ -126,7 +126,7 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>description</mat-icon>
-          General Instructions
+          {{ 'prescriptions.detail.generalInstructions' | translate }}
         </mat-card-title>
       </mat-card-header>
       
@@ -140,7 +140,7 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>notes</mat-icon>
-          Notes
+          {{ 'prescriptions.detail.notes' | translate }}
         </mat-card-title>
       </mat-card-header>
       
