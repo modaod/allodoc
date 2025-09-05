@@ -1,5 +1,4 @@
 import { CreateDateColumn, UpdateDateColumn, ManyToOne, Column } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 
 export abstract class AuditableEntity {
     @CreateDateColumn()
@@ -8,25 +7,25 @@ export abstract class AuditableEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => User, { nullable: true })
-    createdBy: User;
+    @ManyToOne(() => require('../../users/entities/user.entity').User, { nullable: true })
+    createdBy: any;
 
     @Column({ nullable: true })
     createdById: string;
 
-    @ManyToOne(() => User, { nullable: true })
-    updatedBy: User;
+    @ManyToOne(() => require('../../users/entities/user.entity').User, { nullable: true })
+    updatedBy: any;
 
     @Column({ nullable: true })
     updatedById: string;
 
     // Utility methods for auditing
-    setCreatedBy(user: User): void {
+    setCreatedBy(user: any): void {
         this.createdBy = user;
         this.createdById = user.id;
     }
 
-    setUpdatedBy(user: User): void {
+    setUpdatedBy(user: any): void {
         this.updatedBy = user;
         this.updatedById = user.id;
     }
