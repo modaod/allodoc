@@ -68,3 +68,4 @@ start-app.sh
 # Markdown files (except README.md)
 *.md
 !README.md
+.env.production
