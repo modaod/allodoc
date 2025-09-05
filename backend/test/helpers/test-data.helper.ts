@@ -135,38 +135,6 @@ export const createMockConsultation = (overrides?: Partial<Consultation>): Consu
     return consultation;
 };
 
-export const createMockPrescription = (overrides?: Partial<Prescription>): Prescription => {
-    const prescription = new Prescription();
-    prescription.id = overrides?.id || 'prescription-123';
-    prescription.prescriptionNumber = overrides?.prescriptionNumber || 'RX-2024-0001';
-    prescription.prescribedDate = overrides?.prescribedDate || new Date('2024-01-15');
-    prescription.medications = overrides?.medications || [
-        {
-            name: 'Paracetamol',
-            dosage: '500mg',
-            frequency: 'Twice daily',
-            duration: '5 days',
-            instructions: 'Take after meals',
-            quantity: 10
-        }
-    ];
-    prescription.generalInstructions = overrides?.generalInstructions || 'Take medications as prescribed';
-    prescription.notes = overrides?.notes || 'Avoid alcohol';
-    prescription.warnings = overrides?.warnings || [
-        {
-            type: 'warning',
-            message: 'Do not exceed recommended dose',
-            severity: 'medium'
-        }
-    ];
-    prescription.consultationId = overrides?.consultationId || 'consultation-123';
-    prescription.patientId = overrides?.patientId || 'patient-123';
-    prescription.doctorId = overrides?.doctorId || 'user-123';
-    prescription.organizationId = overrides?.organizationId || 'org-123';
-    prescription.createdAt = overrides?.createdAt || new Date('2024-01-15');
-    prescription.updatedAt = overrides?.updatedAt || new Date('2024-01-15');
-    return prescription;
-};
 
 /**
  * Create a complete mock user with organization and role
@@ -220,3 +188,112 @@ export const createMockPaginationDto = (overrides?: any) => ({
     sortOrder: 'DESC',
     ...overrides
 });
+
+/**
+ * Create mock medication data
+ */
+export const createMockMedication = (overrides?: any) => ({
+    name: 'Amoxicillin',
+    genericName: 'Amoxicillin',
+    dosage: '500mg',
+    frequency: '3 times daily',
+    duration: '7 days',
+    instructions: 'Take with food',
+    quantity: 21,
+    refills: 0,
+    ...overrides
+});
+
+/**
+ * Create mock medication list
+ */
+export const createMockMedications = (count: number = 2) => {
+    const medications = [
+        createMockMedication({
+            name: 'Amoxicillin',
+            dosage: '500mg',
+            frequency: '3 times daily',
+            duration: '7 days',
+            instructions: 'Take with food'
+        }),
+        createMockMedication({
+            name: 'Ibuprofen', 
+            dosage: '400mg',
+            frequency: '2 times daily',
+            duration: '5 days',
+            instructions: 'Take after meals'
+        }),
+        createMockMedication({
+            name: 'Warfarin',
+            dosage: '5mg', 
+            frequency: '1 time daily',
+            duration: '30 days',
+            instructions: 'Take at same time each day'
+        }),
+    ];
+    return medications.slice(0, count);
+};
+
+/**
+ * Create mock warning data
+ */
+export const createMockWarning = (overrides?: any) => ({
+    type: 'interaction' as const,
+    message: 'Potential drug interaction detected',
+    severity: 'medium' as const,
+    ...overrides
+});
+
+/**
+ * Create mock prescription
+ */
+export const createMockPrescription = (overrides?: any) => ({
+    id: 'prescription-123',
+    prescriptionNumber: 'RX-202409-0001',
+    patientId: 'patient-123',
+    doctorId: 'doctor-123',
+    consultationId: 'consultation-123',
+    organizationId: 'org-123',
+    medications: createMockMedications(2),
+    generalInstructions: 'Complete the full course of medication',
+    prescribedDate: new Date('2024-09-01'),
+    notes: 'Patient allergic to penicillin',
+    warnings: [createMockWarning()],
+    createdAt: new Date('2024-09-01'),
+    updatedAt: new Date('2024-09-01'),
+    createdById: 'doctor-123',
+    updatedById: 'doctor-123',
+    // Relations
+    patient: undefined,
+    doctor: undefined, 
+    consultation: undefined,
+    organization: undefined,
+    // Computed fields
+    status: 'ACTIVE' as const,
+    validUntil: new Date('2024-09-08'),
+    // Helper methods
+    getTotalMedications: () => 2,
+    hasCriticalWarnings: () => false,
+    getMedicationNames: () => ['Amoxicillin', 'Ibuprofen'],
+    calculateStatus: () => 'ACTIVE' as const,
+    calculateValidUntil: () => new Date('2024-09-08'),
+    parseDurationToDays: (duration: string) => {
+        const match = duration.match(/(\d+)\s*day/);
+        return match ? parseInt(match[1]) : 0;
+    },
+    ...overrides
+});
+
+/**
+ * Create mock prescription with relations
+ */
+export const createMockPrescriptionWithRelations = (overrides?: any) => {
+    const prescription = createMockPrescription(overrides);
+    return {
+        ...prescription,
+        patient: createMockPatient({ id: prescription.patientId }),
+        doctor: createMockUser({ id: prescription.doctorId }),
+        consultation: createMockConsultation({ id: prescription.consultationId }),
+        organization: createMockOrganization({ id: prescription.organizationId }),
+    };
+};
