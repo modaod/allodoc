@@ -40,7 +40,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests (headless)
-        run: ng test --browsers=ChromeHeadless --watch=false --code-coverage
+        run: npm test -- --browsers=ChromeHeadless --watch=false --code-coverage
 
       - name: Build application
         run: npm run build
