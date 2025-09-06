@@ -62,7 +62,7 @@ jobs:
           fi
           
           # Run production readiness check
-          ./scripts/check-production-readiness.sh
+          ./scripts/deployment/check-production-readiness.sh
 
       - name: Notify deployment start
         uses: 8398a7/action-slack@v3
@@ -130,7 +130,7 @@ jobs:
       - name: Run database migrations
         run: |
           cd /opt/allodoc
-          docker-compose -f backend/docker-compose.prod.yml exec -T backend-prod npm run migration:run
+          docker-compose -f infrastructure/docker/docker-compose.prod.yml exec -T backend-prod npm run migration:run
 
       - name: Deploy with zero downtime
         run: |
@@ -138,16 +138,16 @@ jobs:
           
           # Copy new deployment files
           cp deployment/nginx/nginx.prod.conf nginx/
-          cp deployment/backend/docker-compose.prod.yml backend/
+          cp deployment/infrastructure/docker/docker-compose.prod.yml backend/
           
           # Deploy with rolling update
-          docker-compose -f backend/docker-compose.prod.yml up -d --no-deps backend-prod
+          docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d --no-deps backend-prod
           
           # Wait for health check
           timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
           
           # Update proxy
-          docker-compose -f backend/docker-compose.prod.yml up -d nginx-prod
+          docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d nginx-prod
 
       - name: Post-deployment verification
         run: |
@@ -220,7 +220,7 @@ jobs:
       - name: Execute rollback
         run: |
           cd /opt/allodoc
-          ./scripts/rollback.sh
+          ./scripts/deployment/rollback.sh
 
       - name: Verify rollback
         run: |

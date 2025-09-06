@@ -9,8 +9,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/prometheus/rules:/etc/prometheus/rules:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -41,8 +41,8 @@ services:
       - "3001:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123!}
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
@@ -72,7 +72,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - ../monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
@@ -89,7 +89,7 @@ services:
     container_name: allodoc_promtail
     restart: unless-stopped
     volumes:
-      - ./monitoring/loki/promtail.yml:/etc/promtail/config.yml:ro
+      - ../monitoring/loki/promtail.yml:/etc/promtail/config.yml:ro
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -107,7 +107,7 @@ services:
     ports:
       - "9093:9093"
     volumes:
-      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ../monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
@@ -147,7 +147,7 @@ services:
       DATA_SOURCE_NAME: "postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@postgres-prod:5432/${DATABASE_NAME}?sslmode=require"
       PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
     volumes:
-      - ./monitoring/postgres/queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+      - ../monitoring/postgres/queries.yaml:/etc/postgres_exporter/queries.yaml:ro
     networks:
       - monitoring
       - medical_prod_network

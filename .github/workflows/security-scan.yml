@@ -71,7 +71,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd backend
+          cd src/backend
           docker build -t allodoc-backend:security-scan .
 
       - name: Run Trivy vulnerability scanner
@@ -144,7 +144,7 @@ jobs:
           category: "/language:javascript"
 
       - name: ESLint security scan
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: |
           npm ci
           npx eslint . --ext .ts --format @microsoft/eslint-formatter-sarif --output-file ../eslint-results.sarif || true

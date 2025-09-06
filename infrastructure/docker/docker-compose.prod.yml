@@ -16,7 +16,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
-      - ./src/database/init/01-create-extensions.sql:/docker-entrypoint-initdb.d/01-create-extensions.sql:ro
+      - ../../src/backend/src/database/init/01-create-extensions.sql:/docker-entrypoint-initdb.d/01-create-extensions.sql:ro
       # Backup volume
       - postgres_prod_backup:/backups
     ports:
@@ -85,7 +85,7 @@ services:
   # Production Backend Application
   backend-prod:
     build:
-      context: .
+      context: ../../src/backend
       dockerfile: Dockerfile
       args:
         NODE_ENV: production

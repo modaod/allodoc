@@ -11,7 +11,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ./src/database/init:/docker-entrypoint-initdb.d:ro
+      - ../../src/backend/src/database/init:/docker-entrypoint-initdb.d:ro
     ports:
       - '5432:5432'
     networks:
@@ -61,7 +61,7 @@ services:
   # Backend application (always runs in Docker for development)
   backend-dev:
     build:
-      context: .
+      context: ../../src/backend
       dockerfile: Dockerfile.dev
     container_name: allodoc_backend_dev
     restart: unless-stopped
@@ -69,7 +69,7 @@ services:
       - '3000:3000'
       - '9229:9229' # Debug port for VS Code/Chrome DevTools
     volumes:
-      - .:/app                    # Mount source code for hot-reload
+      - ../../src/backend:/app                    # Mount source code for hot-reload
       - /app/node_modules         # Preserve node_modules from container
     environment:
       # Override database host to use container name
@@ -96,7 +96,7 @@ services:
   # Frontend application (Angular)
   frontend-dev:
     build:
-      context: ../frontend
+      context: ../../src/frontend
       dockerfile: Dockerfile.dev
     container_name: allodoc_frontend_dev
     restart: unless-stopped
@@ -104,7 +104,7 @@ services:
       - '4200:4200'
       - '49153:49153'  # Angular CLI websocket for live reload
     volumes:
-      - ../frontend:/app
+      - ../../src/frontend:/app
       - /app/node_modules     # Preserve node_modules from container
       - /app/.angular         # Preserve Angular cache
     environment:
