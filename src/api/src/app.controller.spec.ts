@@ -16,8 +16,8 @@ describe('AppController', () => {
 
     describe('root', () => {
         it('should return "Hello World!"', () => {
-            // INTENTIONAL TEST FAILURE for CI/CD pipeline validation
-            expect(appController.getHello()).toBe('This will fail!');
+            // Fixed test - pipeline recovery validation
+            expect(appController.getHello()).toBe('Hello World!');
         });
     });
 });
