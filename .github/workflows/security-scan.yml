@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        component: [backend, frontend]
+        component: [api, frontend]
 
     steps:
       - name: Checkout code
@@ -29,11 +29,11 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies (${{ matrix.component }})
-        working-directory: ./${{ matrix.component }}
+        working-directory: ./src/${{ matrix.component }}
         run: npm ci
 
       - name: Run npm audit
-        working-directory: ./${{ matrix.component }}
+        working-directory: ./src/${{ matrix.component }}
         run: |
           npm audit --audit-level=moderate --json > audit-results.json || true
           npm audit --audit-level=moderate
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: audit-results-${{ matrix.component }}
-          path: ${{ matrix.component }}/audit-results.json
+          path: src/${{ matrix.component }}/audit-results.json
 
       - name: Snyk security scan
         uses: snyk/actions/node@master
