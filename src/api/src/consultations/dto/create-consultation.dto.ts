@@ -46,7 +46,7 @@ export enum ConsultationType {
     EMERGENCY = 'EMERGENCY',
     ROUTINE_CHECKUP = 'ROUTINE_CHECKUP',
     SPECIALIST = 'SPECIALIST',
-    TELEMEDICINE = 'TELEMEDICINE'
+    TELEMEDICINE = 'TELEMEDICINE',
 }
 
 export class CreateConsultationDto {

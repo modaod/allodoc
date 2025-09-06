@@ -99,7 +99,7 @@ export class TokenService {
     }> {
         // Try Redis first
         const redisRefresh = await this.redisSessionService.refreshSession(refreshTokenString);
-        
+
         if (redisRefresh) {
             // Get session data for new token
             const session = await this.redisSessionService.getSession(redisRefresh.sessionId);
@@ -230,12 +230,12 @@ export class TokenService {
     ): Promise<void> {
         // Add to Redis blacklist for fast checking
         await this.redisSessionService.blacklistToken(jti, expiresAt);
-        
+
         // Also save to database for audit
         const existing = await this.tokenBlacklistRepository.findOne({
             where: { jti },
         });
-        
+
         if (!existing) {
             const blacklistEntry = this.tokenBlacklistRepository.create({
                 jti,

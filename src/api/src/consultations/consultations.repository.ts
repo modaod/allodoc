@@ -118,7 +118,7 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
             .where('consultation.consultationNumber LIKE :prefix', { prefix: `${prefix}%` })
             .orderBy('consultation.consultationNumber', 'DESC')
             .getOne();
-        
+
         return result?.consultationNumber || null;
     }
 
@@ -128,7 +128,7 @@ export class ConsultationsRepository extends BaseRepository<Consultation> {
 
     async getNextConsultationNumber(): Promise<string> {
         const result = await this.consultationRepository.query(
-            'SELECT get_next_consultation_number() as consultation_number'
+            'SELECT get_next_consultation_number() as consultation_number',
         );
         return result[0].consultation_number;
     }

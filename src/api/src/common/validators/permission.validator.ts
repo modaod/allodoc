@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 
 /**
  * Permission Validator
- * 
+ *
  * Validates permission strings follow the correct format and conventions
  */
 @Injectable()
@@ -29,15 +29,15 @@ export class PermissionValidator {
 
     // Valid actions that can be performed
     private readonly validActions = [
-        'read',    // View/list resources
-        'write',   // Create/update/delete resources
-        'create',  // Create new resources (specific)
-        'update',  // Update existing resources (specific)
-        'delete',  // Delete resources (specific)
-        'manage',  // Full control (deprecated, use write)
+        'read', // View/list resources
+        'write', // Create/update/delete resources
+        'create', // Create new resources (specific)
+        'update', // Update existing resources (specific)
+        'delete', // Delete resources (specific)
+        'manage', // Full control (deprecated, use write)
         'execute', // Execute specific operations
-        'export',  // Export data
-        'import',  // Import data
+        'export', // Export data
+        'import', // Import data
     ];
 
     // Permission format regex: resource:action or *
@@ -59,7 +59,7 @@ export class PermissionValidator {
         // Check format
         if (!this.permissionRegex.test(permission)) {
             throw new BadRequestException(
-                `Invalid permission format: ${permission}. Expected format: resource:action or *`
+                `Invalid permission format: ${permission}. Expected format: resource:action or *`,
             );
         }
 
@@ -74,14 +74,14 @@ export class PermissionValidator {
         // Validate resource
         if (!this.validResources.includes(resource)) {
             throw new BadRequestException(
-                `Invalid resource in permission: ${resource}. Valid resources: ${this.validResources.join(', ')}`
+                `Invalid resource in permission: ${resource}. Valid resources: ${this.validResources.join(', ')}`,
             );
         }
 
         // Validate action
         if (!this.validActions.includes(action)) {
             throw new BadRequestException(
-                `Invalid action in permission: ${action}. Valid actions: ${this.validActions.join(', ')}`
+                `Invalid action in permission: ${action}. Valid actions: ${this.validActions.join(', ')}`,
             );
         }
 
@@ -97,7 +97,7 @@ export class PermissionValidator {
         }
 
         // Validate each permission
-        permissions.forEach(permission => this.validatePermission(permission));
+        permissions.forEach((permission) => this.validatePermission(permission));
 
         // Check for duplicates
         const uniquePermissions = new Set(permissions);
@@ -118,7 +118,7 @@ export class PermissionValidator {
         }
 
         const [resource, action] = permission.split(':');
-        
+
         // Convert 'manage' to 'write' for consistency
         if (action === 'manage') {
             return `${resource}:write`;
@@ -136,16 +136,14 @@ export class PermissionValidator {
      * Normalize an array of permissions
      */
     normalizePermissions(permissions: string[]): string[] {
-        return permissions.map(p => this.normalizePermission(p));
+        return permissions.map((p) => this.normalizePermission(p));
     }
 
     /**
      * Check if a permission is a wildcard
      */
     isWildcardPermission(permission: string): boolean {
-        return permission === '*' || 
-               permission.endsWith(':*') || 
-               permission.startsWith('*:');
+        return permission === '*' || permission.endsWith(':*') || permission.startsWith('*:');
     }
 
     /**
@@ -177,9 +175,11 @@ export class PermissionValidator {
         }
 
         // Write permission includes read for same resource
-        if (grantedResource === requiredResource && 
-            grantedAction === 'write' && 
-            requiredAction === 'read') {
+        if (
+            grantedResource === requiredResource &&
+            grantedAction === 'write' &&
+            requiredAction === 'read'
+        ) {
             return true;
         }
 

@@ -21,9 +21,9 @@ export class ActivityItemDto {
 }
 
 export class RecentActivityDto {
-    @ApiProperty({ 
+    @ApiProperty({
         description: 'List of recent activities',
-        type: [ActivityItemDto]
+        type: [ActivityItemDto],
     })
     activities: ActivityItemDto[];
 }

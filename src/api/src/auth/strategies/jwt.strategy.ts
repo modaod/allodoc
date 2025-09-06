@@ -45,7 +45,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         // Fast path: Check session in Redis if available
         if (sessionId) {
             const session = await this.redisSessionService.validateSession(sessionId);
-            
+
             if (!session) {
                 this.logger.debug(`Session ${sessionId} not found or expired`);
                 throw new UnauthorizedException('Session expired or invalid');
@@ -65,9 +65,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             user.email = session.email;
             user.organizationId = session.organizationId;
             user.isActive = true; // Session exists means user is active
-            
+
             // Add roles and permissions from session
-            (user as any).roles = session.roles.map(name => ({ name }));
+            (user as any).roles = session.roles.map((name) => ({ name }));
             (user as any).permissions = session.permissions;
             (user as any).tokenPayload = payload;
             (user as any).sessionId = sessionId;

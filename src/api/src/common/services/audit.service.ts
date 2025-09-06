@@ -113,7 +113,7 @@ export class AuditService {
         const diffInMinutes = Math.floor((date2.getTime() - date1.getTime()) / (1000 * 60));
 
         if (diffInMinutes < 1) {
-            return "Just now";
+            return 'Just now';
         } else if (diffInMinutes < 60) {
             return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
         } else if (diffInMinutes < 1440) {

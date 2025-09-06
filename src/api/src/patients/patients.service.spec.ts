@@ -71,9 +71,11 @@ describe('PatientsService', () => {
 
             // Mock the private methods by creating spies
             jest.spyOn(service as any, 'validatePatientCreation').mockResolvedValue(undefined);
-            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue('P-2024-0001');
+            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue(
+                'P-2024-0001',
+            );
             jest.spyOn(service as any, 'calculateAge').mockReturnValue(34);
-            
+
             repository.create.mockResolvedValue(mockPatient);
 
             const result = await service.create(createDto, 'org-123');
@@ -95,7 +97,9 @@ describe('PatientsService', () => {
             };
 
             jest.spyOn(service as any, 'validatePatientCreation').mockResolvedValue(undefined);
-            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue('P-2024-0001');
+            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue(
+                'P-2024-0001',
+            );
             jest.spyOn(service as any, 'calculateAge').mockReturnValue(220); // Mock invalid age
 
             await expect(service.create(createDto, 'org-123')).rejects.toThrow(BadRequestException);
@@ -113,7 +117,9 @@ describe('PatientsService', () => {
             };
 
             jest.spyOn(service as any, 'validatePatientCreation').mockResolvedValue(undefined);
-            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue('P-2024-0001');
+            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue(
+                'P-2024-0001',
+            );
             jest.spyOn(service as any, 'calculateAge').mockReturnValue(-65); // Mock negative age
 
             await expect(service.create(createDto, 'org-123')).rejects.toThrow(BadRequestException);
@@ -131,14 +137,15 @@ describe('PatientsService', () => {
             };
 
             jest.spyOn(service as any, 'validatePatientCreation').mockResolvedValue(undefined);
-            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue('P-2024-0001');
+            jest.spyOn(service as any, 'generateUniquePatientNumber').mockResolvedValue(
+                'P-2024-0001',
+            );
             jest.spyOn(service as any, 'calculateAge').mockReturnValue(-25); // Mock negative age
 
             await expect(service.create(createDto, 'org-123')).rejects.toThrow(BadRequestException);
             expect(repository.create).not.toHaveBeenCalled();
         });
     });
-
 
     describe('findById', () => {
         it('should return a patient by id', async () => {
@@ -203,7 +210,11 @@ describe('PatientsService', () => {
 
             await service.deactivate('patient-123');
 
-            expect(repository.update).toHaveBeenCalledWith('patient-123', { isActive: false }, undefined);
+            expect(repository.update).toHaveBeenCalledWith(
+                'patient-123',
+                { isActive: false },
+                undefined,
+            );
         });
     });
 
@@ -213,7 +224,7 @@ describe('PatientsService', () => {
                 query: 'john',
                 page: 1,
                 limit: 10,
-                skip: 0
+                skip: 0,
             };
             const mockPatients = [createMockPatient({ firstName: 'John' })];
             const mockResult = {
@@ -224,8 +235,8 @@ describe('PatientsService', () => {
                     limit: 10,
                     totalPages: 1,
                     hasNextPage: false,
-                    hasPreviousPage: false
-                }
+                    hasPreviousPage: false,
+                },
             };
 
             repository.search.mockResolvedValue(mockResult);
@@ -236,8 +247,6 @@ describe('PatientsService', () => {
             expect(repository.search).toHaveBeenCalledWith(searchDto, 'org-123');
         });
     });
-
-
 
     describe('findByPatientNumber', () => {
         it('should return patient by patient number', async () => {

@@ -39,7 +39,6 @@ export class PatientsRepository extends BaseRepository<Patient> {
         return await this.paginate(searchDto, qb);
     }
 
-
     async generatePatientNumber(organizationId: string): Promise<string> {
         // Retrieve the organization code
         const organization = await this.patientRepository.manager
@@ -149,7 +148,7 @@ export class PatientsRepository extends BaseRepository<Patient> {
             this.patientRepository
                 .createQueryBuilder('patient')
                 .where('patient.organizationId = :organizationId', { organizationId })
-            .andWhere('patient.isActive = true')
+                .andWhere('patient.isActive = true')
                 .andWhere("patient.medicalHistory->>'allergies' IS NOT NULL")
                 .andWhere("jsonb_array_length(patient.medicalHistory->'allergies') > 0")
                 .getCount(),
@@ -180,7 +179,12 @@ export class PatientsRepository extends BaseRepository<Patient> {
 
         // Date filterings - filter by last visit date
         if (searchDto.startDate || searchDto.endDate) {
-            this.addDateRangeToQuery(qb, searchDto.startDate, searchDto.endDate, 'patient.lastVisit');
+            this.addDateRangeToQuery(
+                qb,
+                searchDto.startDate,
+                searchDto.endDate,
+                'patient.lastVisit',
+            );
         }
 
         // Sorting

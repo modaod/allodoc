@@ -138,12 +138,8 @@ export class ConsultationsService {
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        return await this.consultationsRepository.findByDateRange(
-            organizationId,
-            today,
-            tomorrow
-        );
+
+        return await this.consultationsRepository.findByDateRange(organizationId, today, tomorrow);
     }
 
     async getThisWeekConsultations(organizationId: string): Promise<Consultation[]> {
@@ -152,16 +148,16 @@ export class ConsultationsService {
         const startOfWeek = new Date(today);
         startOfWeek.setDate(today.getDate() - today.getDay());
         startOfWeek.setHours(0, 0, 0, 0);
-        
+
         // Week ends on Saturday (day 6)
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
         endOfWeek.setHours(23, 59, 59, 999);
-        
+
         return await this.consultationsRepository.findByDateRange(
             organizationId,
             startOfWeek,
-            endOfWeek
+            endOfWeek,
         );
     }
 
@@ -219,7 +215,7 @@ export class ConsultationsService {
         currentUser?: User,
     ): Promise<void> {
         // Convert embedded prescriptions to prescription entity format
-        const medicationsArray = prescriptions.map(prescription => ({
+        const medicationsArray = prescriptions.map((prescription) => ({
             name: prescription.medicationName,
             dosage: prescription.dosage,
             frequency: prescription.frequency,
@@ -257,22 +253,24 @@ export class ConsultationsService {
         const consultationDate = new Date(createConsultationDto.consultationDate);
         const today = new Date();
         today.setHours(23, 59, 59, 999); // Set to end of today to allow today's date
-        
+
         if (consultationDate > today) {
             throw new BadRequestException('Consultation date cannot be in the future');
         }
-        
+
         // Optionally validate not too far in the past (e.g., max 1 year)
         const oneYearAgo = new Date();
         oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
         if (consultationDate < oneYearAgo) {
-            throw new BadRequestException('Consultation date cannot be more than 1 year in the past');
+            throw new BadRequestException(
+                'Consultation date cannot be more than 1 year in the past',
+            );
         }
 
         // Verify that patient exists and belongs to the organization
         const patient = await this.patientsService.findById(createConsultationDto.patientId);
         if (patient.organizationId !== organizationId) {
-            throw new BadRequestException("Patient does not belong to this organization");
+            throw new BadRequestException('Patient does not belong to this organization');
         }
 
         // Verify that doctor exists and belongs to the organization
@@ -288,7 +286,9 @@ export class ConsultationsService {
             }
             // Check appointment doctor matches current authenticated user
             if (appointment.doctorId !== currentUser?.id) {
-                throw new BadRequestException('The appointment does not match the authenticated doctor');
+                throw new BadRequestException(
+                    'The appointment does not match the authenticated doctor',
+                );
             }
         }
 

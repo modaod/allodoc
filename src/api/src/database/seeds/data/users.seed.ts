@@ -80,7 +80,7 @@ export async function seedUsers(app: INestApplicationContext): Promise<void> {
         console.log(`  ✅ Created Super Admin user: ${adminEmail}`);
         console.log(`     📧 Email: ${adminEmail}`);
         console.log(`     🔑 Password: ${adminPassword}`);
-        
+
         // Also create sample doctor and receptionist users
         await createSampleUsers(
             userRepository,

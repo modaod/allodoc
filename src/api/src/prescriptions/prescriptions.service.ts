@@ -43,8 +43,11 @@ export class PrescriptionsService {
             warnings,
         };
 
-        const createdPrescription = await this.prescriptionsRepository.create(prescriptionData, currentUser);
-        
+        const createdPrescription = await this.prescriptionsRepository.create(
+            prescriptionData,
+            currentUser,
+        );
+
         // Return the populated prescription with patient and doctor data
         return await this.findById(createdPrescription.id);
     }
@@ -115,7 +118,7 @@ export class PrescriptionsService {
             },
             {
                 drugs: ['metformin', 'iodinated contrast'],
-                message: "Risk of lactic acidosis",
+                message: 'Risk of lactic acidosis',
                 severity: 'critical' as const,
             },
             {

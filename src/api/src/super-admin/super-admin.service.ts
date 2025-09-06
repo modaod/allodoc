@@ -65,7 +65,7 @@ export class SuperAdminService {
         // Active users (logged in within last 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+
         const activeUsers = await this.userRepository
             .createQueryBuilder('user')
             .where('user.lastLogin > :date', { date: thirtyDaysAgo })
@@ -109,7 +109,7 @@ export class SuperAdminService {
             totalAppointments,
             activeUsers,
             usersByRole,
-            topOrganizations: topOrganizations.map(org => ({
+            topOrganizations: topOrganizations.map((org) => ({
                 ...org,
                 userCount: parseInt(org.userCount),
                 patientCount: parseInt(org.patientCount),
@@ -179,7 +179,9 @@ export class SuperAdminService {
         });
 
         if (existingUser) {
-            throw new BadRequestException('User with this email already exists in the organization');
+            throw new BadRequestException(
+                'User with this email already exists in the organization',
+            );
         }
 
         // Hash password
@@ -267,9 +269,9 @@ export class SuperAdminService {
 
     async toggleUserStatus(userId: string): Promise<User> {
         // First get the current user with relations
-        const user = await this.userRepository.findOne({ 
+        const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: ['roles', 'organization']
+            relations: ['roles', 'organization'],
         });
 
         if (!user) {
@@ -278,10 +280,7 @@ export class SuperAdminService {
 
         // Update ONLY the isActive field to avoid corrupting password
         // Using update() method to prevent @Exclude() decorator issues
-        await this.userRepository.update(
-            { id: userId },
-            { isActive: !user.isActive }
-        );
+        await this.userRepository.update({ id: userId }, { isActive: !user.isActive });
 
         // Return the updated user object
         user.isActive = !user.isActive;
@@ -296,16 +295,15 @@ export class SuperAdminService {
         }
 
         // Soft delete by deactivating - using update() to avoid password corruption
-        await this.userRepository.update(
-            { id: userId },
-            { isActive: false }
-        );
+        await this.userRepository.update({ id: userId }, { isActive: false });
     }
 
     // =============================
     // ORGANIZATION MANAGEMENT
     // =============================
-    async getAllOrganizations(paginationDto: PaginationDto): Promise<PaginatedResult<Organization>> {
+    async getAllOrganizations(
+        paginationDto: PaginationDto,
+    ): Promise<PaginatedResult<Organization>> {
         const { page = 1, limit = 10, search } = paginationDto;
         const skip = (page - 1) * limit;
 
@@ -426,9 +424,7 @@ export class SuperAdminService {
                 relations: ['organization'],
             });
 
-            return userOrgs
-                .map(uo => uo.organization)
-                .filter(org => org && org.isActive);
+            return userOrgs.map((uo) => uo.organization).filter((org) => org && org.isActive);
         }
     }
 

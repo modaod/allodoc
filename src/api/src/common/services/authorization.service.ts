@@ -4,7 +4,7 @@ import { RoleName } from '../../users/entities/role.entity';
 
 /**
  * Centralized Authorization Service
- * 
+ *
  * Provides consistent authorization checks across the application.
  * Handles Super Admin special cases and organization access validation.
  */
@@ -14,7 +14,7 @@ export class AuthorizationService {
 
     /**
      * Check if user is a Super Admin
-     * 
+     *
      * Handles multiple user object formats:
      * - User entity with hasRole method
      * - JWT payload with roles array
@@ -113,12 +113,12 @@ export class AuthorizationService {
      * Check if user has any of the specified roles
      */
     hasAnyRole(user: User | any, roleNames: (RoleName | string)[]): boolean {
-        return roleNames.some(roleName => this.hasRole(user, roleName));
+        return roleNames.some((roleName) => this.hasRole(user, roleName));
     }
 
     /**
      * Check if user can access a specific organization
-     * 
+     *
      * Super Admins can access all organizations
      * Regular users can only access their assigned organizations
      */
@@ -153,8 +153,8 @@ export class AuthorizationService {
 
         // Check userOrganizations relation (for User entity)
         if (user.userOrganizations && Array.isArray(user.userOrganizations)) {
-            return user.userOrganizations.some((userOrg: any) => 
-                userOrg.organizationId === organizationId
+            return user.userOrganizations.some(
+                (userOrg: any) => userOrg.organizationId === organizationId,
             );
         }
 
@@ -163,7 +163,7 @@ export class AuthorizationService {
 
     /**
      * Check if user can manage users in an organization
-     * 
+     *
      * Super Admins can manage all users
      * Admins can manage users in their organization
      */
@@ -191,7 +191,7 @@ export class AuthorizationService {
 
     /**
      * Check if user can manage organizations
-     * 
+     *
      * Only Super Admins can manage organizations
      */
     canManageOrganizations(user: User | any): boolean {
@@ -206,16 +206,16 @@ export class AuthorizationService {
      * Log Super Admin access for audit purposes
      */
     private logSuperAdminAccess(
-        user: User | any, 
-        organizationId: string | null, 
-        action: string
+        user: User | any,
+        organizationId: string | null,
+        action: string,
     ): void {
         const userId = user.id || user.sub || 'unknown';
         const userEmail = user.email || 'unknown';
-        
+
         this.logger.log(
             `SUPER_ADMIN_ACCESS: User ${userEmail} (${userId}) performed ${action}` +
-            (organizationId ? ` on organization ${organizationId}` : '')
+                (organizationId ? ` on organization ${organizationId}` : ''),
         );
     }
 

@@ -7,9 +7,7 @@ import { Consultation } from '../consultations/entities/consultation.entity';
 import { Prescription } from '../prescriptions/entities/prescription.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Patient, Consultation, Prescription]),
-    ],
+    imports: [TypeOrmModule.forFeature([Patient, Consultation, Prescription])],
     controllers: [DashboardController],
     providers: [DashboardService],
     exports: [DashboardService],

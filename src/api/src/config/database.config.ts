@@ -18,9 +18,9 @@ export const databaseConfig = registerAs('database', () => {
 
         // Synchronization - NEVER in production
         synchronize: isDevelopment && process.env.DATABASE_SYNCHRONIZE === 'true',
-        
+
         // Logging
-        logging: isDevelopment 
+        logging: isDevelopment
             ? process.env.DATABASE_LOGGING === 'true'
             : process.env.DATABASE_LOGGING || 'error',
 
@@ -39,7 +39,7 @@ export const databaseConfig = registerAs('database', () => {
         retryDelay: 3000,
         autoLoadEntities: true,
         keepConnectionAlive: isDevelopment,
-        
+
         // Query runner options
         maxQueryExecutionTime: isProduction ? 10000 : undefined, // Log slow queries in production
     };

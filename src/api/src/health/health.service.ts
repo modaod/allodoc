@@ -34,15 +34,21 @@ export class HealthService {
             this.checkRedis(),
         ]);
 
-        const database = dbStatus.status === 'fulfilled' ? dbStatus.value : {
-            status: 'down' as const,
-            error: dbStatus.reason?.message || 'Database check failed',
-        };
+        const database =
+            dbStatus.status === 'fulfilled'
+                ? dbStatus.value
+                : {
+                      status: 'down' as const,
+                      error: dbStatus.reason?.message || 'Database check failed',
+                  };
 
-        const redis = redisStatus.status === 'fulfilled' ? redisStatus.value : {
-            status: 'down' as const,
-            error: redisStatus.reason?.message || 'Redis check failed',
-        };
+        const redis =
+            redisStatus.status === 'fulfilled'
+                ? redisStatus.value
+                : {
+                      status: 'down' as const,
+                      error: redisStatus.reason?.message || 'Redis check failed',
+                  };
 
         const allHealthy = database.status === 'up' && redis.status === 'up';
 
@@ -88,7 +94,7 @@ export class HealthService {
             const testKey = `health:check:${Date.now()}`;
             await this.redisService.set(testKey, 'ok', 1);
             const value = await this.redisService.get(testKey);
-            
+
             if (value !== 'ok') {
                 throw new Error('Redis read/write test failed');
             }

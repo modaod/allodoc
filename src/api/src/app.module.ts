@@ -54,28 +54,33 @@ import { ThrottlerGuard } from '@nestjs/throttler';
                     username: configService.get('database.username'),
                     password: configService.get('database.password'),
                     database: configService.get('database.name'),
-                    
+
                     // Entity loading
                     entities: [__dirname + '/**/*.entity{.ts,.js}'],
                     autoLoadEntities: configService.get('database.autoLoadEntities'),
-                    
+
                     // CRITICAL: Synchronization settings
                     synchronize: configService.get('database.synchronize'),
-                    
+
                     // Logging configuration
                     logging: configService.get('database.logging'),
                     maxQueryExecutionTime: configService.get('database.maxQueryExecutionTime'),
-                    
+
                     // Migration settings
                     migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
                     migrationsTableName: configService.get('database.migrationsTableName'),
                     migrationsRun: configService.get('database.migrationsRun'),
-                    
+
                     // SSL Configuration for production
-                    ssl: isProduction && configService.get('database.ssl')
-                        ? { rejectUnauthorized: configService.get('database.sslRejectUnauthorized') }
-                        : false,
-                    
+                    ssl:
+                        isProduction && configService.get('database.ssl')
+                            ? {
+                                  rejectUnauthorized: configService.get(
+                                      'database.sslRejectUnauthorized',
+                                  ),
+                              }
+                            : false,
+
                     // Connection pool configuration
                     extra: {
                         max: configService.get('database.poolSize'),
@@ -83,7 +88,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
                         idleTimeoutMillis: configService.get('database.idleTimeout'),
                         statement_timeout: configService.get('database.statementTimeout'),
                     },
-                    
+
                     // Retry configuration
                     retryAttempts: configService.get('database.retryAttempts'),
                     retryDelay: configService.get('database.retryDelay'),

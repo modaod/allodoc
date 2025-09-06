@@ -14,13 +14,13 @@ export class RedisService implements OnModuleDestroy {
     async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
         try {
             const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-            
+
             if (ttlSeconds) {
                 await this.client.setEx(key, ttlSeconds, stringValue);
             } else {
                 await this.client.set(key, stringValue);
             }
-            
+
             this.logger.debug(`Set key ${key} with TTL ${ttlSeconds}s`);
         } catch (error) {
             this.logger.error(`Failed to set key ${key}:`, error);
@@ -31,7 +31,7 @@ export class RedisService implements OnModuleDestroy {
     async get<T = any>(key: string): Promise<T | null> {
         try {
             const value = await this.client.get(key);
-            
+
             if (!value) {
                 return null;
             }
@@ -79,7 +79,7 @@ export class RedisService implements OnModuleDestroy {
     async expire(key: string, ttlSeconds: number): Promise<boolean> {
         try {
             const result = await this.client.expire(key, ttlSeconds);
-            return result as boolean;
+            return result;
         } catch (error) {
             this.logger.error(`Failed to set expiration for key ${key}:`, error);
             throw error;

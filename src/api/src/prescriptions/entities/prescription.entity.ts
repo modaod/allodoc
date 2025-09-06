@@ -103,14 +103,16 @@ export class Prescription extends AuditableEntity {
     calculateStatus(): 'ACTIVE' | 'EXPIRED' | 'EXPIRING_SOON' {
         const now = new Date();
         const validUntil = this.calculateValidUntil();
-        
+
         if (!validUntil) {
             // No valid duration found, consider expired
             return 'EXPIRED';
         }
-        
-        const daysUntilExpiry = Math.ceil((validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        
+
+        const daysUntilExpiry = Math.ceil(
+            (validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
         if (daysUntilExpiry < 0) {
             return 'EXPIRED';
         }
@@ -127,14 +129,14 @@ export class Prescription extends AuditableEntity {
         if (!this.medications || this.medications.length === 0) {
             return null;
         }
-        
+
         if (!this.prescribedDate) {
             return null;
         }
-        
+
         const prescribedDate = new Date(this.prescribedDate);
         let maxDuration = 0;
-        
+
         // Find the medication with the longest duration
         for (const med of this.medications) {
             const days = this.parseDurationToDays(med.duration);
@@ -142,17 +144,17 @@ export class Prescription extends AuditableEntity {
                 maxDuration = days;
             }
         }
-        
+
         if (maxDuration === 0) {
             // No valid duration found
             return null;
         }
-        
+
         // Cap maximum validity at 365 days (1 year)
         if (maxDuration > 365) {
             maxDuration = 365;
         }
-        
+
         const validUntil = new Date(prescribedDate);
         validUntil.setDate(validUntil.getDate() + maxDuration);
         return validUntil;
@@ -164,21 +166,23 @@ export class Prescription extends AuditableEntity {
      */
     parseDurationToDays(duration: string): number {
         if (!duration) return 0;
-        
+
         // Convert to lowercase and remove extra spaces
         const normalizedDuration = duration.toLowerCase().trim();
-        
+
         // Match patterns like "7 days", "2 weeks", "1 month"
-        const match = normalizedDuration.match(/(\d+)\s*(day|days|week|weeks|month|months|year|years)/);
+        const match = normalizedDuration.match(
+            /(\d+)\s*(day|days|week|weeks|month|months|year|years)/,
+        );
         if (!match) {
             return 0;
         }
-        
+
         const value = parseInt(match[1]);
         const unit = match[2];
-        
+
         // Convert to days based on unit
-        switch(unit) {
+        switch (unit) {
             case 'day':
             case 'days':
                 return value;

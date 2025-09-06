@@ -163,17 +163,17 @@ export abstract class BaseRepository<T extends AuditableEntity> {
         // Convert UTC timestamps to local timezone (EDT/EST) before comparing dates
         // This ensures filtering matches what users see in their local time
         const timezone = process.env.TZ || 'America/New_York';
-        
+
         if (startDate) {
             qb.andWhere(
                 `DATE(${dateField} AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= DATE(:startDate)`,
-                { startDate, timezone }
+                { startDate, timezone },
             );
         }
         if (endDate) {
             qb.andWhere(
                 `DATE(${dateField} AT TIME ZONE 'UTC' AT TIME ZONE :timezone) <= DATE(:endDate)`,
-                { endDate, timezone }
+                { endDate, timezone },
             );
         }
         return qb;

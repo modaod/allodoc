@@ -81,17 +81,24 @@ export class Consultation extends AuditableEntity {
     @Column({ type: 'text', nullable: true })
     notes: string;
 
-    @Column({ 
-        type: 'enum', 
-        enum: ['INITIAL', 'FOLLOW_UP', 'EMERGENCY', 'ROUTINE_CHECKUP', 'SPECIALIST', 'TELEMEDICINE'],
-        default: 'ROUTINE_CHECKUP'
+    @Column({
+        type: 'enum',
+        enum: [
+            'INITIAL',
+            'FOLLOW_UP',
+            'EMERGENCY',
+            'ROUTINE_CHECKUP',
+            'SPECIALIST',
+            'TELEMEDICINE',
+        ],
+        default: 'ROUTINE_CHECKUP',
     })
     type: string;
 
-    @Column({ 
-        type: 'enum', 
+    @Column({
+        type: 'enum',
         enum: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW'],
-        default: 'COMPLETED'
+        default: 'COMPLETED',
     })
     status: string;
 

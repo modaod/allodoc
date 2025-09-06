@@ -36,7 +36,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
                     throw new UnauthorizedException('Token not yet active');
                 }
             }
-            
+
             // Default error
             throw err || new UnauthorizedException('Authentication required');
         }

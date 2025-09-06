@@ -14,7 +14,7 @@ import { RecentActivityDto } from './dto/recent-activity.dto';
 @ApiBearerAuth('JWT-auth')
 export class DashboardController {
     private readonly logger = new Logger(DashboardController.name);
-    
+
     constructor(private readonly dashboardService: DashboardService) {}
 
     @Get('stats')
@@ -24,12 +24,15 @@ export class DashboardController {
         description: 'Dashboard statistics retrieved successfully',
         type: DashboardStatsDto,
     })
-    async getStats(
-        @CurrentUser() user: any,
-    ): Promise<DashboardStatsDto> {
+    async getStats(@CurrentUser() user: any): Promise<DashboardStatsDto> {
         try {
-            this.logger.log(`Controller: getStats called with user: ${user?.id} and orgId: ${user?.organizationId}`);
-            const result = await this.dashboardService.getDashboardStats(user.id, user.organizationId);
+            this.logger.log(
+                `Controller: getStats called with user: ${user?.id} and orgId: ${user?.organizationId}`,
+            );
+            const result = await this.dashboardService.getDashboardStats(
+                user.id,
+                user.organizationId,
+            );
             this.logger.log(`Controller: getStats completed successfully`);
             return result;
         } catch (error) {
@@ -45,9 +48,7 @@ export class DashboardController {
         description: 'Recent activity retrieved successfully',
         type: RecentActivityDto,
     })
-    async getRecentActivity(
-        @CurrentUser() user: any,
-    ): Promise<RecentActivityDto> {
+    async getRecentActivity(@CurrentUser() user: any): Promise<RecentActivityDto> {
         return this.dashboardService.getRecentActivity(user.id, user.organizationId);
     }
 }

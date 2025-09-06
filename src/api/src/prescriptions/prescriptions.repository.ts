@@ -86,7 +86,7 @@ export class PrescriptionsRepository extends BaseRepository<Prescription> {
 
     async getNextPrescriptionNumber(): Promise<string> {
         const result = await this.prescriptionRepository.query(
-            'SELECT get_next_prescription_number() as prescription_number'
+            'SELECT get_next_prescription_number() as prescription_number',
         );
         return result[0].prescription_number;
     }

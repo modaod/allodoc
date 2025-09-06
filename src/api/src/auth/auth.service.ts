@@ -40,10 +40,7 @@ export class AuthService {
     ) {}
 
     // Validate user credentials (used by LocalStrategy)
-    async validateUser(
-        email: string,
-        password: string,
-    ): Promise<User | null> {
+    async validateUser(email: string, password: string): Promise<User | null> {
         try {
             // Find user by email with roles (organization is optional)
             const user = await this.userRepository.findOne({
@@ -57,7 +54,7 @@ export class AuthService {
 
             // Validate password
             const isPasswordValid = await bcrypt.compare(password, user.password);
-            
+
             if (!isPasswordValid) {
                 return null;
             }
@@ -84,10 +81,7 @@ export class AuthService {
 
     // Login user and generate tokens
     async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string): Promise<AuthResponse> {
-        const user = await this.validateUser(
-            loginDto.email,
-            loginDto.password,
-        );
+        const user = await this.validateUser(loginDto.email, loginDto.password);
 
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
@@ -102,16 +96,16 @@ export class AuthService {
 
         // Get all organizations for the user
         const userOrganizations = await this.getUserOrganizations(user.id);
-        
+
         // Determine the selected organization
         let selectedOrganization = user.organization;
         let selectedOrganizationId = user.organizationId;
-        
+
         // If user has organizations from junction table, use the first or last accessed
         if (userOrganizations.length > 0) {
             selectedOrganization = userOrganizations[0];
             selectedOrganizationId = userOrganizations[0].id;
-            
+
             // Update user's primary organization for token generation
             user.organizationId = selectedOrganizationId;
             user.organization = selectedOrganization;
@@ -193,7 +187,7 @@ export class AuthService {
             // For simplicity, let's decode the access token (in production, consider caching user data)
             const payload = this.tokenService.verifyToken(tokens.accessToken);
             const user = await this.usersService.findById(payload.sub);
-            
+
             // Get all organizations for the user
             const userOrganizations = await this.getUserOrganizations(user.id);
 
@@ -217,21 +211,26 @@ export class AuthService {
     }
 
     // Logout user (revoke refresh token and blacklist access token)
-    async logout(refreshToken: string, jti?: string, userId?: string, sessionId?: string): Promise<void> {
+    async logout(
+        refreshToken: string,
+        jti?: string,
+        userId?: string,
+        sessionId?: string,
+    ): Promise<void> {
         // Revoke refresh token
         await this.tokenService.revokeRefreshToken(refreshToken);
-        
+
         // Invalidate Redis session if sessionId is provided
         if (sessionId) {
             await this.redisSessionService.invalidateSession(sessionId);
         }
-        
+
         // Blacklist current access token if JTI is provided
         if (jti && userId) {
             // Calculate token expiration (15 minutes from now as a safe default)
             const expiresAt = new Date();
             expiresAt.setMinutes(expiresAt.getMinutes() + 15);
-            
+
             await this.tokenService.blacklistToken(jti, userId, expiresAt, 'logout');
         }
     }
@@ -240,7 +239,7 @@ export class AuthService {
     async logoutAll(userId: string): Promise<void> {
         // Invalidate all Redis sessions
         await this.redisSessionService.invalidateAllUserSessions(userId);
-        
+
         // Also revoke database tokens for consistency
         await this.tokenService.revokeAllUserTokens(userId);
         // Note: We could also blacklist all active JTIs for this user if we track them
@@ -259,7 +258,7 @@ export class AuthService {
 
         // Revoke all tokens to force re-login with new password
         await this.tokenService.revokeAllUserTokens(userId);
-        
+
         // Also blacklist all tokens for this user (security measure)
         await this.tokenService.blacklistUserTokens(userId, 'password_change');
     }
@@ -293,7 +292,7 @@ export class AuthService {
     async getPublicOrganizations(): Promise<Partial<Organization>[]> {
         const organizations = await this.organizationsService.findAll();
         // Return only public information
-        return organizations.map(org => ({
+        return organizations.map((org) => ({
             id: org.id,
             name: org.name,
         }));
@@ -375,7 +374,7 @@ export class AuthService {
 
         // Get all organizations for the user
         const organizations = await this.getUserOrganizations(user.id);
-        
+
         return {
             user: {
                 id: user.id,
@@ -425,11 +424,11 @@ export class AuthService {
             });
 
             const organizations = userOrgs
-                .map(uo => uo.organization)
-                .filter(org => org && org.isActive);
+                .map((uo) => uo.organization)
+                .filter((org) => org && org.isActive);
 
             // Add primary organization if not in the list
-            if (primaryOrg && !organizations.find(org => org.id === primaryOrg.id)) {
+            if (primaryOrg && !organizations.find((org) => org.id === primaryOrg.id)) {
                 organizations.push(primaryOrg);
             }
 
@@ -440,9 +439,9 @@ export class AuthService {
     // Get all active sessions for a user
     async getUserSessions(userId: string): Promise<any[]> {
         const sessions = await this.redisSessionService.getUserSessionDetails(userId);
-        
+
         // Transform to a user-friendly format
-        return sessions.map(session => ({
+        return sessions.map((session) => ({
             id: session.deviceId,
             deviceName: session.deviceName,
             ipAddress: session.ipAddress,
@@ -456,11 +455,11 @@ export class AuthService {
     async terminateSession(userId: string, sessionId: string): Promise<void> {
         // Check if session belongs to user
         const userSessions = await this.redisSessionService.getUserSessions(userId);
-        
+
         if (!userSessions.includes(sessionId)) {
             throw new ForbiddenException('Session does not belong to this user');
         }
-        
+
         // Invalidate the session
         await this.redisSessionService.invalidateSession(sessionId);
     }

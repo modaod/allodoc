@@ -7,7 +7,7 @@ import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 import { SearchDto } from '../common/dto/search.dto';
 import { Prescription } from './entities/prescription.entity';
 import { RoleName } from '../users/entities/role.entity';
-import { 
+import {
     createMockPrescription,
     createMockPrescriptionWithRelations,
     createMockMedication,
@@ -16,7 +16,7 @@ import {
     createMockUser,
     createMockPatient,
     createMockConsultation,
-    createMockPaginationDto
+    createMockPaginationDto,
 } from '../../test/helpers/test-data.helper';
 
 describe('PrescriptionsService', () => {
@@ -74,7 +74,7 @@ describe('PrescriptionsService', () => {
 
             expect(repository.getNextPrescriptionNumber).toHaveBeenCalled();
             expect(repository.create).toHaveBeenCalled();
-            
+
             const createCall = repository.create.mock.calls[0][0] as any;
             expect(createCall.patientId).toBe('patient-123');
             expect(createCall.doctorId).toBe('doctor-123');
@@ -86,7 +86,7 @@ describe('PrescriptionsService', () => {
             expect(createCall.medications).toHaveLength(2);
             expect(typeof createCall.prescribedDate).toBe('object');
             expect(createCall.warnings).toBeDefined();
-            
+
             expect(repository.create.mock.calls[0][1]).toBe(mockUser);
             expect(repository.findById).toHaveBeenCalledWith(mockPrescription.id, [
                 'patient',
@@ -100,10 +100,10 @@ describe('PrescriptionsService', () => {
 
         it('should throw BadRequestException if user is not authenticated', async () => {
             await expect(
-                service.create(createPrescriptionDto, 'org-123', undefined)
+                service.create(createPrescriptionDto, 'org-123', undefined),
             ).rejects.toThrow(BadRequestException);
             await expect(
-                service.create(createPrescriptionDto, 'org-123', { id: undefined } as any)
+                service.create(createPrescriptionDto, 'org-123', { id: undefined } as any),
             ).rejects.toThrow(BadRequestException);
 
             expect(repository.create).not.toHaveBeenCalled();
@@ -139,8 +139,8 @@ describe('PrescriptionsService', () => {
                 ...createPrescriptionDto,
                 medications: [
                     createMockMedication({ name: 'Warfarine' }),
-                    createMockMedication({ name: 'Aspirine' })
-                ]
+                    createMockMedication({ name: 'Aspirine' }),
+                ],
             };
 
             repository.getNextPrescriptionNumber.mockResolvedValue('RX-202409-0001');
@@ -156,8 +156,8 @@ describe('PrescriptionsService', () => {
                         type: 'interaction',
                         message: expect.stringContaining('warfarine + aspirine'),
                         severity: 'high',
-                    })
-                ])
+                    }),
+                ]),
             );
         });
 
@@ -165,7 +165,7 @@ describe('PrescriptionsService', () => {
             const mockUser = createMockUser();
             const mockPrescription = createMockPrescription();
             const mockPrescriptionWithRelations = createMockPrescriptionWithRelations();
-            
+
             const standalonePrescription = {
                 ...createPrescriptionDto,
                 consultationId: undefined,
@@ -248,7 +248,11 @@ describe('PrescriptionsService', () => {
 
             const result = await service.update('prescription-123', updateDto);
 
-            expect(repository.update).toHaveBeenCalledWith('prescription-123', updateDto, undefined);
+            expect(repository.update).toHaveBeenCalledWith(
+                'prescription-123',
+                updateDto,
+                undefined,
+            );
             expect(result).toEqual(mockPrescription);
         });
     });
@@ -284,10 +288,10 @@ describe('PrescriptionsService', () => {
         it('should return prescriptions for a consultation', async () => {
             const mockPrescriptions = [
                 createMockPrescription({ consultationId: 'consultation-123' }),
-                createMockPrescription({ 
+                createMockPrescription({
                     id: 'prescription-456',
                     consultationId: 'consultation-123',
-                    prescriptionNumber: 'RX-202409-0002'
+                    prescriptionNumber: 'RX-202409-0002',
                 }),
             ];
 
@@ -304,10 +308,10 @@ describe('PrescriptionsService', () => {
         it('should return prescriptions for a patient', async () => {
             const mockPrescriptions = [
                 createMockPrescription({ patientId: 'patient-123' }),
-                createMockPrescription({ 
+                createMockPrescription({
                     id: 'prescription-456',
                     patientId: 'patient-123',
-                    prescriptionNumber: 'RX-202409-0002'
+                    prescriptionNumber: 'RX-202409-0002',
                 }),
             ];
 
@@ -337,7 +341,7 @@ describe('PrescriptionsService', () => {
         it('should detect warfarin-aspirin interaction', async () => {
             const medications = [
                 createMockMedication({ name: 'Warfarine' }),
-                createMockMedication({ name: 'Aspirine' })
+                createMockMedication({ name: 'Aspirine' }),
             ];
 
             const result = await service.analyzeInteractions(medications);
@@ -347,14 +351,14 @@ describe('PrescriptionsService', () => {
                     type: 'interaction',
                     message: expect.stringContaining('warfarine + aspirine'),
                     severity: 'high',
-                })
+                }),
             ]);
         });
 
         it('should detect metformin-contrast interaction', async () => {
             const medications = [
                 createMockMedication({ name: 'Metformin' }),
-                createMockMedication({ name: 'Iodinated Contrast Agent' })
+                createMockMedication({ name: 'Iodinated Contrast Agent' }),
             ];
 
             const result = await service.analyzeInteractions(medications);
@@ -364,14 +368,14 @@ describe('PrescriptionsService', () => {
                     type: 'interaction',
                     message: expect.stringContaining('metformin + iodinated contrast'),
                     severity: 'critical',
-                })
+                }),
             ]);
         });
 
         it('should detect digoxin-furosemide interaction', async () => {
             const medications = [
                 createMockMedication({ name: 'Digoxin' }),
-                createMockMedication({ name: 'Furosemide' })
+                createMockMedication({ name: 'Furosemide' }),
             ];
 
             const result = await service.analyzeInteractions(medications);
@@ -381,14 +385,14 @@ describe('PrescriptionsService', () => {
                     type: 'interaction',
                     message: expect.stringContaining('digoxin + furosemide'),
                     severity: 'medium',
-                })
+                }),
             ]);
         });
 
         it('should return empty array for non-interacting medications', async () => {
             const medications = [
                 createMockMedication({ name: 'Vitamin C' }),
-                createMockMedication({ name: 'Paracetamol' })
+                createMockMedication({ name: 'Paracetamol' }),
             ];
 
             const result = await service.analyzeInteractions(medications);
@@ -399,7 +403,7 @@ describe('PrescriptionsService', () => {
         it('should handle case-insensitive medication names', async () => {
             const medications = [
                 createMockMedication({ name: 'WARFARINE' }),
-                createMockMedication({ name: 'aspirine' })
+                createMockMedication({ name: 'aspirine' }),
             ];
 
             const result = await service.analyzeInteractions(medications);
@@ -439,10 +443,10 @@ describe('PrescriptionsService', () => {
         it('should return patient medication history', async () => {
             const mockPrescriptions = [
                 createMockPrescription({ patientId: 'patient-123' }),
-                createMockPrescription({ 
+                createMockPrescription({
                     id: 'prescription-456',
                     patientId: 'patient-123',
-                    prescriptionNumber: 'RX-202409-0002'
+                    prescriptionNumber: 'RX-202409-0002',
                 }),
             ];
 

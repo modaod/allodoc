@@ -58,7 +58,7 @@ export class PatientsService {
         await this.validatePatientUpdate(updatePatientDto, existingPatient);
 
         // Convert date if necessary
-        let updateData: Partial<Patient> = {
+        const updateData: Partial<Patient> = {
             ...updatePatientDto,
             dateOfBirth: updatePatientDto.dateOfBirth
                 ? new Date(updatePatientDto.dateOfBirth)

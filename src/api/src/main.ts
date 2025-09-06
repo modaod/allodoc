@@ -38,7 +38,7 @@ async function bootstrap() {
     // Security
     app.use(helmet());
     app.use(compression());
-    
+
     // Cookie parser for handling cookies
     app.use(cookieParser(configService.get<string>('app.cookieSecret')));
 

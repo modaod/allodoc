@@ -1,5 +1,8 @@
 import { User } from '../../src/users/entities/user.entity';
-import { Organization, OrganizationType } from '../../src/organizations/entities/organization.entity';
+import {
+    Organization,
+    OrganizationType,
+} from '../../src/organizations/entities/organization.entity';
 import { Patient } from '../../src/patients/entities/patient.entity';
 import { Consultation } from '../../src/consultations/entities/consultation.entity';
 import { Prescription } from '../../src/prescriptions/entities/prescription.entity';
@@ -57,7 +60,7 @@ export const createMockUser = (overrides?: Partial<User>): User => {
 export const createMockUserOrganization = (
     user: User,
     organization: Organization,
-    overrides?: Partial<UserOrganization>
+    overrides?: Partial<UserOrganization>,
 ): UserOrganization => {
     const userOrg = new UserOrganization();
     userOrg.userId = overrides?.userId || user.id;
@@ -84,12 +87,14 @@ export const createMockPatient = (overrides?: Partial<Patient>): Patient => {
     patient.medicalHistory = overrides?.medicalHistory || {
         allergies: ['Penicillin'],
         chronicDiseases: ['Diabetes'],
-        medications: [{
-            name: 'Metformin',
-            dosage: '500mg',
-            frequency: 'Twice daily',
-            startDate: '2024-01-01'
-        }]
+        medications: [
+            {
+                name: 'Metformin',
+                dosage: '500mg',
+                frequency: 'Twice daily',
+                startDate: '2024-01-01',
+            },
+        ],
     };
     patient.notes = overrides?.notes || 'Regular patient';
     patient.organizationId = overrides?.organizationId || 'org-123';
@@ -111,12 +116,12 @@ export const createMockConsultation = (overrides?: Partial<Consultation>): Consu
     consultation.vitalSigns = overrides?.vitalSigns || {
         bloodPressure: {
             systolic: 120,
-            diastolic: 80
+            diastolic: 80,
         },
         heartRate: 72,
         temperature: 98.6,
         weight: 70,
-        height: 170
+        height: 170,
     };
     consultation.diagnosis = overrides?.diagnosis || 'Migraine, Viral infection';
     consultation.treatmentPlan = overrides?.treatmentPlan || 'Rest and medication';
@@ -135,7 +140,6 @@ export const createMockConsultation = (overrides?: Partial<Consultation>): Consu
     return consultation;
 };
 
-
 /**
  * Create a complete mock user with organization and role
  */
@@ -144,7 +148,7 @@ export const createMockUserWithOrganization = (
     overrides?: {
         user?: Partial<User>;
         organization?: Partial<Organization>;
-    }
+    },
 ): {
     user: User;
     organization: Organization;
@@ -155,21 +159,24 @@ export const createMockUserWithOrganization = (
     const role = createMockRole(roleName);
     const user = createMockUser(overrides?.user);
     const userOrganization = createMockUserOrganization(user, organization);
-    
+
     user.userOrganizations = [userOrganization];
-    
+
     return {
         user,
         organization,
         role,
-        userOrganization
+        userOrganization,
     };
 };
 
 /**
  * Create mock JWT payload
  */
-export const createMockJwtPayload = (userId: string = 'user-123', organizationId: string = 'org-123') => ({
+export const createMockJwtPayload = (
+    userId: string = 'user-123',
+    organizationId: string = 'org-123',
+) => ({
     sub: userId,
     email: 'test@medical.com',
     organizationId,
@@ -186,7 +193,7 @@ export const createMockPaginationDto = (overrides?: any) => ({
     limit: 10,
     sortBy: 'createdAt',
     sortOrder: 'DESC',
-    ...overrides
+    ...overrides,
 });
 
 /**
@@ -201,7 +208,7 @@ export const createMockMedication = (overrides?: any) => ({
     instructions: 'Take with food',
     quantity: 21,
     refills: 0,
-    ...overrides
+    ...overrides,
 });
 
 /**
@@ -214,21 +221,21 @@ export const createMockMedications = (count: number = 2) => {
             dosage: '500mg',
             frequency: '3 times daily',
             duration: '7 days',
-            instructions: 'Take with food'
+            instructions: 'Take with food',
         }),
         createMockMedication({
-            name: 'Ibuprofen', 
+            name: 'Ibuprofen',
             dosage: '400mg',
             frequency: '2 times daily',
             duration: '5 days',
-            instructions: 'Take after meals'
+            instructions: 'Take after meals',
         }),
         createMockMedication({
             name: 'Warfarin',
-            dosage: '5mg', 
+            dosage: '5mg',
             frequency: '1 time daily',
             duration: '30 days',
-            instructions: 'Take at same time each day'
+            instructions: 'Take at same time each day',
         }),
     ];
     return medications.slice(0, count);
@@ -241,7 +248,7 @@ export const createMockWarning = (overrides?: any) => ({
     type: 'interaction' as const,
     message: 'Potential drug interaction detected',
     severity: 'medium' as const,
-    ...overrides
+    ...overrides,
 });
 
 /**
@@ -265,7 +272,7 @@ export const createMockPrescription = (overrides?: any) => ({
     updatedById: 'doctor-123',
     // Relations
     patient: undefined,
-    doctor: undefined, 
+    doctor: undefined,
     consultation: undefined,
     organization: undefined,
     // Computed fields
@@ -281,7 +288,7 @@ export const createMockPrescription = (overrides?: any) => ({
         const match = duration.match(/(\d+)\s*day/);
         return match ? parseInt(match[1]) : 0;
     },
-    ...overrides
+    ...overrides,
 });
 
 /**

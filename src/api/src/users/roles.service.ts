@@ -28,7 +28,7 @@ export class RolesService {
         // Try to get from cache first
         const cacheKey = this.cacheService.getRolePermissionsCacheKey(name);
         const cachedRole = await this.cacheService.get<Role>(cacheKey);
-        
+
         if (cachedRole) {
             return cachedRole;
         }
@@ -38,7 +38,7 @@ export class RolesService {
         if (role) {
             await this.cacheService.set(cacheKey, role, 3600); // Cache for 1 hour
         }
-        
+
         return role;
     }
 
@@ -47,14 +47,16 @@ export class RolesService {
         if (roleData.permissions) {
             this.permissionValidator.validatePermissions(roleData.permissions);
             // Normalize permissions (e.g., convert manage to write)
-            roleData.permissions = this.permissionValidator.normalizePermissions(roleData.permissions);
+            roleData.permissions = this.permissionValidator.normalizePermissions(
+                roleData.permissions,
+            );
         }
 
         const role = await this.rolesRepository.create(roleData);
-        
+
         // Clear all permissions cache since role permissions have changed
         await this.cacheService.clearAllPermissionsCache();
-        
+
         return role;
     }
 
@@ -63,14 +65,16 @@ export class RolesService {
         if (updateData.permissions) {
             this.permissionValidator.validatePermissions(updateData.permissions);
             // Normalize permissions
-            updateData.permissions = this.permissionValidator.normalizePermissions(updateData.permissions);
+            updateData.permissions = this.permissionValidator.normalizePermissions(
+                updateData.permissions,
+            );
         }
 
         const role = await this.rolesRepository.update(id, updateData);
-        
+
         // Clear all permissions cache since role permissions have changed
         await this.cacheService.clearAllPermissionsCache();
-        
+
         return role;
     }
 

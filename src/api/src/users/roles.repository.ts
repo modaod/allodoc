@@ -48,20 +48,20 @@ export class RolesRepository {
     async create(roleData: Partial<Role>): Promise<Role> {
         const role = this.roleRepository.create(roleData);
         const savedRole = await this.roleRepository.save(role);
-        
+
         // Clear all permissions cache since a new role was created
         await this.clearPermissionsCache();
-        
+
         return savedRole;
     }
 
     async update(id: string, updateData: Partial<Role>): Promise<Role> {
         await this.roleRepository.update(id, updateData);
         const updatedRole = await this.findById(id);
-        
+
         // Clear all permissions cache since role was updated
         await this.clearPermissionsCache();
-        
+
         return updatedRole;
     }
 

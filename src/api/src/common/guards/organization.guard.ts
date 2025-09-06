@@ -1,14 +1,20 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger } from '@nestjs/common';
+import {
+    Injectable,
+    CanActivate,
+    ExecutionContext,
+    ForbiddenException,
+    Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthorizationService } from '../services/authorization.service';
 
 @Injectable()
 export class OrganizationAccessGuard implements CanActivate {
     private readonly logger = new Logger(OrganizationAccessGuard.name);
-    
+
     constructor(
         private reflector: Reflector,
-        private authorizationService: AuthorizationService
+        private authorizationService: AuthorizationService,
     ) {}
 
     canActivate(context: ExecutionContext): boolean {

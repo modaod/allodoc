@@ -12,11 +12,11 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { UserOrganization } from '../users/entities/user-organization.entity';
 import { RoleName } from '../users/entities/role.entity';
 import * as bcrypt from 'bcryptjs';
-import { 
-    createMockUser, 
-    createMockOrganization, 
+import {
+    createMockUser,
+    createMockOrganization,
     createMockUserWithOrganization,
-    createMockRole
+    createMockRole,
 } from '../../test/helpers/test-data.helper';
 import { createMockRepository } from '../../test/helpers/mock-repository.helper';
 import { createMockTokenResponse, mockBcrypt } from '../../test/helpers/auth.helper';
@@ -225,7 +225,7 @@ describe('AuthService', () => {
             };
 
             const mockUser = createMockUser({ email: registerDto.email });
-            
+
             jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
             jest.spyOn(usersService, 'create').mockResolvedValue(mockUser);
             tokenService.generateTokens = jest.fn().mockResolvedValue(createMockTokenResponse());
@@ -310,9 +310,13 @@ describe('AuthService', () => {
         });
 
         it('should throw UnauthorizedException for invalid refresh token', async () => {
-            jest.spyOn(tokenService, 'refreshAccessToken').mockImplementation(() => { throw new Error('Invalid token'); });
+            jest.spyOn(tokenService, 'refreshAccessToken').mockImplementation(() => {
+                throw new Error('Invalid token');
+            });
 
-            await expect(authService.refreshToken('invalid-token')).rejects.toThrow(UnauthorizedException);
+            await expect(authService.refreshToken('invalid-token')).rejects.toThrow(
+                UnauthorizedException,
+            );
         });
 
         it('should throw UnauthorizedException for non-existent user', async () => {
@@ -322,7 +326,9 @@ describe('AuthService', () => {
             jest.spyOn(tokenService, 'verifyToken').mockReturnValue(payload);
             jest.spyOn(usersService, 'findById').mockResolvedValue(null as any);
 
-            await expect(authService.refreshToken(refreshToken)).rejects.toThrow(UnauthorizedException);
+            await expect(authService.refreshToken(refreshToken)).rejects.toThrow(
+                UnauthorizedException,
+            );
         });
     });
 
@@ -342,9 +348,16 @@ describe('AuthService', () => {
             await authService.changePassword(userId, currentPassword, newPassword);
 
             expect(bcrypt.compare).toHaveBeenCalledWith(currentPassword, mockUser.password);
-            expect(usersService.changePassword).toHaveBeenCalledWith(userId, currentPassword, newPassword);
+            expect(usersService.changePassword).toHaveBeenCalledWith(
+                userId,
+                currentPassword,
+                newPassword,
+            );
             expect(tokenService.revokeAllUserTokens).toHaveBeenCalledWith(userId);
-            expect(tokenService.blacklistUserTokens).toHaveBeenCalledWith(userId, 'password_change');
+            expect(tokenService.blacklistUserTokens).toHaveBeenCalledWith(
+                userId,
+                'password_change',
+            );
         });
 
         it('should throw BadRequestException for incorrect current password', async () => {
@@ -355,7 +368,7 @@ describe('AuthService', () => {
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
             await expect(
-                authService.changePassword(userId, 'wrongPassword', 'newPassword123!')
+                authService.changePassword(userId, 'wrongPassword', 'newPassword123!'),
             ).rejects.toThrow(BadRequestException);
         });
     });

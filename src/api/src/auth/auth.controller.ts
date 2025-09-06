@@ -1,4 +1,17 @@
-import { Controller, Post, Body, UseGuards, Get, Req, Res, HttpStatus, Patch, Param, Delete, UnauthorizedException } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    UseGuards,
+    Get,
+    Req,
+    Res,
+    HttpStatus,
+    Patch,
+    Param,
+    Delete,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -42,10 +55,10 @@ export class AuthController {
         const userAgent = req.get('User-Agent');
 
         const authResponse = await this.authService.login(loginDto, ipAddress, userAgent);
-        
+
         // Set httpOnly cookies for tokens
         this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
-        
+
         return authResponse;
     }
 
@@ -98,16 +111,16 @@ export class AuthController {
     ): Promise<AuthResponse> {
         // Try to get refresh token from cookie first, fallback to body for backward compatibility
         const refreshToken = req.cookies?.refresh_token || refreshTokenDto.refreshToken;
-        
+
         if (!refreshToken) {
             throw new UnauthorizedException('Refresh token not provided');
         }
-        
+
         const authResponse = await this.authService.refreshToken(refreshToken, req.ip);
-        
+
         // Set new httpOnly cookies for tokens
         this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
-        
+
         return authResponse;
     }
 
@@ -126,15 +139,15 @@ export class AuthController {
     ): Promise<{ message: string }> {
         // Try to get refresh token from cookie first, fallback to body for backward compatibility
         const refreshToken = req.cookies?.refresh_token || refreshTokenDto.refreshToken;
-        
+
         // Get JTI and sessionId from current token to blacklist it
         const tokenPayload = (user as any).tokenPayload;
         const sessionId = (user as any).sessionId || tokenPayload?.sessionId;
         await this.authService.logout(refreshToken, tokenPayload?.jti, user.id, sessionId);
-        
+
         // Clear cookies
         this.clearTokenCookies(res);
-        
+
         return { message: 'Successfully logged out' };
     }
 
@@ -229,12 +242,17 @@ export class AuthController {
     ): Promise<AuthResponse> {
         const ipAddress = req.ip;
         const userAgent = req.get('User-Agent');
-        
-        const authResponse = await this.authService.switchOrganization(user.id, organizationId, ipAddress, userAgent);
-        
+
+        const authResponse = await this.authService.switchOrganization(
+            user.id,
+            organizationId,
+            ipAddress,
+            userAgent,
+        );
+
         // Set new httpOnly cookies for tokens with new organization context
         this.setTokenCookies(res, authResponse.accessToken, authResponse.refreshToken);
-        
+
         return authResponse;
     }
 
@@ -249,13 +267,13 @@ export class AuthController {
     async getUserOrganizations(@CurrentUser() user: User): Promise<Organization[]> {
         return await this.authService.getUserOrganizations(user.id);
     }
-    
+
     /**
      * Helper method to set httpOnly cookies for tokens
      */
     private setTokenCookies(res: Response, accessToken: string, refreshToken: string): void {
         const isProduction = process.env.NODE_ENV === 'production';
-        
+
         // Set access token cookie (short-lived)
         res.cookie('access_token', accessToken, {
             httpOnly: true,
@@ -264,7 +282,7 @@ export class AuthController {
             maxAge: 15 * 60 * 1000, // 15 minutes
             path: '/',
         });
-        
+
         // Set refresh token cookie (long-lived)
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
@@ -274,7 +292,7 @@ export class AuthController {
             path: '/',
         });
     }
-    
+
     /**
      * Helper method to clear token cookies
      */

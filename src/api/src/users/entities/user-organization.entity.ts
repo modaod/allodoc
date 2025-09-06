@@ -1,11 +1,4 @@
-import {
-    Entity,
-    Column,
-    ManyToOne,
-    PrimaryColumn,
-    CreateDateColumn,
-    JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, PrimaryColumn, CreateDateColumn, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 
@@ -28,7 +21,9 @@ export class UserOrganization {
     @JoinColumn({ name: 'user_id' })
     user: User;
 
-    @ManyToOne(() => Organization, (organization) => organization.userOrganizations, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Organization, (organization) => organization.userOrganizations, {
+        onDelete: 'CASCADE',
+    })
     @JoinColumn({ name: 'organization_id' })
     organization: Organization;
 }

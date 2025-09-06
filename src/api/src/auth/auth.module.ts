@@ -25,7 +25,7 @@ import { RedisModule } from '../redis/redis.module';
     imports: [
         // Common module for shared services (includes CacheModule)
         CommonModule,
-        
+
         // Redis module for session management
         RedisModule,
 
@@ -48,22 +48,28 @@ import { RedisModule } from '../redis/redis.module';
         }),
 
         // TypeORM for auth-related entities
-        TypeOrmModule.forFeature([RefreshToken, TokenBlacklist, User, Organization, UserOrganization]),
+        TypeOrmModule.forFeature([
+            RefreshToken,
+            TokenBlacklist,
+            User,
+            Organization,
+            UserOrganization,
+        ]),
 
         // Forward reference to avoid circular dependency
         forwardRef(() => UsersModule),
-        
+
         // Organizations module for fetching organizations list
         OrganizationsModule,
     ],
     controllers: [AuthController],
     providers: [
-        AuthService, 
-        TokenService, 
-        TokenCleanupService, 
+        AuthService,
+        TokenService,
+        TokenCleanupService,
         RedisSessionService,
-        JwtStrategy, 
-        LocalStrategy
+        JwtStrategy,
+        LocalStrategy,
     ],
     exports: [AuthService, TokenService, RedisSessionService, JwtModule, PassportModule],
 })

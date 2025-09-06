@@ -22,11 +22,13 @@ export class DashboardService {
 
     async getDashboardStats(userId: string, organizationId: string): Promise<DashboardStatsDto> {
         try {
-            this.logger.log(`Getting dashboard stats for userId: ${userId}, organizationId: ${organizationId}`);
-            
+            this.logger.log(
+                `Getting dashboard stats for userId: ${userId}, organizationId: ${organizationId}`,
+            );
+
             // Use timezone from environment or default to America/New_York
             const timezone = process.env.TZ || 'America/New_York';
-            
+
             // Calculate dates for this week (Sunday to Saturday)
             const today = new Date();
             const dayOfWeek = today.getDay();
@@ -34,64 +36,66 @@ export class DashboardService {
             startOfWeek.setDate(today.getDate() - dayOfWeek);
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
-            
+
             // Format dates as YYYY-MM-DD for SQL
             const todayStr = today.toISOString().split('T')[0];
             const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
             const endOfWeekStr = endOfWeek.toISOString().split('T')[0];
 
-            this.logger.debug(`Date strings - today: ${todayStr}, startOfWeek: ${startOfWeekStr}, endOfWeek: ${endOfWeekStr}, timezone: ${timezone}`);
+            this.logger.debug(
+                `Date strings - today: ${todayStr}, startOfWeek: ${startOfWeekStr}, endOfWeek: ${endOfWeekStr}, timezone: ${timezone}`,
+            );
 
             // Get statistics in parallel
-            const [
-                totalPatients,
-                todayConsultations,
-                thisWeekConsultations,
-                totalConsultations,
-            ] = await Promise.all([
-                this.patientRepository.count({
-                    where: { organizationId },
-                }).catch(err => {
-                    this.logger.error('Error counting patients:', err);
-                    throw err;
-                }),
-                // Use timezone-aware query for today's consultations
-                this.consultationRepository
-                    .createQueryBuilder('consultation')
-                    .where('consultation.organizationId = :organizationId', { organizationId })
-                    .andWhere(
-                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) = DATE(:today)`,
-                        { timezone, today: todayStr }
-                    )
-                    .getCount()
-                    .catch(err => {
-                        this.logger.error('Error counting today consultations:', err);
-                        throw err;
-                    }),
-                // Use timezone-aware query for this week's consultations
-                this.consultationRepository
-                    .createQueryBuilder('consultation')
-                    .where('consultation.organizationId = :organizationId', { organizationId })
-                    .andWhere(
-                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= DATE(:startOfWeek)`,
-                        { timezone, startOfWeek: startOfWeekStr }
-                    )
-                    .andWhere(
-                        `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) <= DATE(:endOfWeek)`,
-                        { timezone, endOfWeek: endOfWeekStr }
-                    )
-                    .getCount()
-                    .catch(err => {
-                        this.logger.error('Error counting week consultations:', err);
-                        throw err;
-                    }),
-                this.consultationRepository.count({
-                    where: { organizationId },
-                }).catch(err => {
-                    this.logger.error('Error counting total consultations:', err);
-                    throw err;
-                }),
-            ]);
+            const [totalPatients, todayConsultations, thisWeekConsultations, totalConsultations] =
+                await Promise.all([
+                    this.patientRepository
+                        .count({
+                            where: { organizationId },
+                        })
+                        .catch((err) => {
+                            this.logger.error('Error counting patients:', err);
+                            throw err;
+                        }),
+                    // Use timezone-aware query for today's consultations
+                    this.consultationRepository
+                        .createQueryBuilder('consultation')
+                        .where('consultation.organizationId = :organizationId', { organizationId })
+                        .andWhere(
+                            `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) = DATE(:today)`,
+                            { timezone, today: todayStr },
+                        )
+                        .getCount()
+                        .catch((err) => {
+                            this.logger.error('Error counting today consultations:', err);
+                            throw err;
+                        }),
+                    // Use timezone-aware query for this week's consultations
+                    this.consultationRepository
+                        .createQueryBuilder('consultation')
+                        .where('consultation.organizationId = :organizationId', { organizationId })
+                        .andWhere(
+                            `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= DATE(:startOfWeek)`,
+                            { timezone, startOfWeek: startOfWeekStr },
+                        )
+                        .andWhere(
+                            `DATE(consultation.consultationDate AT TIME ZONE 'UTC' AT TIME ZONE :timezone) <= DATE(:endOfWeek)`,
+                            { timezone, endOfWeek: endOfWeekStr },
+                        )
+                        .getCount()
+                        .catch((err) => {
+                            this.logger.error('Error counting week consultations:', err);
+                            throw err;
+                        }),
+                    this.consultationRepository
+                        .count({
+                            where: { organizationId },
+                        })
+                        .catch((err) => {
+                            this.logger.error('Error counting total consultations:', err);
+                            throw err;
+                        }),
+                ]);
 
             const stats = {
                 totalPatients,
@@ -110,59 +114,72 @@ export class DashboardService {
 
     async getRecentActivity(userId: string, organizationId: string): Promise<RecentActivityDto> {
         try {
-            this.logger.log(`Getting recent activity for userId: ${userId}, organizationId: ${organizationId}`);
-            
+            this.logger.log(
+                `Getting recent activity for userId: ${userId}, organizationId: ${organizationId}`,
+            );
+
             // Get recent consultations (last 5)
-            const recentConsultations = await this.consultationRepository.find({
-                where: { organizationId },
-                relations: ['patient'],
-                order: { consultationDate: 'DESC' },
-                take: 5,
-            }).catch(err => {
-                this.logger.error('Error fetching recent consultations:', err);
-                throw err;
-            });
+            const recentConsultations = await this.consultationRepository
+                .find({
+                    where: { organizationId },
+                    relations: ['patient'],
+                    order: { consultationDate: 'DESC' },
+                    take: 5,
+                })
+                .catch((err) => {
+                    this.logger.error('Error fetching recent consultations:', err);
+                    throw err;
+                });
 
             this.logger.debug(`Found ${recentConsultations.length} recent consultations`);
 
             // Get recent patients (last 5)
-            const recentPatients = await this.patientRepository.find({
-                where: { organizationId },
-                order: { createdAt: 'DESC' },
-                take: 5,
-            }).catch(err => {
-                this.logger.error('Error fetching recent patients:', err);
-                throw err;
-            });
+            const recentPatients = await this.patientRepository
+                .find({
+                    where: { organizationId },
+                    order: { createdAt: 'DESC' },
+                    take: 5,
+                })
+                .catch((err) => {
+                    this.logger.error('Error fetching recent patients:', err);
+                    throw err;
+                });
 
             this.logger.debug(`Found ${recentPatients.length} recent patients`);
 
             // Get recent standalone prescriptions (last 5)
-            const recentPrescriptions = await this.prescriptionRepository.find({
-                where: { 
-                    organizationId,
-                    consultationId: IsNull()  // Only standalone prescriptions (quick prescriptions)
-                },
-                relations: ['patient'],
-                order: { createdAt: 'DESC' },
-                take: 5,
-            }).catch(err => {
-                this.logger.error('Error fetching recent prescriptions:', err);
-                throw err;
-            });
+            const recentPrescriptions = await this.prescriptionRepository
+                .find({
+                    where: {
+                        organizationId,
+                        consultationId: IsNull(), // Only standalone prescriptions (quick prescriptions)
+                    },
+                    relations: ['patient'],
+                    order: { createdAt: 'DESC' },
+                    take: 5,
+                })
+                .catch((err) => {
+                    this.logger.error('Error fetching recent prescriptions:', err);
+                    throw err;
+                });
 
-            this.logger.debug(`Found ${recentPrescriptions.length} recent standalone prescriptions`);
+            this.logger.debug(
+                `Found ${recentPrescriptions.length} recent standalone prescriptions`,
+            );
 
             // Convert to activity items
             const activities: ActivityItemDto[] = [];
 
             // Add consultations
-            recentConsultations.forEach(consultation => {
+            recentConsultations.forEach((consultation) => {
                 try {
                     activities.push({
                         type: 'consultation',
                         title: `Consultation with ${consultation.patient?.firstName || 'Unknown'} ${consultation.patient?.lastName || 'Patient'}`,
-                        description: consultation.reason || (consultation as any).chiefComplaint || 'Medical consultation',
+                        description:
+                            consultation.reason ||
+                            (consultation as any).chiefComplaint ||
+                            'Medical consultation',
                         timestamp: consultation.consultationDate,
                         icon: 'medical_services',
                         entityId: consultation.id,
@@ -173,7 +190,7 @@ export class DashboardService {
             });
 
             // Add recent patients
-            recentPatients.forEach(patient => {
+            recentPatients.forEach((patient) => {
                 try {
                     activities.push({
                         type: 'patient',
@@ -189,14 +206,19 @@ export class DashboardService {
             });
 
             // Add recent standalone prescriptions
-            recentPrescriptions.forEach(prescription => {
+            recentPrescriptions.forEach((prescription) => {
                 try {
                     const medicationCount = prescription.medications?.length || 0;
-                    const medicationNames = prescription.medications?.slice(0, 2).map(m => m.name).join(', ') || 'No medications';
-                    const description = medicationCount > 2 
-                        ? `${medicationNames} and ${medicationCount - 2} more`
-                        : medicationNames;
-                    
+                    const medicationNames =
+                        prescription.medications
+                            ?.slice(0, 2)
+                            .map((m) => m.name)
+                            .join(', ') || 'No medications';
+                    const description =
+                        medicationCount > 2
+                            ? `${medicationNames} and ${medicationCount - 2} more`
+                            : medicationNames;
+
                     activities.push({
                         type: 'prescription',
                         title: `Prescription for ${prescription.patient?.firstName || 'Unknown'} ${prescription.patient?.lastName || 'Patient'}`,
@@ -211,13 +233,17 @@ export class DashboardService {
             });
 
             // Sort by timestamp and take latest 10
-            activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            activities.sort(
+                (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+            );
 
             const result = {
                 activities: activities.slice(0, 10),
             };
 
-            this.logger.log(`Recent activity retrieved successfully: ${activities.length} activities`);
+            this.logger.log(
+                `Recent activity retrieved successfully: ${activities.length} activities`,
+            );
             return result;
         } catch (error) {
             this.logger.error(`Error getting recent activity: ${error.message}`, error.stack);

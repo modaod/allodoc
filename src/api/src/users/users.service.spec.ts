@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+    NotFoundException,
+    ConflictException,
+    ForbiddenException,
+    BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { RolesRepository } from './roles.repository';
@@ -138,7 +143,10 @@ describe('UsersService', () => {
 
     describe('findAll', () => {
         it('should return all users', async () => {
-            const mockUsers = [createMockUser(), createMockUser({ id: 'user-456', email: 'user2@medical.com' })];
+            const mockUsers = [
+                createMockUser(),
+                createMockUser({ id: 'user-456', email: 'user2@medical.com' }),
+            ];
 
             usersRepository.findAll.mockResolvedValue(mockUsers);
 
@@ -147,7 +155,6 @@ describe('UsersService', () => {
             expect(result).toEqual(mockUsers);
             expect(usersRepository.findAll).toHaveBeenCalled();
         });
-
     });
 
     describe('findById', () => {
@@ -158,7 +165,10 @@ describe('UsersService', () => {
             const result = await service.findById('user-123');
 
             expect(result).toEqual(mockUser);
-            expect(usersRepository.findById).toHaveBeenCalledWith('user-123', ['roles', 'organization']);
+            expect(usersRepository.findById).toHaveBeenCalledWith('user-123', [
+                'roles',
+                'organization',
+            ]);
         });
 
         it('should throw NotFoundException if user not found', async () => {
@@ -212,22 +222,24 @@ describe('UsersService', () => {
                 email: 'newemail@medical.com',
                 firstName: 'Updated',
             };
-            const existingUser = createMockUser({ 
+            const existingUser = createMockUser({
                 id: 'user-123',
                 email: 'original@medical.com',
-                organizationId: 'org-123'
+                organizationId: 'org-123',
             });
 
             usersRepository.findById.mockResolvedValue(existingUser);
             usersRepository.checkEmailExists.mockResolvedValue(false);
-            usersRepository.update.mockResolvedValue(createMockUser({ ...existingUser, firstName: 'Updated' }));
+            usersRepository.update.mockResolvedValue(
+                createMockUser({ ...existingUser, firstName: 'Updated' }),
+            );
 
             const result = await service.update('user-123', updateDto);
 
             expect(usersRepository.update).toHaveBeenCalledWith(
                 'user-123',
                 expect.objectContaining({ firstName: 'Updated' }),
-                undefined
+                undefined,
             );
         });
 
@@ -248,11 +260,10 @@ describe('UsersService', () => {
             expect(usersRepository.update).toHaveBeenCalledWith(
                 'user-123',
                 { password: 'newHashedPassword' },
-                undefined
+                undefined,
             );
         });
     });
-
 
     describe('updateLastLogin', () => {
         it('should update last login timestamp', async () => {
@@ -263,7 +274,6 @@ describe('UsersService', () => {
             expect(usersRepository.updateLastLogin).toHaveBeenCalledWith('user-123');
         });
     });
-
 
     describe('changePassword', () => {
         it('should change password successfully', async () => {
@@ -278,10 +288,9 @@ describe('UsersService', () => {
 
             expect(bcrypt.compare).toHaveBeenCalledWith('oldPassword', mockUser.password);
             expect(bcrypt.hash).toHaveBeenCalledWith('newPassword123!', 12);
-            expect(usersRepository.update).toHaveBeenCalledWith(
-                'user-123',
-                { password: 'newHashedPassword' }
-            );
+            expect(usersRepository.update).toHaveBeenCalledWith('user-123', {
+                password: 'newHashedPassword',
+            });
         });
 
         it('should throw BadRequestException for incorrect current password', async () => {
@@ -291,7 +300,7 @@ describe('UsersService', () => {
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
             await expect(
-                service.changePassword('user-123', 'wrongPassword', 'newPassword123!')
+                service.changePassword('user-123', 'wrongPassword', 'newPassword123!'),
             ).rejects.toThrow(BadRequestException);
         });
     });

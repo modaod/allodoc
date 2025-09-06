@@ -86,7 +86,7 @@ describe('ConsultationsService', () => {
                 vitalSigns: {
                     bloodPressure: {
                         systolic: 120,
-                        diastolic: 80
+                        diastolic: 80,
                     },
                     heartRate: 72,
                     temperature: 37.0,
@@ -112,7 +112,7 @@ describe('ConsultationsService', () => {
             // Mock the validation to return patient
             patientsService.findById.mockResolvedValue(mockPatient);
             patientsService.updateLastVisit.mockResolvedValue();
-            
+
             // Mock repository methods
             repository.getNextConsultationNumber.mockResolvedValue('CONS-2024-0001');
             repository.create.mockResolvedValue(mockConsultation);
@@ -148,9 +148,9 @@ describe('ConsultationsService', () => {
 
             patientsService.findById.mockRejectedValue(new NotFoundException('Patient not found'));
 
-            await expect(
-                service.create(createDto, 'org-123', createMockUser())
-            ).rejects.toThrow(NotFoundException);
+            await expect(service.create(createDto, 'org-123', createMockUser())).rejects.toThrow(
+                NotFoundException,
+            );
         });
 
         it('should throw BadRequestException for invalid vital signs', async () => {
@@ -162,7 +162,7 @@ describe('ConsultationsService', () => {
                 vitalSigns: {
                     bloodPressure: {
                         systolic: -10, // Invalid negative value
-                        diastolic: 300  // Invalid high value
+                        diastolic: 300, // Invalid high value
                     },
                     heartRate: -10, // Invalid negative value
                     temperature: 200, // Invalid high temperature
@@ -173,24 +173,26 @@ describe('ConsultationsService', () => {
 
             const mockPatient = createMockPatient({ organizationId: 'org-123' });
             const mockDoctor = createMockUser({ id: 'doctor-123' });
-            
+
             patientsService.findById.mockResolvedValue(mockPatient);
 
-            await expect(
-                service.create(createDto, 'org-123', mockDoctor)
-            ).rejects.toThrow(BadRequestException);
+            await expect(service.create(createDto, 'org-123', mockDoctor)).rejects.toThrow(
+                BadRequestException,
+            );
         });
     });
 
     describe('search', () => {
         it('should return paginated consultations', async () => {
-            const searchDto = { 
-                search: 'headache', 
-                page: 1, 
+            const searchDto = {
+                search: 'headache',
+                page: 1,
                 limit: 10,
                 sortBy: 'consultationDate',
                 sortOrder: 'DESC' as const,
-                get skip() { return (this.page - 1) * this.limit; }
+                get skip() {
+                    return (this.page - 1) * this.limit;
+                },
             };
             const mockConsultations = [
                 createMockConsultation(),
@@ -204,8 +206,8 @@ describe('ConsultationsService', () => {
                     limit: 10,
                     totalPages: 1,
                     hasNextPage: false,
-                    hasPreviousPage: false
-                }
+                    hasPreviousPage: false,
+                },
             };
 
             repository.search.mockResolvedValue(mockResult);
@@ -225,15 +227,19 @@ describe('ConsultationsService', () => {
             const result = await service.findById('cons-123');
 
             expect(result).toEqual(mockConsultation);
-            expect(repository.findById).toHaveBeenCalledWith('cons-123', ['patient', 'doctor', 'appointment', 'prescriptions', 'organization']);
+            expect(repository.findById).toHaveBeenCalledWith('cons-123', [
+                'patient',
+                'doctor',
+                'appointment',
+                'prescriptions',
+                'organization',
+            ]);
         });
 
         it('should throw NotFoundException if consultation not found', async () => {
             repository.findById.mockRejectedValue(new NotFoundException());
 
-            await expect(
-                service.findById('non-existent')
-            ).rejects.toThrow(NotFoundException);
+            await expect(service.findById('non-existent')).rejects.toThrow(NotFoundException);
         });
     });
 
@@ -244,21 +250,21 @@ describe('ConsultationsService', () => {
                 vitalSigns: {
                     bloodPressure: {
                         systolic: 130,
-                        diastolic: 85
+                        diastolic: 85,
                     },
                     heartRate: 75,
                     temperature: 98.7,
                     weight: 70,
                     height: 170,
-                }
+                },
             };
             const mockConsultation = createMockConsultation();
-            const updatedConsultation = createMockConsultation({ 
+            const updatedConsultation = createMockConsultation({
                 ...updateDto,
                 vitalSigns: {
                     ...updateDto.vitalSigns,
-                    bmi: 24.22 // Expected BMI calculation from height/weight
-                }
+                    bmi: 24.22, // Expected BMI calculation from height/weight
+                },
             });
 
             repository.update.mockResolvedValue(updatedConsultation);
@@ -267,17 +273,20 @@ describe('ConsultationsService', () => {
             const result = await service.update('cons-123', updateDto, mockUser);
 
             expect(result).toEqual(updatedConsultation);
-            expect(repository.update).toHaveBeenCalledWith('cons-123', expect.objectContaining({
-                notes: 'Updated notes',
-                vitalSigns: expect.objectContaining({
-                    bloodPressure: { systolic: 130, diastolic: 85 },
-                    heartRate: 75,
-                    temperature: 98.7,
-                    bmi: expect.any(Number), // BMI calculated from height/weight
-                })
-            }), mockUser);
+            expect(repository.update).toHaveBeenCalledWith(
+                'cons-123',
+                expect.objectContaining({
+                    notes: 'Updated notes',
+                    vitalSigns: expect.objectContaining({
+                        bloodPressure: { systolic: 130, diastolic: 85 },
+                        heartRate: 75,
+                        temperature: 98.7,
+                        bmi: expect.any(Number), // BMI calculated from height/weight
+                    }),
+                }),
+                mockUser,
+            );
         });
-
     });
 
     describe('findByPatient', () => {
@@ -300,9 +309,7 @@ describe('ConsultationsService', () => {
         it('should return consultations for a doctor within date range', async () => {
             const startDate = new Date('2024-01-01');
             const endDate = new Date('2024-01-31');
-            const mockConsultations = [
-                createMockConsultation({ doctorId: 'doctor-123' }),
-            ];
+            const mockConsultations = [createMockConsultation({ doctorId: 'doctor-123' })];
 
             repository.findByDoctor.mockResolvedValue(mockConsultations);
 
@@ -333,13 +340,15 @@ describe('ConsultationsService', () => {
         it('should add attachment to consultation', async () => {
             const mockConsultation = createMockConsultation({ attachments: [] });
             const updatedConsultation = createMockConsultation({
-                attachments: [{
-                    type: 'image',
-                    filename: 'test.jpg',
-                    url: '/uploads/test.jpg',
-                    description: 'Test image',
-                    uploadedAt: expect.any(String),
-                }]
+                attachments: [
+                    {
+                        type: 'image',
+                        filename: 'test.jpg',
+                        url: '/uploads/test.jpg',
+                        description: 'Test image',
+                        uploadedAt: expect.any(String),
+                    },
+                ],
             });
 
             const attachment = {
@@ -364,10 +373,10 @@ describe('ConsultationsService', () => {
                             type: 'image',
                             filename: 'test.jpg',
                             uploadedAt: expect.any(String),
-                        })
-                    ])
+                        }),
+                    ]),
                 },
-                mockUser
+                mockUser,
             );
         });
     });

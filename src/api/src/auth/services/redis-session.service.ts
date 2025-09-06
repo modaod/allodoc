@@ -119,7 +119,7 @@ export class RedisSessionService {
      */
     async validateSession(sessionId: string): Promise<SessionData | null> {
         const session = await this.getSession(sessionId);
-        
+
         if (!session) {
             this.logger.debug(`Session ${sessionId} not found`);
             return null;
@@ -129,7 +129,7 @@ export class RedisSessionService {
         const now = new Date();
         const lastActivity = new Date(session.lastActivity);
         const timeSinceActivity = now.getTime() - lastActivity.getTime();
-        
+
         // If inactive for more than TTL, invalidate
         if (timeSinceActivity > this.SESSION_TTL * 1000) {
             await this.invalidateSession(sessionId);
@@ -142,7 +142,9 @@ export class RedisSessionService {
     /**
      * Refresh session with new token
      */
-    async refreshSession(refreshToken: string): Promise<{ sessionId: string; newRefreshToken: string } | null> {
+    async refreshSession(
+        refreshToken: string,
+    ): Promise<{ sessionId: string; newRefreshToken: string } | null> {
         const refreshData = await this.redisService.get<RefreshTokenData>(
             `${this.REFRESH_TOKEN_PREFIX}${refreshToken}`,
         );
@@ -211,14 +213,14 @@ export class RedisSessionService {
      */
     async invalidateAllUserSessions(userId: string): Promise<void> {
         const sessionIds = await this.getUserSessions(userId);
-        
+
         for (const sessionId of sessionIds) {
             await this.redisService.del(`${this.SESSION_PREFIX}${sessionId}`);
         }
 
         // Clear user's session list
         await this.redisService.del(`${this.USER_SESSIONS_PREFIX}${userId}`);
-        
+
         this.logger.log(`Invalidated all sessions for user ${userId}`);
     }
 
@@ -293,7 +295,7 @@ export class RedisSessionService {
     private async removeUserSession(userId: string, sessionId: string): Promise<void> {
         const sessions = await this.getUserSessions(userId);
         const filtered = sessions.filter((id) => id !== sessionId);
-        
+
         if (filtered.length > 0) {
             await this.redisService.set(
                 `${this.USER_SESSIONS_PREFIX}${userId}`,
@@ -325,7 +327,7 @@ export class RedisSessionService {
         if (userAgent.includes('Firefox')) return 'Firefox Browser';
         if (userAgent.includes('Safari')) return 'Safari Browser';
         if (userAgent.includes('Edge')) return 'Edge Browser';
-        
+
         return 'Web Browser';
     }
 
@@ -334,14 +336,14 @@ export class RedisSessionService {
      */
     async updateSessionOrganization(sessionId: string, organizationId: string): Promise<boolean> {
         const session = await this.getSession(sessionId);
-        
+
         if (!session) {
             return false;
         }
 
         session.organizationId = organizationId;
         session.lastActivity = new Date();
-        
+
         await this.redisService.set(
             `${this.SESSION_PREFIX}${sessionId}`,
             session,

@@ -3,7 +3,9 @@ import { Repository, SelectQueryBuilder, ObjectLiteral } from 'typeorm';
 /**
  * Creates a mock repository with common TypeORM methods
  */
-export const createMockRepository = <T extends ObjectLiteral = any>(): jest.Mocked<Repository<T>> => {
+export const createMockRepository = <T extends ObjectLiteral = any>(): jest.Mocked<
+    Repository<T>
+> => {
     const mockRepo = {
         create: jest.fn(),
         save: jest.fn(),
@@ -59,7 +61,9 @@ export const createMockRepository = <T extends ObjectLiteral = any>(): jest.Mock
 /**
  * Creates a mock query builder with common methods
  */
-export const createMockQueryBuilder = <T extends ObjectLiteral = any>(): jest.Mocked<SelectQueryBuilder<T>> => {
+export const createMockQueryBuilder = <T extends ObjectLiteral = any>(): jest.Mocked<
+    SelectQueryBuilder<T>
+> => {
     const queryBuilder = {
         select: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),

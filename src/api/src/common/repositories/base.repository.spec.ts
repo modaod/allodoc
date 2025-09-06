@@ -100,7 +100,9 @@ describe('BaseRepository', () => {
         it('should throw NotFoundException when entity not found', async () => {
             mockRepository.findOne.mockResolvedValue(null);
 
-            await expect(baseRepository.findById('non-existent')).rejects.toThrow(NotFoundException);
+            await expect(baseRepository.findById('non-existent')).rejects.toThrow(
+                NotFoundException,
+            );
             expect(mockRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'non-existent' },
                 relations: [],
@@ -171,7 +173,7 @@ describe('BaseRepository', () => {
             mockRepository.findOne.mockResolvedValue(null);
 
             await expect(
-                baseRepository.update('non-existent', { name: 'New Name' })
+                baseRepository.update('non-existent', { name: 'New Name' }),
             ).rejects.toThrow(NotFoundException);
         });
     });
@@ -191,7 +193,10 @@ describe('BaseRepository', () => {
             } as unknown as TestEntity;
 
             mockRepository.findOne.mockResolvedValue(existingEntity);
-            mockRepository.save.mockResolvedValue({ ...existingEntity, isActive: false } as unknown as TestEntity);
+            mockRepository.save.mockResolvedValue({
+                ...existingEntity,
+                isActive: false,
+            } as unknown as TestEntity);
 
             await baseRepository.softDelete('entity-123');
 

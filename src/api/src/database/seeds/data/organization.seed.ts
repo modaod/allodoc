@@ -1,7 +1,10 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Organization, OrganizationType } from '../../../organizations/entities/organization.entity';
+import {
+    Organization,
+    OrganizationType,
+} from '../../../organizations/entities/organization.entity';
 
 const organizationData = {
     name: 'AlloCare Medical Center',

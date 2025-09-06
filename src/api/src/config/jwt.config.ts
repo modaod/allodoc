@@ -19,7 +19,9 @@ export const jwtConfig = registerAs('jwt', () => {
     const devRefreshSecret = refreshSecret || 'dev-only-refresh-secret-change-in-production';
 
     if (process.env.NODE_ENV !== 'production' && (!accessSecret || !refreshSecret)) {
-        console.warn('⚠️  WARNING: Using development JWT secrets. Set proper secrets in .env file!');
+        console.warn(
+            '⚠️  WARNING: Using development JWT secrets. Set proper secrets in .env file!',
+        );
     }
 
     return {

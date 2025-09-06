@@ -74,7 +74,7 @@ export class AppointmentsService {
         }
 
         // If date/time changes, check availability
-        let updateData: Partial<Appointment> = {
+        const updateData: Partial<Appointment> = {
             ...updateAppointmentDto,
             appointmentDate: updateAppointmentDto.appointmentDate
                 ? new Date(updateAppointmentDto.appointmentDate)
@@ -108,9 +108,7 @@ export class AppointmentsService {
             );
 
             if (!isAvailable) {
-                throw new ConflictException(
-                    "Doctor is not available at this new time",
-                );
+                throw new ConflictException('Doctor is not available at this new time');
             }
 
             // Ensure appointmentDate is a Date object
@@ -151,9 +149,7 @@ export class AppointmentsService {
         const appointment = await this.findById(id);
 
         if (!this.isToday(appointment)) {
-            throw new BadRequestException(
-                'Patient can only be checked in on the appointment day',
-            );
+            throw new BadRequestException('Patient can only be checked in on the appointment day');
         }
 
         return await this.appointmentsRepository.update(
