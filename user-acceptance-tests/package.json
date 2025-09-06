@@ -1,0 +1,22 @@
+{
+  "name": "allodoc-uat",
+  "version": "1.0.0",
+  "description": "User Acceptance Tests for AlloDoc Medical Management System",
+  "scripts": {
+    "test:login": "npx playwright test scenarios/01-authentication.spec.js",
+    "test:patient": "npx playwright test scenarios/02-patient-management.spec.js",
+    "test:consultation": "npx playwright test scenarios/03-consultation-workflow.spec.js",
+    "test:prescription": "npx playwright test scenarios/04-prescription-management.spec.js",
+    "test:dashboard": "npx playwright test scenarios/05-dashboard-analytics.spec.js",
+    "test:full-workflow": "npx playwright test scenarios/06-complete-workflow.spec.js",
+    "test:all": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "report": "npx playwright show-report",
+    "install:browsers": "npx playwright install"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "faker": "^5.5.3"
+  }
+}
