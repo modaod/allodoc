@@ -31,11 +31,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: './src/frontend/package-lock.json'
 
+      - name: Setup Chrome for testing
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run unit tests (headless)
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+        run: ng test --browsers=ChromeHeadless --watch=false --code-coverage
 
       - name: Build application
         run: npm run build
@@ -91,8 +96,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: './src/api/package-lock.json'
 
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify database connectivity
+        run: |
+          echo "Testing database connection..."
+          pg_isready -h localhost -p 5432 -U test_user
+          echo "Database services status:"
+          docker ps --filter "label=com.docker.compose.service=postgres" || echo "No Docker services found"
 
       - name: Run linting
         run: npm run lint
