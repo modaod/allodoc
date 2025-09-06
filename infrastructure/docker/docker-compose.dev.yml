@@ -11,7 +11,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ../../src/backend/src/database/init:/docker-entrypoint-initdb.d:ro
+      - ../../src/api/src/database/init:/docker-entrypoint-initdb.d:ro
     ports:
       - '5432:5432'
     networks:
@@ -58,18 +58,18 @@ services:
     depends_on:
       - postgres-dev
 
-  # Backend application (always runs in Docker for development)
-  backend-dev:
+  # API application (always runs in Docker for development)
+  api-dev:
     build:
-      context: ../../src/backend
+      context: ../../src/api
       dockerfile: Dockerfile.dev
-    container_name: allodoc_backend_dev
+    container_name: allodoc_api_dev
     restart: unless-stopped
     ports:
       - '3000:3000'
       - '9229:9229' # Debug port for VS Code/Chrome DevTools
     volumes:
-      - ../../src/backend:/app                    # Mount source code for hot-reload
+      - ../../src/api:/app                    # Mount source code for hot-reload
       - /app/node_modules         # Preserve node_modules from container
     environment:
       # Override database host to use container name
@@ -112,7 +112,7 @@ services:
     networks:
       - medical_dev_network
     depends_on:
-      - backend-dev
+      - api-dev
     command: ng serve --host 0.0.0.0 --proxy-config proxy.conf.docker.json --poll=2000
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:4200']

@@ -22,10 +22,10 @@ scrape_configs:
     scrape_interval: 30s
     metrics_path: '/metrics'
 
-  # AlloDoc Backend Application
-  - job_name: 'allodoc-backend'
+  # AlloDoc API Application
+  - job_name: 'allodoc-api'
     static_configs:
-      - targets: ['backend-prod:3000']
+      - targets: ['api-prod:3000']
     scrape_interval: 15s
     metrics_path: '/metrics'
     scrape_timeout: 10s

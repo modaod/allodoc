@@ -71,13 +71,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd src/backend
-          docker build -t allodoc-backend:security-scan .
+          cd src/api
+          docker build -t allodoc-api:security-scan .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'allodoc-backend:security-scan'
+          image-ref: 'allodoc-api:security-scan'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -91,7 +91,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: allodoc-backend:security-scan
+          image: allodoc-api:security-scan
           args: --severity-threshold=high
 
   secrets-scan:
@@ -144,7 +144,7 @@ jobs:
           category: "/language:javascript"
 
       - name: ESLint security scan
-        working-directory: ./src/backend
+        working-directory: ./src/api
         run: |
           npm ci
           npx eslint . --ext .ts --format @microsoft/eslint-formatter-sarif --output-file ../eslint-results.sarif || true

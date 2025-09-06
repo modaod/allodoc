@@ -1,10 +1,10 @@
-# AlloDoc Backend - Medical Management API
+# AlloDoc API - Medical Management API
 
 A robust RESTful API built with NestJS for managing medical operations including patient records, consultations, prescriptions, and appointments.
 
 ## Architecture Overview
 
-This backend follows a modular architecture using NestJS with the following key patterns:
+This API follows a modular architecture using NestJS with the following key patterns:
 - **Repository Pattern**: For data access layer abstraction
 - **DTO Pattern**: For request/response data validation
 - **Guard Pattern**: For authentication and authorization
@@ -66,9 +66,9 @@ This backend follows a modular architecture using NestJS with the following key 
 
 ### Using Docker (Recommended)
 
-1. Clone the repository and navigate to backend:
+1. Clone the repository and navigate to API:
 ```bash
-cd backend
+cd src/api
 ```
 
 2. Start all services:
@@ -271,12 +271,12 @@ npm run test:cov
 
 1. Build the Docker image:
 ```bash
-docker build -t allodoc-backend .
+docker build -t allodoc-api .
 ```
 
 2. Run with environment variables:
 ```bash
-docker run -p 3000:3000 --env-file .env.production allodoc-backend
+docker run -p 3000:3000 --env-file .env.production allodoc-api
 ```
 
 ### Traditional Deployment

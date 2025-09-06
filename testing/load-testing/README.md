@@ -170,7 +170,7 @@ open results/latest.html
 ### Common Issues
 
 1. **Connection Refused**
-   - Ensure backend is running on port 3000
+   - Ensure API is running on port 3000
    - Check Docker containers are up
 
 2. **Authentication Failures**

@@ -4,55 +4,55 @@ groups:
     rules:
       # Application Health Alerts
       - alert: ApplicationDown
-        expr: up{job="allodoc-backend"} == 0
+        expr: up{job="allodoc-api"} == 0
         for: 1m
         labels:
           severity: critical
-          service: backend
+          service: api
         annotations:
-          summary: "AlloDoc backend application is down"
-          description: "The AlloDoc backend application has been down for more than 1 minute."
+          summary: "AlloDoc API application is down"
+          description: "The AlloDoc API application has been down for more than 1 minute."
           runbook: "Check application logs and container status. Consider rollback if necessary."
 
       - alert: HighErrorRate
-        expr: rate(http_requests_total{job="allodoc-backend",status=~"5.."}[5m]) > 0.1
+        expr: rate(http_requests_total{job="allodoc-api",status=~"5.."}[5m]) > 0.1
         for: 2m
         labels:
           severity: critical
-          service: backend
+          service: api
         annotations:
           summary: "High error rate detected"
           description: "Error rate is {{ $value }} errors per second for the last 5 minutes."
           runbook: "Check application logs for error patterns. Investigate recent deployments."
 
       - alert: HighResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="allodoc-backend"}[5m])) > 2
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="allodoc-api"}[5m])) > 2
         for: 5m
         labels:
           severity: warning
-          service: backend
+          service: api
         annotations:
           summary: "High response time detected"
           description: "95th percentile response time is {{ $value }}s for the last 5 minutes."
           runbook: "Investigate slow queries, check database performance, monitor resource usage."
 
       - alert: HighMemoryUsage
-        expr: (container_memory_usage_bytes{name="allodoc_backend_prod"} / container_spec_memory_limit_bytes{name="allodoc_backend_prod"}) * 100 > 80
+        expr: (container_memory_usage_bytes{name="allodoc_api_prod"} / container_spec_memory_limit_bytes{name="allodoc_api_prod"}) * 100 > 80
         for: 5m
         labels:
           severity: warning
-          service: backend
+          service: api
         annotations:
           summary: "High memory usage"
-          description: "Backend container memory usage is {{ $value }}%"
+          description: "API container memory usage is {{ $value }}%"
           runbook: "Check for memory leaks, optimize queries, consider scaling."
 
       - alert: HighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total{name="allodoc_backend_prod"}[5m]) * 100 > 80
+        expr: rate(container_cpu_usage_seconds_total{name="allodoc_api_prod"}[5m]) * 100 > 80
         for: 10m
         labels:
           severity: warning
-          service: backend
+          service: api
         annotations:
           summary: "High CPU usage"
           description: "Backend container CPU usage is {{ $value }}%"

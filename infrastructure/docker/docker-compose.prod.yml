@@ -16,7 +16,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
-      - ../../src/backend/src/database/init/01-create-extensions.sql:/docker-entrypoint-initdb.d/01-create-extensions.sql:ro
+      - ../../src/api/src/database/init/01-create-extensions.sql:/docker-entrypoint-initdb.d/01-create-extensions.sql:ro
       # Backup volume
       - postgres_prod_backup:/backups
     ports:
@@ -82,15 +82,15 @@ services:
     security_opt:
       - no-new-privileges:true
 
-  # Production Backend Application
-  backend-prod:
+  # Production API Application
+  api-prod:
     build:
-      context: ../../src/backend
+      context: ../../src/api
       dockerfile: Dockerfile
       args:
         NODE_ENV: production
-    image: allodoc-backend:latest
-    container_name: allodoc_backend_prod
+    image: allodoc-api:latest
+    container_name: allodoc_api_prod
     restart: always
     ports:
       - '3000:3000'
@@ -142,7 +142,7 @@ services:
     networks:
       - medical_prod_network
     depends_on:
-      - backend-prod
+      - api-prod
     # Security options
     security_opt:
       - no-new-privileges:true

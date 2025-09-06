@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/backend
+  IMAGE_NAME: ${{ github.repository }}/api
 
 jobs:
   pre-deployment:
@@ -53,7 +53,7 @@ jobs:
           }
 
       - name: Validate production readiness
-        working-directory: ./backend
+        working-directory: ./src/api
         run: |
           # Check if production environment file exists
           if [ ! -f ".env.production" ]; then
@@ -95,11 +95,11 @@ jobs:
       - name: Create database backup
         run: |
           cd /opt/allodoc
-          ./backend/scripts/backup-database.sh
+          ./scripts/database/backup-database.sh
 
       - name: Backup current Docker images
         run: |
-          docker tag allodoc-backend:latest allodoc-backend:backup-$(date +%Y%m%d-%H%M%S) || true
+          docker tag allodoc-api:latest allodoc-api:backup-$(date +%Y%m%d-%H%M%S) || true
           docker system prune -f
 
   deploy:
@@ -125,12 +125,12 @@ jobs:
       - name: Pull latest images
         run: |
           docker pull ${{ needs.pre-deployment.outputs.image-tag }}
-          docker tag ${{ needs.pre-deployment.outputs.image-tag }} allodoc-backend:latest
+          docker tag ${{ needs.pre-deployment.outputs.image-tag }} allodoc-api:latest
 
       - name: Run database migrations
         run: |
           cd /opt/allodoc
-          docker-compose -f infrastructure/docker/docker-compose.prod.yml exec -T backend-prod npm run migration:run
+          docker-compose -f infrastructure/docker/docker-compose.prod.yml exec -T api-prod npm run migration:run
 
       - name: Deploy with zero downtime
         run: |
@@ -138,10 +138,10 @@ jobs:
           
           # Copy new deployment files
           cp deployment/nginx/nginx.prod.conf nginx/
-          cp deployment/infrastructure/docker/docker-compose.prod.yml backend/
+          cp deployment/infrastructure/docker/docker-compose.prod.yml infrastructure/docker/
           
           # Deploy with rolling update
-          docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d --no-deps backend-prod
+          docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d --no-deps api-prod
           
           # Wait for health check
           timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'

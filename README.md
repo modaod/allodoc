@@ -58,36 +58,36 @@ git clone <repository-url>
 cd allodoc
 ```
 
-2. Start the backend services:
+2. Start the API services:
 ```bash
-cd backend
+cd src/api
 docker-compose up -d
 ```
 
 3. Install and start the frontend:
 ```bash
-cd ../frontend
+cd ../../src/frontend
 npm install
 npm start
 ```
 
 4. Access the applications:
    - Frontend: http://localhost:4200
-   - Backend API: http://localhost:3000/api
+   - API: http://localhost:3000/api
    - API Documentation: http://localhost:3000/api/docs
    - pgAdmin: http://localhost:5050
 
 ### Manual Setup
 
 For manual setup instructions, please refer to:
-- [Backend README](./backend/README.md)
-- [Frontend README](./frontend/README.md)
+- [API README](./src/api/README.md)
+- [Frontend README](./src/frontend/README.md)
 
 ## Project Structure
 
 ```
 allodoc/
-├── backend/                 # NestJS backend application
+├── src/api/                 # NestJS API application
 │   ├── src/
 │   │   ├── appointments/    # Appointment management module
 │   │   ├── auth/           # Authentication & authorization
