@@ -5,6 +5,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,6 +20,7 @@ describe('AppComponent', () => {
       MatListModule,
       MatIconModule,
       MatButtonModule,
+      MatSnackBarModule,
       BrowserAnimationsModule,
       HttpClientTestingModule,
       TranslateModule.forRoot()
