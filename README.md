@@ -2,6 +2,8 @@
 
 A comprehensive medical management system built with modern web technologies, designed to streamline healthcare operations including patient management, consultations, prescriptions, and appointments.
 
+<!-- CI/CD Pipeline Test: This comment validates that the pipeline processes safe changes correctly -->
+
 ## Overview
 
 AlloDoc is a full-stack application that provides healthcare professionals with tools to manage their medical practice efficiently. The system supports multi-organization setups, allowing healthcare providers to work across different clinics or hospitals.
