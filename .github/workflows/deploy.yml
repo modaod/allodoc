@@ -62,7 +62,7 @@ jobs:
           fi
           
           # Run production readiness check
-          ./scripts/deployment/check-production-readiness.sh
+          ../../scripts/database/check-production-readiness.sh
 
       - name: Notify deployment start
         uses: 8398a7/action-slack@v3
@@ -152,7 +152,7 @@ jobs:
       - name: Post-deployment verification
         run: |
           cd /opt/allodoc
-          ./deployment/scripts/post-deploy-checks.sh
+          ./scripts/deployment/post-deploy-checks.sh
 
       - name: Clean up old images
         run: |

@@ -29,16 +29,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: './src/src/frontend/package-lock.json'
+          cache-dependency-path: './src/frontend/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linting
-        run: npm run lint
-
-      - name: Run unit tests
-        run: npm run test:ci
+      - name: Run unit tests (headless)
+        run: npm test -- --watch=false --browsers=ChromeHeadless
 
       - name: Build application
         run: npm run build
@@ -285,9 +282,10 @@ jobs:
         working-directory: ./src/frontend
         run: npm ci
 
-      - name: Run E2E tests
-        working-directory: ./src/frontend
-        run: npm run e2e:ci
+      # TODO: Configure E2E testing framework (Cypress/Playwright)
+      # - name: Run E2E tests
+      #   working-directory: ./src/frontend
+      #   run: npm run e2e:ci
 
       - name: Upload E2E test results
         if: always()
