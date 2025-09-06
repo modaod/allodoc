@@ -229,7 +229,7 @@ npm run build
 
 2. The build artifacts will be stored in the `dist/` directory.
 
-3. Serve with a static file server or integrate with backend.
+3. Serve with a static file server or integrate with API.
 
 ## Testing
 
@@ -263,11 +263,11 @@ E2E testing setup can be added using Cypress or Protractor.
 ### Common Issues
 
 1. **Proxy Connection Refused**
-   - Ensure backend is running on http://localhost:3000
+   - Ensure API is running on http://localhost:3000
    - Check proxy.conf.json configuration
 
 2. **CORS Errors**
-   - Verify backend CORS settings allow http://localhost:4200
+   - Verify API CORS settings allow http://localhost:4200
    - Check if using correct API endpoints
 
 3. **Module Not Found**
