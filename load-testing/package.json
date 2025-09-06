@@ -1,0 +1,21 @@
+{
+  "name": "allodoc-load-testing",
+  "version": "1.0.0",
+  "description": "Load testing suite for AlloDoc medical management system",
+  "scripts": {
+    "test:auth": "artillery run scenarios/auth.yml",
+    "test:patients": "artillery run scenarios/patients.yml",
+    "test:consultations": "artillery run scenarios/consultations.yml",
+    "test:prescriptions": "artillery run scenarios/prescriptions.yml",
+    "test:full": "artillery run scenarios/full-workflow.yml",
+    "test:stress": "artillery run scenarios/stress-test.yml",
+    "test:quick": "artillery quick -d 30 -r 5 http://localhost:3000/api/health",
+    "report": "artillery report"
+  },
+  "dependencies": {
+    "artillery": "^2.0.0",
+    "artillery-plugin-expect": "^2.0.0",
+    "artillery-plugin-metrics-by-endpoint": "^1.0.0",
+    "faker": "^5.5.3"
+  }
+}

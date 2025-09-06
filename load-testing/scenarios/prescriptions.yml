@@ -1,0 +1,219 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      name: "Prescription warm-up"
+    - duration: 120
+      arrivalRate: 3
+      name: "Standard prescription load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Peak prescription load"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/prescription-helper.js"
+
+before:
+  flow:
+    - function: "generatePrescriptionData"
+    - post:
+        url: "/api/v1/auth/login"
+        json:
+          email: "doctor@medical.com"
+          password: "Test123!@#"
+        capture:
+          - json: "$.access_token"
+            as: "authToken"
+    # Get a patient and consultation for prescriptions
+    - get:
+        url: "/api/v1/consultations?page=1&limit=1"
+        headers:
+          Authorization: "Bearer {{ authToken }}"
+        capture:
+          - json: "$.data[0].id"
+            as: "consultationId"
+          - json: "$.data[0].patientId"
+            as: "patientId"
+
+scenarios:
+  - name: "Create and Manage Prescription"
+    weight: 50
+    flow:
+      # Create a new prescription
+      - post:
+          url: "/api/v1/prescriptions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ patientId }}"
+            consultationId: "{{ consultationId }}"
+            prescriptionDate: "{{ prescriptionDate }}"
+            medications:
+              - name: "{{ medication1Name }}"
+                dosage: "{{ medication1Dosage }}"
+                frequency: "{{ medication1Frequency }}"
+                duration: "{{ medication1Duration }}"
+                route: "{{ medication1Route }}"
+                instructions: "{{ medication1Instructions }}"
+                quantity: "{{ medication1Quantity }}"
+              - name: "{{ medication2Name }}"
+                dosage: "{{ medication2Dosage }}"
+                frequency: "{{ medication2Frequency }}"
+                duration: "{{ medication2Duration }}"
+                route: "{{ medication2Route }}"
+                instructions: "{{ medication2Instructions }}"
+                quantity: "{{ medication2Quantity }}"
+            diagnosis: "{{ diagnosis }}"
+            notes: "{{ prescriptionNotes }}"
+            followUpDate: "{{ followUpDate }}"
+          capture:
+            - json: "$.id"
+              as: "prescriptionId"
+            - json: "$.prescriptionNumber"
+              as: "prescriptionNumber"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: "id"
+            - hasProperty: "prescriptionNumber"
+            - hasProperty: "medications"
+      
+      - think: 2
+      
+      # View prescription details
+      - get:
+          url: "/api/v1/prescriptions/{{ prescriptionId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "medications"
+            - hasProperty: "patientId"
+      
+      - think: 1
+      
+      # Update prescription
+      - patch:
+          url: "/api/v1/prescriptions/{{ prescriptionId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            notes: "Patient advised to take medications with food"
+            followUpDate: "{{ newFollowUpDate }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Complex Prescription with Multiple Medications"
+    weight: 30
+    flow:
+      # Create prescription with 5+ medications
+      - post:
+          url: "/api/v1/prescriptions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ patientId }}"
+            consultationId: "{{ consultationId }}"
+            prescriptionDate: "{{ prescriptionDate }}"
+            medications:
+              - name: "Amoxicillin"
+                dosage: "500mg"
+                frequency: "TID"
+                duration: "7 days"
+                route: "Oral"
+                instructions: "Take with water"
+                quantity: "21"
+              - name: "Ibuprofen"
+                dosage: "400mg"
+                frequency: "QID"
+                duration: "5 days"
+                route: "Oral"
+                instructions: "Take after meals"
+                quantity: "20"
+              - name: "Omeprazole"
+                dosage: "20mg"
+                frequency: "OD"
+                duration: "14 days"
+                route: "Oral"
+                instructions: "Take before breakfast"
+                quantity: "14"
+              - name: "Vitamin D3"
+                dosage: "1000IU"
+                frequency: "OD"
+                duration: "30 days"
+                route: "Oral"
+                instructions: "Take with main meal"
+                quantity: "30"
+              - name: "Cetirizine"
+                dosage: "10mg"
+                frequency: "OD"
+                duration: "10 days"
+                route: "Oral"
+                instructions: "Take at bedtime"
+                quantity: "10"
+            diagnosis: "Upper respiratory tract infection with gastritis"
+            notes: "Multiple medication regimen for comprehensive treatment"
+          capture:
+            - json: "$.id"
+              as: "complexPrescriptionId"
+          expect:
+            - statusCode: 201
+      
+      - think: 2
+      
+      # Get complex prescription
+      - get:
+          url: "/api/v1/prescriptions/{{ complexPrescriptionId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Search and List Prescriptions"
+    weight: 20
+    flow:
+      # Get prescription list
+      - get:
+          url: "/api/v1/prescriptions?page=1&limit=20"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "data"
+            - hasProperty: "meta"
+      
+      - think: 1
+      
+      # Search prescriptions by patient
+      - get:
+          url: "/api/v1/prescriptions?patientId={{ patientId }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+      
+      # Search prescriptions by date range
+      - get:
+          url: "/api/v1/prescriptions?startDate={{ startDate }}&endDate={{ endDate }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+      
+      # Get prescriptions by medication name
+      - get:
+          url: "/api/v1/prescriptions?medicationName=Amoxicillin&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

@@ -1,0 +1,188 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: "Patient operations warm-up"
+    - duration: 120
+      arrivalRate: 5
+      name: "Standard patient load"
+    - duration: 60
+      arrivalRate: 10
+      name: "Peak patient operations"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/patient-helper.js"
+
+before:
+  flow:
+    - function: "generateTestData"
+    - post:
+        url: "/api/v1/auth/login"
+        json:
+          email: "doctor@medical.com"
+          password: "Test123!@#"
+        capture:
+          - json: "$.access_token"
+            as: "authToken"
+
+scenarios:
+  - name: "Patient CRUD Operations"
+    weight: 40
+    flow:
+      # Create a new patient
+      - post:
+          url: "/api/v1/patients"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            firstName: "{{ firstName }}"
+            lastName: "{{ lastName }}"
+            dateOfBirth: "{{ dateOfBirth }}"
+            gender: "{{ gender }}"
+            email: "{{ patientEmail }}"
+            phone: "{{ phone }}"
+            address:
+              street: "{{ street }}"
+              city: "{{ city }}"
+              state: "{{ state }}"
+              zipCode: "{{ zipCode }}"
+              country: "USA"
+            bloodGroup: "{{ bloodGroup }}"
+            emergencyContact:
+              name: "{{ emergencyName }}"
+              relationship: "{{ relationship }}"
+              phone: "{{ emergencyPhone }}"
+          capture:
+            - json: "$.id"
+              as: "patientId"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: "id"
+      
+      - think: 2
+      
+      # Get patient details
+      - get:
+          url: "/api/v1/patients/{{ patientId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "firstName"
+            - hasProperty: "lastName"
+      
+      - think: 1
+      
+      # Update patient
+      - patch:
+          url: "/api/v1/patients/{{ patientId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            phone: "+1-555-9999"
+            address:
+              street: "456 New Street"
+              city: "{{ city }}"
+              state: "{{ state }}"
+              zipCode: "{{ zipCode }}"
+              country: "USA"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Search patients
+      - get:
+          url: "/api/v1/patients?search={{ lastName }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "data"
+            - hasProperty: "meta"
+  
+  - name: "Patient List and Search"
+    weight: 30
+    flow:
+      # Get patient list with pagination
+      - get:
+          url: "/api/v1/patients?page=1&limit=20"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "data"
+            - hasProperty: "meta.totalPages"
+      
+      - think: 1
+      
+      # Search by name
+      - get:
+          url: "/api/v1/patients?search=John&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+      
+      # Filter by blood group
+      - get:
+          url: "/api/v1/patients?bloodGroup=O%2B&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Patient Medical History"
+    weight: 30
+    flow:
+      # Get random patient from list
+      - get:
+          url: "/api/v1/patients?page=1&limit=1"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          capture:
+            - json: "$.data[0].id"
+              as: "existingPatientId"
+      
+      - think: 1
+      
+      # Get patient consultations
+      - get:
+          url: "/api/v1/consultations?patientId={{ existingPatientId }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      
+      - think: 1
+      
+      # Get patient prescriptions
+      - get:
+          url: "/api/v1/prescriptions?patientId={{ existingPatientId }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      
+      - think: 1
+      
+      # Get patient appointments
+      - get:
+          url: "/api/v1/appointments?patientId={{ existingPatientId }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json

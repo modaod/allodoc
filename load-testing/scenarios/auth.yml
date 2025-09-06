@@ -1,0 +1,113 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: "Authentication warm-up"
+    - duration: 60
+      arrivalRate: 5
+      name: "Standard authentication load"
+    - duration: 30
+      arrivalRate: 10
+      name: "Peak authentication load"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/auth-helper.js"
+
+scenarios:
+  - name: "User Login Flow"
+    weight: 60
+    flow:
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            email: "doctor@medical.com"
+            password: "Test123!@#"
+          capture:
+            - json: "$.access_token"
+              as: "accessToken"
+            - json: "$.refresh_token"
+              as: "refreshToken"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "access_token"
+            - hasProperty: "refresh_token"
+      
+      - think: 2
+      
+      - get:
+          url: "/api/v1/auth/profile"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "email"
+      
+      - think: 5
+      
+      - post:
+          url: "/api/v1/auth/logout"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Token Refresh Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            email: "nurse@medical.com"
+            password: "Test123!@#"
+          capture:
+            - json: "$.access_token"
+              as: "accessToken"
+            - json: "$.refresh_token"
+              as: "refreshToken"
+      
+      - think: 2
+      
+      - post:
+          url: "/api/v1/auth/refresh"
+          json:
+            refresh_token: "{{ refreshToken }}"
+          capture:
+            - json: "$.access_token"
+              as: "newAccessToken"
+          expect:
+            - statusCode: 200
+            - hasProperty: "access_token"
+      
+      - get:
+          url: "/api/v1/auth/profile"
+          headers:
+            Authorization: "Bearer {{ newAccessToken }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Failed Login Attempts"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            email: "invalid@medical.com"
+            password: "wrongpassword"
+          expect:
+            - statusCode: 401
+      
+      - think: 1
+      
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            email: "doctor@medical.com"
+            password: "wrongpassword"
+          expect:
+            - statusCode: 401

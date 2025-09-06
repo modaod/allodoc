@@ -1,0 +1,246 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 1
+      name: "Workflow warm-up"
+    - duration: 300
+      arrivalRate: 3
+      name: "Standard workflow load"
+    - duration: 120
+      arrivalRate: 5
+      name: "Peak workflow load"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/workflow-helper.js"
+
+before:
+  flow:
+    - function: "generateFullWorkflowData"
+
+scenarios:
+  - name: "Complete Medical Workflow"
+    weight: 100
+    flow:
+      # Step 1: User Authentication
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            email: "doctor@medical.com"
+            password: "Test123!@#"
+          capture:
+            - json: "$.access_token"
+              as: "authToken"
+            - json: "$.user.id"
+              as: "doctorId"
+            - json: "$.user.organizationId"
+              as: "organizationId"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Step 2: Dashboard Access
+      - get:
+          url: "/api/v1/dashboard/stats"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "totalPatients"
+            - hasProperty: "totalConsultations"
+      
+      - think: 1
+      
+      # Step 3: Patient Registration
+      - post:
+          url: "/api/v1/patients"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            firstName: "{{ patientFirstName }}"
+            lastName: "{{ patientLastName }}"
+            dateOfBirth: "{{ patientDOB }}"
+            gender: "{{ patientGender }}"
+            email: "{{ patientEmail }}"
+            phone: "{{ patientPhone }}"
+            address:
+              street: "{{ patientStreet }}"
+              city: "{{ patientCity }}"
+              state: "{{ patientState }}"
+              zipCode: "{{ patientZip }}"
+              country: "USA"
+            bloodGroup: "{{ bloodGroup }}"
+            allergies: "{{ allergies }}"
+            emergencyContact:
+              name: "{{ emergencyName }}"
+              relationship: "Spouse"
+              phone: "{{ emergencyPhone }}"
+          capture:
+            - json: "$.id"
+              as: "newPatientId"
+          expect:
+            - statusCode: 201
+      
+      - think: 3
+      
+      # Step 4: Create Appointment
+      - post:
+          url: "/api/v1/appointments"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ newPatientId }}"
+            doctorId: "{{ doctorId }}"
+            appointmentDate: "{{ appointmentDate }}"
+            appointmentTime: "{{ appointmentTime }}"
+            duration: 30
+            type: "Consultation"
+            status: "Scheduled"
+            reason: "{{ appointmentReason }}"
+          capture:
+            - json: "$.id"
+              as: "appointmentId"
+          expect:
+            - statusCode: 201
+      
+      - think: 2
+      
+      # Step 5: Check-in and Start Consultation
+      - patch:
+          url: "/api/v1/appointments/{{ appointmentId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            status: "In Progress"
+          expect:
+            - statusCode: 200
+      
+      - think: 5
+      
+      # Step 6: Create Consultation
+      - post:
+          url: "/api/v1/consultations"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ newPatientId }}"
+            appointmentId: "{{ appointmentId }}"
+            consultationDate: "{{ consultationDate }}"
+            chiefComplaint: "{{ chiefComplaint }}"
+            presentIllness: "{{ presentIllness }}"
+            pastMedicalHistory: "{{ medicalHistory }}"
+            physicalExamination:
+              generalAppearance: "Alert and oriented"
+              vitalSigns:
+                bloodPressure: "{{ vitalBP }}"
+                heartRate: "{{ vitalHR }}"
+                temperature: "{{ vitalTemp }}"
+                respiratoryRate: "{{ vitalRR }}"
+                weight: "{{ vitalWeight }}"
+                height: "{{ vitalHeight }}"
+                bmi: "{{ vitalBMI }}"
+                oxygenSaturation: "{{ vitalO2 }}"
+              cardiovascular: "{{ examCardio }}"
+              respiratory: "{{ examResp }}"
+              abdomen: "{{ examAbdomen }}"
+            diagnosis:
+              primary: "{{ primaryDiagnosis }}"
+              icdCode: "{{ icdCode }}"
+            treatmentPlan: "{{ treatmentPlan }}"
+            investigations: "{{ investigations }}"
+            followUpDate: "{{ followUpDate }}"
+          capture:
+            - json: "$.id"
+              as: "consultationId"
+          expect:
+            - statusCode: 201
+      
+      - think: 3
+      
+      # Step 7: Create Prescription
+      - post:
+          url: "/api/v1/prescriptions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ newPatientId }}"
+            consultationId: "{{ consultationId }}"
+            prescriptionDate: "{{ prescriptionDate }}"
+            medications: "{{ medications }}"
+            diagnosis: "{{ primaryDiagnosis }}"
+            notes: "{{ prescriptionNotes }}"
+            pharmacyNotes: "{{ pharmacyNotes }}"
+          capture:
+            - json: "$.id"
+              as: "prescriptionId"
+            - json: "$.prescriptionNumber"
+              as: "prescriptionNumber"
+          expect:
+            - statusCode: 201
+      
+      - think: 2
+      
+      # Step 8: Complete Appointment
+      - patch:
+          url: "/api/v1/appointments/{{ appointmentId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            status: "Completed"
+            consultationId: "{{ consultationId }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Step 9: Generate Reports/Documents
+      - get:
+          url: "/api/v1/prescriptions/{{ prescriptionId }}/print"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+      
+      # Step 10: View Patient Timeline
+      - get:
+          url: "/api/v1/patients/{{ newPatientId }}/timeline"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Step 11: Schedule Follow-up
+      - post:
+          url: "/api/v1/appointments"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ newPatientId }}"
+            doctorId: "{{ doctorId }}"
+            appointmentDate: "{{ followUpDate }}"
+            appointmentTime: "14:00"
+            duration: 15
+            type: "Follow-up"
+            status: "Scheduled"
+            reason: "Follow-up for {{ primaryDiagnosis }}"
+            previousConsultationId: "{{ consultationId }}"
+          expect:
+            - statusCode: 201
+      
+      - think: 2
+      
+      # Step 12: Logout
+      - post:
+          url: "/api/v1/auth/logout"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

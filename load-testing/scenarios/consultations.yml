@@ -1,0 +1,197 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      name: "Consultation warm-up"
+    - duration: 120
+      arrivalRate: 3
+      name: "Standard consultation load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Peak consultation load"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/consultation-helper.js"
+
+before:
+  flow:
+    - function: "generateConsultationData"
+    - post:
+        url: "/api/v1/auth/login"
+        json:
+          email: "doctor@medical.com"
+          password: "Test123!@#"
+        capture:
+          - json: "$.access_token"
+            as: "authToken"
+    # Get a patient to use for consultations
+    - get:
+        url: "/api/v1/patients?page=1&limit=1"
+        headers:
+          Authorization: "Bearer {{ authToken }}"
+        capture:
+          - json: "$.data[0].id"
+            as: "patientId"
+
+scenarios:
+  - name: "Create and View Consultation"
+    weight: 50
+    flow:
+      # Create a new consultation
+      - post:
+          url: "/api/v1/consultations"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ patientId }}"
+            consultationDate: "{{ consultationDate }}"
+            chiefComplaint: "{{ chiefComplaint }}"
+            presentIllness: "{{ presentIllness }}"
+            pastMedicalHistory: "{{ pastMedicalHistory }}"
+            familyHistory: "{{ familyHistory }}"
+            socialHistory: "{{ socialHistory }}"
+            reviewOfSystems:
+              general: "{{ rosGeneral }}"
+              cardiovascular: "{{ rosCardio }}"
+              respiratory: "{{ rosRespiratory }}"
+              gastrointestinal: "{{ rosGI }}"
+              neurological: "{{ rosNeuro }}"
+            physicalExamination:
+              generalAppearance: "{{ peGeneral }}"
+              vitalSigns:
+                bloodPressure: "{{ bloodPressure }}"
+                heartRate: "{{ heartRate }}"
+                temperature: "{{ temperature }}"
+                respiratoryRate: "{{ respiratoryRate }}"
+                weight: "{{ weight }}"
+                height: "{{ height }}"
+              cardiovascular: "{{ peCardio }}"
+              respiratory: "{{ peRespiratory }}"
+              abdomen: "{{ peAbdomen }}"
+              neurological: "{{ peNeuro }}"
+            diagnosis:
+              primary: "{{ primaryDiagnosis }}"
+              secondary: "{{ secondaryDiagnosis }}"
+              differential: "{{ differentialDiagnosis }}"
+            treatmentPlan: "{{ treatmentPlan }}"
+            investigations: "{{ investigations }}"
+            followUpDate: "{{ followUpDate }}"
+            notes: "{{ notes }}"
+          capture:
+            - json: "$.id"
+              as: "consultationId"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: "id"
+            - hasProperty: "consultationNumber"
+      
+      - think: 2
+      
+      # View consultation details
+      - get:
+          url: "/api/v1/consultations/{{ consultationId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "patientId"
+            - hasProperty: "chiefComplaint"
+      
+      - think: 1
+      
+      # Update consultation
+      - patch:
+          url: "/api/v1/consultations/{{ consultationId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            notes: "Updated notes: Patient responding well to treatment"
+            followUpDate: "{{ newFollowUpDate }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "List and Search Consultations"
+    weight: 30
+    flow:
+      # Get consultation list
+      - get:
+          url: "/api/v1/consultations?page=1&limit=20"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "data"
+            - hasProperty: "meta"
+      
+      - think: 1
+      
+      # Search consultations by date range
+      - get:
+          url: "/api/v1/consultations?startDate={{ startDate }}&endDate={{ endDate }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+      
+      # Get consultations for specific patient
+      - get:
+          url: "/api/v1/consultations?patientId={{ patientId }}&page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+  
+  - name: "Consultation with Attachments"
+    weight: 20
+    flow:
+      # Create consultation with file attachment simulation
+      - post:
+          url: "/api/v1/consultations"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            patientId: "{{ patientId }}"
+            consultationDate: "{{ consultationDate }}"
+            chiefComplaint: "Routine checkup with lab results"
+            presentIllness: "Patient presents for routine annual physical examination"
+            physicalExamination:
+              vitalSigns:
+                bloodPressure: "120/80"
+                heartRate: "72"
+                temperature: "98.6"
+                respiratoryRate: "16"
+            diagnosis:
+              primary: "Annual health maintenance exam"
+            treatmentPlan: "Continue current medications, follow up in 1 year"
+            attachments:
+              - filename: "lab_results.pdf"
+                mimeType: "application/pdf"
+                size: 102400
+              - filename: "xray_chest.jpg"
+                mimeType: "image/jpeg"
+                size: 2048000
+          capture:
+            - json: "$.id"
+              as: "consultationWithAttachmentId"
+          expect:
+            - statusCode: 201
+      
+      - think: 2
+      
+      # Get consultation with attachments
+      - get:
+          url: "/api/v1/consultations/{{ consultationWithAttachmentId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "attachments"

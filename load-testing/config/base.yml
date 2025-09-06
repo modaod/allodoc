@@ -1,0 +1,41 @@
+# Base configuration for Artillery load tests
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    - duration: 120
+      arrivalRate: 10
+      name: "Ramp-up"
+    - duration: 300
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool-down"
+  
+  environments:
+    local:
+      target: "http://localhost:3000"
+    staging:
+      target: "https://staging.allodoc.com"
+    production:
+      target: "https://api.allodoc.com"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/auth-helper.js"
+  
+  payload:
+    path: "../data/test-users.csv"
+    fields:
+      - "email"
+      - "password"
+      - "role"
+  
+  variables:
+    defaultPassword: "Test123!@#"
+    organizationId: "default-org-id"

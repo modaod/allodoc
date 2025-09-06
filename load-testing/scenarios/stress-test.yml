@@ -1,0 +1,127 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Stress test warm-up"
+    - duration: 60
+      arrivalRate: 10
+      name: "Increasing load"
+    - duration: 120
+      arrivalRate: 25
+      name: "High load"
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak stress"
+    - duration: 30
+      arrivalRate: 10
+      name: "Cool down"
+  
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  processor: "../helpers/stress-helper.js"
+  
+  # Aggressive timeout settings for stress testing
+  http:
+    timeout: 10
+    max_sockets: 100
+
+before:
+  flow:
+    - function: "generateStressTestData"
+    - post:
+        url: "/api/v1/auth/login"
+        json:
+          email: "doctor@medical.com"
+          password: "Test123!@#"
+        capture:
+          - json: "$.access_token"
+            as: "authToken"
+
+scenarios:
+  - name: "Concurrent Read Operations"
+    weight: 40
+    flow:
+      # Rapid-fire GET requests
+      - loop:
+        - get:
+            url: "/api/v1/patients?page={{ $randomNumber(1, 10) }}&limit=20"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/consultations?page={{ $randomNumber(1, 10) }}&limit=20"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/prescriptions?page={{ $randomNumber(1, 10) }}&limit=20"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/appointments?page={{ $randomNumber(1, 10) }}&limit=20"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        count: 5
+  
+  - name: "Concurrent Write Operations"
+    weight: 30
+    flow:
+      # Create multiple patients rapidly
+      - loop:
+        - post:
+            url: "/api/v1/patients"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+            json:
+              firstName: "{{ $randomString(8) }}"
+              lastName: "{{ $randomString(10) }}"
+              dateOfBirth: "1990-01-01"
+              gender: "{{ $randomChoice(['Male', 'Female']) }}"
+              email: "{{ $randomString(10) }}@stress.test"
+              phone: "+1-555-{{ $randomNumber(1000000, 9999999) }}"
+              bloodGroup: "{{ $randomChoice(['A+', 'B+', 'O+', 'AB+']) }}"
+        count: 3
+  
+  - name: "Complex Search Operations"
+    weight: 20
+    flow:
+      # Complex search queries
+      - get:
+          url: "/api/v1/patients?search={{ $randomString(3) }}&bloodGroup=O%2B&gender=Male&page=1&limit=50"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      - get:
+          url: "/api/v1/consultations?startDate=2024-01-01&endDate=2024-12-31&page=1&limit=100"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      - get:
+          url: "/api/v1/prescriptions?medicationName={{ $randomChoice(['Amoxicillin', 'Ibuprofen', 'Paracetamol']) }}&page=1&limit=50"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+  
+  - name: "Database Connection Pool Test"
+    weight: 10
+    flow:
+      # Simultaneous database-heavy operations
+      - parallel:
+        - get:
+            url: "/api/v1/dashboard/stats"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/dashboard/recent-activities"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/dashboard/appointments/today"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/dashboard/revenue/monthly"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
+        - get:
+            url: "/api/v1/reports/patient-demographics"
+            headers:
+              Authorization: "Bearer {{ authToken }}"
