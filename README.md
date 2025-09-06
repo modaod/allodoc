@@ -3,6 +3,7 @@
 A comprehensive medical management system built with modern web technologies, designed to streamline healthcare operations including patient management, consultations, prescriptions, and appointments.
 
 <!-- CI/CD Pipeline Test: This comment validates that the pipeline processes safe changes correctly -->
+<!-- Pipeline Fix Validation: Testing that Chrome browser and database setup fixes work -->
 
 ## Overview
 
